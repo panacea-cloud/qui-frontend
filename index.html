@@ -11,138 +11,95 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #fff; }
 
-/* ── layout ── */
 .app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 
 /* topbar */
 .topbar {
-  height: 44px;
-  border-bottom: 0.5px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  flex-shrink: 0;
-  background: #fff;
-  z-index: 100;
+  height: 44px; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  flex-shrink: 0; background: #fff; z-index: 100;
 }
 .topbar-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
 .topbar-logo-fallback {
   width: 28px; height: 28px; flex-shrink: 0;
-  border: 1.5px solid #2a2a6e;
-  border-radius: 50%;
+  border: 1.5px solid #2a2a6e; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
 .search-bar {
-  flex: 1;
-  height: 28px;
-  background: #f5f5f5;
-  border-radius: 14px;
-  border: 0.5px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  gap: 6px;
-  font-size: 12px;
-  color: #888;
+  flex: 1; height: 28px; background: #f5f5f5; border-radius: 14px;
+  border: 0.5px solid #e0e0e0; display: flex; align-items: center;
+  padding: 0 10px; gap: 6px; font-size: 12px; color: #888;
 }
 .add-btn {
-  background: #2a2a6e;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 5px 11px;
-  border-radius: 6px;
-  white-space: nowrap;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
+  background: #2a2a6e; color: #fff; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: none; font-family: inherit;
 }
 .add-btn:hover { opacity: 0.88; }
+.auth-btn {
+  background: transparent; color: #2a2a6e; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: 1px solid #2a2a6e; font-family: inherit;
+}
+.auth-btn:hover { background: #f0f0fa; }
+.user-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: #f0f0fa; border-radius: 6px; padding: 4px 10px;
+  font-size: 11px; color: #2a2a6e; font-weight: 500;
+}
+.tier-badge {
+  font-size: 9px; font-weight: 600; padding: 1px 5px;
+  border-radius: 4px; background: #2a2a6e; color: #fff;
+}
 
 /* body */
 .body { display: flex; flex: 1; overflow: hidden; }
 
 /* sidebar */
 .sidebar {
-  width: 205px;
-  min-width: 205px;
-  border-right: 0.5px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #fff;
+  width: 205px; min-width: 205px; border-right: 0.5px solid #e0e0e0;
+  display: flex; flex-direction: column; overflow: hidden; background: #fff;
 }
 .sidebar-filters {
-  padding: 8px 10px;
-  border-bottom: 0.5px solid #e0e0e0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex-shrink: 0;
+  padding: 8px 10px; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0;
 }
 .filter-btn {
-  width: 26px; height: 26px;
-  border-radius: 6px;
-  border: 0.5px solid #e0e0e0;
+  width: 26px; height: 26px; border-radius: 6px; border: 0.5px solid #e0e0e0;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.1s;
+  cursor: pointer; background: #fff; transition: all 0.1s;
 }
 .filter-btn.active { background: #2a2a6e; border-color: #2a2a6e; color: #fff; }
 .filter-btn:hover:not(.active) { background: #f5f5f5; }
-
 .sort-row {
-  padding: 6px 10px;
-  font-size: 11px;
-  color: #888;
-  border-bottom: 0.5px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
+  padding: 6px 10px; font-size: 11px; color: #888;
+  border-bottom: 0.5px solid #e0e0e0; display: flex; align-items: center; gap: 3px; flex-shrink: 0;
 }
-.sort-row strong { color: #111; }
-
 .listing-scroll { flex: 1; overflow-y: auto; }
-
 .listing-item {
-  display: flex;
-  gap: 8px;
-  padding: 8px 10px;
-  border-bottom: 0.5px solid #f0f0f0;
-  cursor: pointer;
-  transition: background 0.1s;
+  display: flex; gap: 8px; padding: 8px 10px;
+  border-bottom: 0.5px solid #f0f0f0; cursor: pointer; transition: background 0.1s;
 }
 .listing-item:hover, .listing-item.selected { background: #f8f8f8; }
 .listing-item.selected { border-left: 2.5px solid #2a2a6e; padding-left: 7.5px; }
-
 .listing-dot {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 2px;
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
 }
 .dot-inner { width: 10px; height: 10px; border-radius: 50%; }
-
 .listing-info { flex: 1; min-width: 0; }
 .listing-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111; }
 .listing-meta { font-size: 10px; color: #888; margin-top: 1px; display: flex; gap: 4px; }
-.eco { color: #2a7a4a; font-weight: 500; }
 .listing-price { font-size: 12px; font-weight: 500; color: #111; margin-top: 2px; }
 .listing-sub { font-size: 10px; color: #888; font-weight: 400; }
+.listing-expires { font-size: 9px; color: #e07030; font-weight: 500; margin-top: 1px; }
 
-/* loading / empty */
 .state-box { padding: 24px 10px; text-align: center; color: #aaa; font-size: 11px; line-height: 1.6; }
 .spinner { width: 20px; height: 20px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* map */
 #map { flex: 1; z-index: 1; }
 
-/* leaflet popup */
 .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 3px 16px rgba(0,0,0,0.13) !important; padding: 0 !important; }
 .leaflet-popup-content { margin: 0 !important; min-width: 200px; }
 .popup-inner { padding: 12px 14px; }
@@ -155,187 +112,145 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .popup-btn {
   width: 100%; background: #2a2a6e; color: #fff; border: none;
   border-radius: 7px; padding: 8px; font-size: 11px; font-weight: 600;
-  cursor: pointer; font-family: inherit; letter-spacing: .01em;
+  cursor: pointer; font-family: inherit;
 }
 .popup-btn:hover { opacity: .88; }
+.popup-btn.disabled { background: #aaa; cursor: default; }
+.disclaimer-box {
+  background: #fff8e1; border: 0.5px solid #ffe082; border-radius: 8px;
+  padding: 8px 10px; font-size: 11px; color: #795548; line-height: 1.5; margin-top: 8px;
+}
 
-/* legend */
 .map-legend {
   position: absolute; bottom: 10px; right: 10px;
-  background: rgba(255,255,255,0.93);
-  border-radius: 8px; padding: 8px 10px;
+  background: rgba(255,255,255,0.93); border-radius: 8px; padding: 8px 10px;
   font-size: 10px; display: flex; flex-direction: column; gap: 5px;
-  border: 0.5px solid #e0e0e0; z-index: 500;
-  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+  border: 0.5px solid #e0e0e0; z-index: 500; box-shadow: 0 1px 6px rgba(0,0,0,.08);
 }
 .legend-row { display: flex; align-items: center; gap: 6px; color: #333; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
 
-/* pin */
 .map-pin { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; cursor: pointer; }
 .map-pin:hover { transform: scale(1.35); }
 .map-pin.selected { transform: scale(1.5); box-shadow: 0 0 0 3px rgba(42,42,110,.25); }
 
-/* ── contact modal ── */
+/* ── AUTH MODAL ── */
+.auth-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 4000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.auth-overlay.open { display: flex; }
+.auth-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 380px;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.auth-header {
+  background: #2a2a6e; padding: 20px; display: flex;
+  align-items: center; justify-content: space-between;
+}
+.auth-header-title { font-size: 15px; font-weight: 600; color: #fff; }
+.auth-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.auth-tabs { display: flex; gap: 0; margin-bottom: 4px; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+.auth-tab {
+  flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: #888; background: #fff; border: none; font-family: inherit;
+}
+.auth-tab.active { background: #2a2a6e; color: #fff; }
+.auth-field { display: flex; flex-direction: column; gap: 5px; }
+.auth-field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
+.auth-field input {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 13px; font-family: inherit; color: #111; outline: none;
+  transition: border-color .15s; background: #fafafa;
+}
+.auth-field input:focus { border-color: #2a2a6e; background: #fff; }
+.auth-submit {
+  width: 100%; padding: 11px; border: none; border-radius: 8px;
+  background: #2a2a6e; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; margin-top: 4px;
+}
+.auth-submit:hover { opacity: .88; }
+.auth-submit:disabled { opacity: .45; cursor: not-allowed; }
+.auth-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; }
+.auth-info { font-size: 11px; color: #888; line-height: 1.5; text-align: center; }
+
+/* ── CONTACT MODAL ── */
 .contact-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(10,10,30,0.45);
-  z-index: 3000;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 3000;
+  align-items: center; justify-content: center; padding: 16px;
 }
 .contact-overlay.open { display: flex; }
 .contact-modal {
-  background: #fff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 400px;
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
 }
 .contact-header {
-  background: #2a2a6e;
-  padding: 20px 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  background: #2a2a6e; padding: 20px 20px 16px;
+  display: flex; flex-direction: column; gap: 4px;
 }
-.contact-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+.contact-header-top { display: flex; align-items: center; justify-content: space-between; }
 .contact-check { font-size: 22px; }
 .contact-header-title { font-size: 14px; font-weight: 600; color: #fff; }
 .contact-header-sub { font-size: 11px; color: rgba(255,255,255,0.65); }
 .contact-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
-.contact-listing-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #111;
-  padding-bottom: 10px;
-  border-bottom: 0.5px solid #f0f0f0;
-}
-.contact-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.contact-listing-name { font-size: 13px; font-weight: 600; color: #111; padding-bottom: 10px; border-bottom: 0.5px solid #f0f0f0; }
+.contact-row { display: flex; flex-direction: column; gap: 4px; }
 .contact-label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
 .contact-value {
-  font-size: 13px;
-  font-weight: 500;
-  color: #2a2a6e;
-  word-break: break-all;
-  padding: 8px 11px;
-  background: #f0f0fa;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  font-size: 13px; font-weight: 500; color: #2a2a6e; word-break: break-all;
+  padding: 8px 11px; background: #f0f0fa; border-radius: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 .copy-btn {
-  font-size: 10px;
-  background: #2a2a6e;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 3px 8px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-size: 10px; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 5px; padding: 3px 8px; cursor: pointer;
+  font-family: inherit; font-weight: 500; white-space: nowrap; flex-shrink: 0;
 }
 .copy-btn:hover { opacity: .85; }
-.contact-footer {
-  padding: 0 20px 18px;
-}
+.contact-footer { padding: 0 20px 18px; }
 .contact-close-btn {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  color: #555;
+  width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: #555;
 }
 .contact-close-btn:hover { background: #f5f5f5; }
 .contact-loading {
-  padding: 32px 20px;
-  text-align: center;
-  color: #888;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  padding: 32px 20px; text-align: center; color: #888; font-size: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 
-/* ── modal overlay ── */
+/* ── MERCHANT MODAL ── */
 .modal-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(10,10,30,0.45);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
 }
 .modal-overlay.open { display: flex; }
-
 .modal {
-  background: #fff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 520px;
-  max-height: 90dvh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  background: #fff; border-radius: 16px; width: 100%; max-width: 520px;
+  max-height: 90dvh; display: flex; flex-direction: column;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
 }
-
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 0.5px solid #e0e0e0;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 0.5px solid #e0e0e0; flex-shrink: 0;
 }
 .modal-title { font-size: 14px; font-weight: 600; color: #111; }
 .modal-close {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: none; background: #f0f0f0;
+  width: 28px; height: 28px; border-radius: 50%; border: none; background: #f0f0f0;
   cursor: pointer; font-size: 16px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  color: #555;
+  display: flex; align-items: center; justify-content: center; color: #555;
 }
 .modal-close:hover { background: #e0e0e0; }
-
 .modal-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 
-/* type selector */
 .type-selector { display: flex; gap: 8px; }
 .type-opt {
-  flex: 1;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 10px 6px;
-  text-align: center;
-  cursor: pointer;
-  transition: all .15s;
-  font-size: 11px;
-  color: #555;
-  font-weight: 500;
+  flex: 1; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 6px;
+  text-align: center; cursor: pointer; transition: all .15s;
+  font-size: 11px; color: #555; font-weight: 500;
 }
 .type-opt .type-dot { width: 12px; height: 12px; border-radius: 50%; margin: 0 auto 5px; }
 .type-opt.selected.product    { border-color: #a8c8f0; background: #ddeefa; color: #2a6aad; }
@@ -343,134 +258,67 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .type-opt.selected.experience { border-color: #f5b8c8; background: #fde8ef; color: #a03060; }
 .type-opt:hover:not(.selected) { background: #fafafa; }
 
-/* form fields */
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
-.field input, .field textarea, .field select {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 9px 11px;
-  font-size: 12px;
-  font-family: inherit;
-  color: #111;
-  outline: none;
-  transition: border-color .15s;
-  background: #fafafa;
+.field input, .field textarea {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 12px; font-family: inherit; color: #111; outline: none;
+  transition: border-color .15s; background: #fafafa;
 }
-.field input:focus, .field textarea:focus, .field select:focus { border-color: #2a2a6e; background: #fff; }
+.field input:focus, .field textarea:focus { border-color: #2a2a6e; background: #fff; }
 .field textarea { resize: vertical; min-height: 72px; }
-
 .field-row { display: flex; gap: 10px; }
 .field-row .field { flex: 1; }
 
-/* mini map */
-#modal-map {
-  height: 160px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-  overflow: hidden;
-  flex-shrink: 0;
-}
+#modal-map { height: 160px; border-radius: 10px; border: 1px solid #e0e0e0; overflow: hidden; flex-shrink: 0; }
 .map-hint { font-size: 10px; color: #888; margin-top: 3px; }
-
-/* location display */
 .loc-display {
-  font-size: 11px;
-  background: #f5f5f5;
-  border-radius: 7px;
-  padding: 7px 10px;
-  color: #555;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 11px; background: #f5f5f5; border-radius: 7px; padding: 7px 10px;
+  color: #555; display: flex; align-items: center; gap: 6px;
 }
 .loc-dot { width: 8px; height: 8px; border-radius: 50%; background: #a8dfc0; flex-shrink: 0; }
 .loc-gps-btn {
-  margin-left: auto;
-  font-size: 10px;
-  background: #2a2a6e;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 3px 8px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 500;
+  margin-left: auto; font-size: 10px; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: 500;
 }
 
-/* eco toggle */
-.eco-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-top: 0.5px solid #f0f0f0;
+/* foto upload */
+.photo-upload-area {
+  border: 1.5px dashed #d0d0d0; border-radius: 10px; padding: 16px;
+  text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fafafa;
 }
-.eco-label { font-size: 12px; color: #333; }
-.eco-sub { font-size: 10px; color: #888; }
-.toggle { position: relative; width: 38px; height: 22px; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-slider {
-  position: absolute; inset: 0;
-  background: #ddd; border-radius: 11px; cursor: pointer;
-  transition: background .2s;
+.photo-upload-area:hover { border-color: #2a2a6e; background: #f0f2ff; }
+.photo-upload-area input { display: none; }
+.photo-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.photo-thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e0e0e0; }
+.photo-thumb-wrap { position: relative; display: inline-block; }
+.photo-remove {
+  position: absolute; top: -6px; right: -6px; width: 18px; height: 18px;
+  border-radius: 50%; background: #e53935; color: #fff; border: none;
+  font-size: 11px; cursor: pointer; line-height: 18px; text-align: center; padding: 0;
 }
-.toggle-slider:before {
-  content: ''; position: absolute;
-  width: 16px; height: 16px; left: 3px; bottom: 3px;
-  background: #fff; border-radius: 50%;
-  transition: transform .2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,.15);
-}
-.toggle input:checked + .toggle-slider { background: #2a7a4a; }
-.toggle input:checked + .toggle-slider:before { transform: translateX(16px); }
 
-/* modal footer */
 .modal-footer {
-  padding: 14px 18px;
-  border-top: 0.5px solid #e0e0e0;
-  flex-shrink: 0;
-  display: flex;
-  gap: 8px;
+  padding: 14px 18px; border-top: 0.5px solid #e0e0e0;
+  flex-shrink: 0; display: flex; gap: 8px;
 }
 .btn-cancel {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  color: #555;
+  flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: #555;
 }
 .btn-cancel:hover { background: #f5f5f5; }
 .btn-submit {
-  flex: 2;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #2a2a6e;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  letter-spacing: .01em;
+  flex: 2; padding: 10px; border: none; border-radius: 8px; background: #2a2a6e;
+  color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; letter-spacing: .01em;
 }
 .btn-submit:hover { opacity: .88; }
 .btn-submit:disabled { opacity: .45; cursor: not-allowed; }
 
-/* success */
 .modal-success {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-  gap: 10px;
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; text-align: center; gap: 10px;
 }
 .modal-success.show { display: flex; }
 .success-icon { font-size: 36px; }
@@ -478,42 +326,28 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .success-sub { font-size: 12px; color: #888; line-height: 1.5; }
 
 /* ── mobile navbar ── */
-.mobile-navbar {
-  display: none;
-}
+.mobile-navbar { display: none; }
 @media (max-width: 680px) {
   .mobile-navbar {
-    display: flex;
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: 72px;
-    background: #fff;
-    border-top: 0.5px solid #e8e8e8;
-    align-items: center;
-    justify-content: space-around;
-    z-index: 900;
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+    height: 72px; background: #fff; border-top: 0.5px solid #e8e8e8;
+    align-items: center; justify-content: space-around; z-index: 900;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
-    font-size: 10px; font-weight: 500; color: #2a2a6e;
-    cursor: pointer; flex: 1;
-    padding: 8px 0;
-    border: none; background: none; font-family: inherit;
+    font-size: 10px; font-weight: 500; color: #2a2a6e; cursor: pointer; flex: 1;
+    padding: 8px 0; border: none; background: none; font-family: inherit;
   }
   .nav-item svg { width: 22px; height: 22px; }
   .nav-item-center {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: #fff;
-    border: 1.5px solid #e0e0e0;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
+    width: 52px; height: 52px; border-radius: 50%; background: #fff;
+    border: 1.5px solid #e0e0e0; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
   }
   .nav-item-center img { width: 36px; height: 36px; object-fit: contain; }
   .nav-item-center-fallback {
-    width: 32px; height: 32px;
-    border: 1.5px solid #2a2a6e; border-radius: 50%;
+    width: 32px; height: 32px; border: 1.5px solid #2a2a6e; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
   }
 }
@@ -522,44 +356,25 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 @media (max-width: 680px) {
   .topbar { display: none; }
   .sidebar { display: none; }
-
-  /* search bar flottante */
   .mobile-search {
-    position: fixed; top: 14px; left: 14px; right: 14px;
-    height: 44px;
-    background: #fff;
-    border-radius: 22px;
-    border: 0.5px solid #e0e0e0;
-    display: flex; align-items: center;
-    padding: 0 14px; gap: 8px;
-    font-size: 13px; color: #888;
-    z-index: 800;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    position: fixed; top: 14px; left: 14px; right: 14px; height: 44px;
+    background: #fff; border-radius: 22px; border: 0.5px solid #e0e0e0;
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    font-size: 13px; color: #888; z-index: 800; box-shadow: 0 2px 12px rgba(0,0,0,.08);
   }
-
-  /* bottom sheet listing */
   .mobile-sheet {
-    position: fixed; bottom: 72px; left: 0; right: 0;
-    background: #fff;
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -3px 20px rgba(0,0,0,.1);
-    z-index: 800;
-    max-height: 45dvh;
-    display: flex; flex-direction: column;
+    position: fixed; bottom: 72px; left: 0; right: 0; background: #fff;
+    border-radius: 18px 18px 0 0; box-shadow: 0 -3px 20px rgba(0,0,0,.1);
+    z-index: 800; max-height: 45dvh; display: flex; flex-direction: column;
   }
   .sheet-handle { width: 32px; height: 4px; background: #ddd; border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
-
   .mobile-filter-row {
-    display: flex; gap: 6px; padding: 8px 14px 6px;
-    overflow-x: auto; flex-shrink: 0;
+    display: flex; gap: 6px; padding: 8px 14px 6px; overflow-x: auto; flex-shrink: 0;
   }
   .mobile-filter-row::-webkit-scrollbar { display: none; }
-
   .mobile-list { flex: 1; overflow-y: auto; }
-
   .map-legend { bottom: calc(45dvh + 82px); }
 }
-
 @media (min-width: 681px) {
   .mobile-sheet { display: none; }
 }
@@ -570,11 +385,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <img
-      src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
-      class="topbar-logo" alt="IL QUI"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-    />
+    <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
+      class="topbar-logo" alt="QUI"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <div class="topbar-logo-fallback" style="display:none">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
@@ -585,13 +398,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <span>Cerca sulla mappa…</span>
     </div>
-    <button class="add-btn" onclick="openModal()">+ Aggiungi</button>
+    <div id="topbar-auth"></div>
   </div>
 
   <!-- BODY -->
   <div class="body">
-
-    <!-- SIDEBAR desktop -->
     <div class="sidebar">
       <div class="sidebar-filters" id="filters-desktop">
         <div class="filter-btn active" data-type="all" title="Tutti">
@@ -600,18 +411,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <div class="filter-btn" data-type="product" title="Prodotti"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
         <div class="filter-btn" data-type="service" title="Servizi"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
         <div class="filter-btn" data-type="experience" title="Esperienze"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
-        <div class="filter-btn" data-type="eco" title="Eco">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2a7a4a" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2a7a4a" stroke-width="2" style="margin-left:-4px"><path d="M17 8C8 10 5.9 16.17 3.82 19h3.69c.94-2.02 2.48-3.67 4.49-4.49V19h2v-5.51c2.01.82 3.55 2.47 4.49 4.49h3.69C20.1 16.17 18 10 17 8h-8z"/></svg>
-        </div>
       </div>
-      <div class="sort-row">Ordina <strong style="margin-left:3px">Più vicino</strong> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5" style="margin-left:2px"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="sort-row">Ordina <strong style="margin-left:3px">Più vicino</strong></div>
       <div class="listing-scroll" id="list-desktop">
         <div class="state-box"><div class="spinner"></div>Caricamento…</div>
       </div>
     </div>
 
-    <!-- MAP -->
     <div style="flex:1;position:relative;">
       <div id="map" style="width:100%;height:100%"></div>
       <div class="map-legend">
@@ -620,11 +426,37 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <div class="legend-row"><div class="legend-dot" style="background:#f5b8c8"></div>Esperienza</div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- CONTACT MODAL (post-pagamento) -->
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-header-title">Accedi a QUI</div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Accedi</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Registrati</button>
+      </div>
+      <div id="auth-error" style="display:none" class="auth-error"></div>
+      <div class="auth-field">
+        <label>EMAIL</label>
+        <input type="email" id="auth-email" placeholder="tuaemail@esempio.it"/>
+      </div>
+      <div class="auth-field">
+        <label>PASSWORD</label>
+        <input type="password" id="auth-password" placeholder="Minimo 6 caratteri"/>
+      </div>
+      <button class="auth-submit" id="auth-submit-btn" onclick="submitAuth()">Accedi</button>
+      <div class="auth-info" id="auth-info">Registrandoti puoi pubblicare annunci e sbloccare contatti.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
 <div class="contact-overlay" id="contact-overlay">
   <div class="contact-modal">
     <div class="contact-header">
@@ -636,10 +468,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <div class="contact-header-sub">Pagamento €1 completato</div>
     </div>
     <div id="contact-body">
-      <div class="contact-loading">
-        <div class="spinner"></div>
-        Recupero contatto…
-      </div>
+      <div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>
     </div>
   </div>
 </div>
@@ -651,11 +480,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <span class="modal-title">Pubblica un annuncio</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-
-    <!-- form -->
     <div class="modal-body" id="modal-form-body">
-
-      <!-- tipo -->
       <div class="field">
         <label>TIPO</label>
         <div class="type-selector">
@@ -670,8 +495,6 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
           </div>
         </div>
       </div>
-
-      <!-- titolo + categoria -->
       <div class="field">
         <label>TITOLO</label>
         <input type="text" id="f-title" placeholder="Es. Miele artigianale di montagna" maxlength="80"/>
@@ -686,20 +509,14 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
           <input type="number" id="f-price" placeholder="0 = gratis" min="0" step="0.01"/>
         </div>
       </div>
-
-      <!-- descrizione -->
       <div class="field">
         <label>DESCRIZIONE</label>
         <textarea id="f-desc" placeholder="Breve descrizione — max 300 caratteri" maxlength="300"></textarea>
       </div>
-
-      <!-- contatto -->
       <div class="field">
         <label>CONTATTO (visibile dopo sblocco)</label>
         <input type="text" id="f-contact" placeholder="Telefono, email o link"/>
       </div>
-
-      <!-- posizione -->
       <div class="field">
         <label>POSIZIONE</label>
         <div id="modal-map"></div>
@@ -710,28 +527,21 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
           <button class="loc-gps-btn" onclick="useGPS()">GPS</button>
         </div>
       </div>
-
-      <!-- eco -->
-      <div class="eco-row">
-        <div>
-          <div class="eco-label">🌱 Prodotto / servizio eco</div>
-          <div class="eco-sub">Sostenibile, locale, a basso impatto</div>
+      <div class="field">
+        <label>FOTO (opzionale, max 4)</label>
+        <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" style="margin-bottom:4px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <div style="font-size:12px;color:#999">Tocca per aggiungere foto</div>
+          <input type="file" id="f-photos" accept="image/*" multiple onchange="handlePhotos(this)"/>
         </div>
-        <label class="toggle">
-          <input type="checkbox" id="f-eco"/>
-          <span class="toggle-slider"></span>
-        </label>
+        <div class="photo-preview-grid" id="photo-preview"></div>
       </div>
-
-    </div><!-- /modal-form-body -->
-
-    <!-- success -->
+    </div>
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
       <div class="success-title">Annuncio pubblicato!</div>
       <div class="success-sub">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~50m per la tua privacy.</div>
     </div>
-
     <div class="modal-footer" id="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Annulla</button>
       <button class="btn-submit" id="btn-submit" onclick="submitListing()">Pubblica →</button>
@@ -747,16 +557,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 
 <!-- MOBILE NAVBAR -->
 <nav class="mobile-navbar">
-  <button class="nav-item" onclick="">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-    Mappa
+  <button class="nav-item" onclick="showMobileAuth()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span id="nav-profile-label">Accedi</span>
   </button>
-  <button class="nav-item-center" onclick="openModal()" aria-label="Pubblica annuncio">
-    <img
-      src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
-      alt="QUI"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-    />
+  <button class="nav-item-center" onclick="onAddClick()" aria-label="Pubblica annuncio">
+    <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
+      alt="QUI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <div class="nav-item-center-fallback" style="display:none">
       <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
         <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
@@ -765,8 +572,8 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </button>
   <button class="nav-item" onclick="">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Profilo
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    Mappa
   </button>
 </nav>
 
@@ -793,22 +600,143 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
-// ── check ritorno da Stripe ──
+// ── AUTH STATE ──
+let authToken = localStorage.getItem('qui_token') || null;
+let authUser  = null; // { id, email, tier }
+
+function authHeaders() {
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+async function loadAuthUser() {
+  if (!authToken) { renderAuthUI(); return; }
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+    if (!r.ok) { logout(); return; }
+    authUser = await r.json();
+  } catch { logout(); }
+  renderAuthUI();
+}
+
+function renderAuthUI() {
+  const el = document.getElementById('topbar-auth');
+  const label = document.getElementById('nav-profile-label');
+  if (authUser) {
+    const tierLabel = authUser.tier === 3 ? 'Merchant' : 'Regular';
+    el.innerHTML = `
+      <div class="user-pill">
+        <span>${authUser.email.split('@')[0]}</span>
+        <span class="tier-badge">${tierLabel}</span>
+        <button onclick="logout()" style="background:none;border:none;color:#2a2a6e;cursor:pointer;font-size:11px;padding:0;margin-left:4px">✕</button>
+      </div>
+      <button class="add-btn" style="margin-left:8px" onclick="openModal()">+ Aggiungi</button>`;
+    if (label) label.textContent = authUser.email.split('@')[0];
+  } else {
+    el.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">Accedi</button>`;
+    if (label) label.textContent = 'Accedi';
+  }
+}
+
+function logout() {
+  authToken = null; authUser = null;
+  localStorage.removeItem('qui_token');
+  renderAuthUI();
+}
+
+// ── AUTH MODAL ──
+let authMode = 'login';
+
+function openAuthModal() {
+  document.getElementById('auth-overlay').classList.add('open');
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  switchTab('login');
+}
+
+function closeAuthModal() {
+  document.getElementById('auth-overlay').classList.remove('open');
+}
+
+function showMobileAuth() {
+  if (authUser) { /* future: open profile sheet */ return; }
+  openAuthModal();
+}
+
+function switchTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
+  document.getElementById('auth-info').textContent = mode === 'register'
+    ? 'Registrandoti puoi pubblicare annunci e sbloccare contatti.'
+    : 'Accedi per pubblicare annunci e sbloccare contatti.';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value.trim();
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Accesso…' : 'Registrazione…';
+
+  try {
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const r = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
+    authToken = d.token;
+    authUser = { id: d.id, email: d.email, tier: d.tier };
+    localStorage.setItem('qui_token', authToken);
+    closeAuthModal();
+    renderAuthUI();
+    // Se stavamo cercando di fare qualcosa, riprendi
+    if (pendingAction) { pendingAction(); pendingAction = null; }
+  } catch(e) {
+    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Accedi' : 'Registrati';
+  }
+}
+
+let pendingAction = null;
+
+function requireAuth(action) {
+  if (authUser) { action(); return; }
+  pendingAction = action;
+  openAuthModal();
+}
+
+function onAddClick() { requireAuth(openModal); }
+
+// ── STRIPE RETURN ──
 (async () => {
   const p = new URLSearchParams(window.location.search);
   const listingId = p.get('listing');
-  const session   = p.get('session_id'); // Stripe lo aggiunge automaticamente
-  if (listingId) {
+  const session   = p.get('session_id');
+  if (listingId && session) {
     window.history.replaceState({}, '', '/');
     openContactModal(listingId, session);
   }
 })();
 
-// ── contact modal ──
+// ── CONTACT MODAL ──
 function openContactModal(listingId, sessionId) {
   document.getElementById('contact-overlay').classList.add('open');
-  document.getElementById('contact-body').innerHTML = `
-    <div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>`;
+  document.getElementById('contact-body').innerHTML =
+    `<div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>`;
   fetchContact(listingId, sessionId);
 }
 
@@ -818,13 +746,14 @@ function closeContactModal() {
 
 async function fetchContact(listingId, sessionId) {
   try {
-    const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${sessionId||''}`);
+    const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${sessionId||''}`,
+      { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     renderContact(d);
   } catch(e) {
-    document.getElementById('contact-body').innerHTML = `
-      <div class="contact-loading">⚠️ ${e.message}<br><small>Contatta supporto@ilqui.it</small></div>`;
+    document.getElementById('contact-body').innerHTML =
+      `<div class="contact-loading">⚠️ ${e.message}<br><small>Contatta supporto@qui.it</small></div>`;
   }
 }
 
@@ -857,11 +786,11 @@ function copyText(text, btn) {
   });
 }
 
+// ── MAP ──
 const TYPE_COLOR = { product: '#a8c8f0', service: '#a8dfc0', experience: '#f5b8c8' };
 const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8ef' };
 const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
 
-// map
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
 L.control.zoom({ position: 'topleft' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -870,10 +799,10 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 
 let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
 
-// fetch
 async function load() {
   try {
-    const r = await fetch(`${API}/listings`);
+    const r = await fetch(`${API}/listings`,
+      { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     allListings = Array.isArray(d) ? d : (d.listings || []);
@@ -887,10 +816,17 @@ async function load() {
 
 function render() {
   const list = activeFilter === 'all' ? allListings
-    : activeFilter === 'eco' ? allListings.filter(l => l.eco)
-    : allListings.filter(l => (l.type||l.listing_type) === activeFilter);
+    : allListings.filter(l => (l.type || l.listing_type) === activeFilter);
   renderList(list);
   renderMarkers(list);
+}
+
+function expiresLabel(iso) {
+  if (!iso) return '';
+  const diff = (new Date(iso) - Date.now()) / 1000;
+  if (diff <= 0) return 'scaduto';
+  if (diff < 86400) return `scade tra ${Math.round(diff/3600)}h`;
+  return `scade tra ${Math.round(diff/86400)}g`;
 }
 
 function renderList(list) {
@@ -909,13 +845,13 @@ function renderList(list) {
 }
 
 function itemHTML(l) {
-  const type = l.type || l.listing_type || 'product';
-  const title = l.title || l.name || '—';
-  const cat = l.category || type;
+  const type  = l.type || l.listing_type || 'product';
+  const title = l.title || '—';
+  const cat   = l.category || type;
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
-  const dist = l.distance_km ? `${l.distance_km}km` : '';
-  const when = l.created_at ? timeAgo(l.created_at) : '';
-  const sel = selectedId == l.id ? 'selected' : '';
+  const when  = l.created_at ? timeAgo(l.created_at) : '';
+  const exp   = expiresLabel(l.expires_at);
+  const sel   = selectedId == l.id ? 'selected' : '';
   return `
   <div class="listing-item ${sel}" data-id="${l.id}">
     <div class="listing-dot" style="background:${TYPE_BG[type]||'#eee'}">
@@ -923,12 +859,9 @@ function itemHTML(l) {
     </div>
     <div class="listing-info">
       <div class="listing-name">${title}</div>
-      <div class="listing-meta">
-        <span>${cat}</span>
-        ${l.eco ? '<span class="eco">eco</span>' : ''}
-        ${dist ? `<span>${dist}</span>` : ''}
-      </div>
-      <div class="listing-price">${price} ${when ? `<span class="listing-sub">· ${when}</span>` : ''}</div>
+      <div class="listing-meta"><span>${cat}</span></div>
+      <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
+      ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
     </div>
   </div>`;
 }
@@ -940,10 +873,10 @@ function renderMarkers(list) {
     const lat = l.lat ?? l.latitude;
     const lng = l.lng ?? l.longitude ?? l.lon;
     if (lat == null || lng == null) return;
-    const type = l.type || l.listing_type || 'product';
+    const type  = l.type || l.listing_type || 'product';
     const color = TYPE_COLOR[type] || '#ccc';
-    const size = selectedId == l.id ? 18 : 14;
-    const icon = L.divIcon({
+    const size  = selectedId == l.id ? 18 : 14;
+    const icon  = L.divIcon({
       className: '',
       html: `<div class="map-pin ${selectedId == l.id ? 'selected' : ''}" style="width:${size}px;height:${size}px;background:${color}"></div>`,
       iconSize: [size, size], iconAnchor: [size/2, size/2], popupAnchor: [0, -size/2-2]
@@ -955,18 +888,20 @@ function renderMarkers(list) {
 }
 
 function popupHTML(l) {
-  const type = l.type || l.listing_type || 'product';
-  const title = l.title || l.name || '—';
-  const desc = l.description || '';
+  const type  = l.type || l.listing_type || 'product';
+  const title = l.title || '—';
+  const desc  = l.description || '';
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
+  const canUnlock = !!authUser;
+  const btnHTML = canUnlock
+    ? `<button class="popup-btn" onclick="unlock(${l.id})">🔓 Sblocca contatto — €1</button>`
+    : `<button class="popup-btn" onclick="requireAuth(() => unlock(${l.id}))">🔓 Sblocca contatto — €1</button>`;
   return `<div class="popup-inner">
     <div class="popup-type ${type}">${TYPE_LABEL[type]||type}</div>
     <div class="popup-title">${title}</div>
     ${desc || price ? `<div class="popup-meta">${[desc, price].filter(Boolean).join(' · ')}</div>` : ''}
-    <button class="popup-btn" onclick="unlock(${l.id})">🔓 Sblocca contatto — €1</button>
-    <div style="font-size:10px;color:#999;margin-top:8px;line-height:1.4;text-align:center">
-      IL QUI fornisce solo il contatto del venditore.<br>Non garantiamo la vendita né la qualità del prodotto/servizio.
-    </div>
+    ${btnHTML}
+    <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
 
@@ -980,21 +915,22 @@ function select(id) {
 }
 
 window.unlock = async function(id) {
+  if (!authUser) { requireAuth(() => unlock(id)); return; }
   try {
     const r = await fetch(`${API}/unlock/checkout`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ listing_id: id })
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const { url } = await r.json();
-    window.location.href = url;
+    const data = await r.json();
+    if (data.already_unlocked) { openContactModal(id, data.session_id); return; }
+    window.location.href = data.url;
   } catch(e) {
     alert('Errore pagamento: ' + e.message);
   }
 };
 
-// filters
 function initFilters(id) {
   document.querySelectorAll(`#${id} .filter-btn`).forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1008,9 +944,11 @@ function initFilters(id) {
 initFilters('filters-desktop');
 initFilters('filters-mobile');
 
-// geolocation
 if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(p => map.setView([p.coords.latitude, p.coords.longitude], 14), () => {});
+  navigator.geolocation.getCurrentPosition(
+    p => map.setView([p.coords.latitude, p.coords.longitude], 14),
+    () => {}
+  );
 }
 
 function timeAgo(iso) {
@@ -1020,18 +958,16 @@ function timeAgo(iso) {
   return `${Math.round(diff/86400)}g fa`;
 }
 
-load();
-
 // ── MERCHANT MODAL ──
 let modalMap = null, modalMarker = null, selectedType = 'product';
 let pickedLat = null, pickedLng = null;
+let selectedPhotos = [];
 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
-  // init mini map once
   if (!modalMap) {
     const center = map.getCenter();
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false })
@@ -1042,7 +978,6 @@ function openModal() {
     const center = map.getCenter();
     modalMap.setView([center.lat, center.lng], 15);
   }
-  // fix leaflet sizing inside modal
   setTimeout(() => modalMap.invalidateSize(), 120);
 }
 
@@ -1055,10 +990,11 @@ function resetForm() {
   ['f-title','f-category','f-price','f-desc','f-contact'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('f-eco').checked = false;
   pickedLat = null; pickedLng = null;
   document.getElementById('loc-text').textContent = 'Nessuna posizione selezionata';
   if (modalMarker) { modalMarker.remove(); modalMarker = null; }
+  selectedPhotos = [];
+  document.getElementById('photo-preview').innerHTML = '';
   selectType('product');
 }
 
@@ -1088,67 +1024,84 @@ function useGPS() {
   }, () => alert('Impossibile ottenere la posizione GPS'));
 }
 
-// offset 50m — privacy: la posizione precisa non viene mai inviata
-function applyOffset(lat, lng) {
-  const R = 6371000;
-  const angle = Math.random() * 2 * Math.PI;
-  const dist = 30 + Math.random() * 40; // 30-70m
-  const dLat = (dist * Math.cos(angle)) / R * (180 / Math.PI);
-  const dLng = (dist * Math.sin(angle)) / (R * Math.cos(lat * Math.PI / 180)) * (180 / Math.PI);
-  return { lat: lat + dLat, lng: lng + dLng };
+function handlePhotos(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    if (selectedPhotos.length >= 4) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      selectedPhotos.push({ file, dataUrl: e.target.result });
+      renderPhotoPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoPreview() {
+  document.getElementById('photo-preview').innerHTML = selectedPhotos.map((p, i) => `
+    <div class="photo-thumb-wrap">
+      <img class="photo-thumb" src="${p.dataUrl}" alt="foto ${i+1}"/>
+      <button class="photo-remove" onclick="removePhoto(${i})">×</button>
+    </div>`).join('');
+}
+
+function removePhoto(i) {
+  selectedPhotos.splice(i, 1);
+  renderPhotoPreview();
 }
 
 async function submitListing() {
-  const title = document.getElementById('f-title').value.trim();
+  if (!authUser) { requireAuth(submitListing); return; }
+  const title   = document.getElementById('f-title').value.trim();
   const contact = document.getElementById('f-contact').value.trim();
-  if (!title) { alert('Inserisci un titolo'); return; }
+  if (!title)     { alert('Inserisci un titolo'); return; }
   if (!pickedLat) { alert('Scegli una posizione sulla mappa'); return; }
-  if (!contact) { alert('Inserisci un contatto'); return; }
+  if (!contact)   { alert('Inserisci un contatto'); return; }
 
   const btn = document.getElementById('btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'Pubblicazione…';
+  btn.disabled = true; btn.textContent = 'Pubblicazione…';
 
-  const { lat, lng } = applyOffset(pickedLat, pickedLng);
-
+  // Coordinate RAW — il blur è server-side
   const payload = {
     title,
-    listing_type: selectedType,
     type: selectedType,
     category: document.getElementById('f-category').value.trim() || selectedType,
     description: document.getElementById('f-desc').value.trim(),
     price: parseFloat(document.getElementById('f-price').value) || 0,
     contact,
-    lat, lng,
-    eco: document.getElementById('f-eco').checked,
+    lat: pickedLat,
+    lng: pickedLng,
   };
 
   try {
     const r = await fetch(`${API}/listings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify(payload)
     });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-
-    // show success
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.error || `HTTP ${r.status}`);
+    }
     document.getElementById('modal-form-body').style.display = 'none';
     document.getElementById('modal-footer').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
-
-    // reload listings after short delay
     setTimeout(() => { load(); closeModal(); }, 2200);
   } catch(e) {
     alert(`Errore: ${e.message}`);
-    btn.disabled = false;
-    btn.textContent = 'Pubblica →';
+    btn.disabled = false; btn.textContent = 'Pubblica →';
   }
 }
 
-// close on overlay click
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+document.getElementById('auth-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeAuthModal();
+});
+
+// ── INIT ──
+loadAuthUser().then(() => load());
 </script>
 </body>
 </html>
