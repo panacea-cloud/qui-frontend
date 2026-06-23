@@ -195,7 +195,6 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .contact-header-title { font-size: 14px; font-weight: 600; color: #fff; }
 .contact-header-sub { font-size: 11px; color: rgba(255,255,255,0.65); }
 .contact-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
-.contact-listing-name { font-size: 13px; font-weight: 600; color: #111; padding-bottom: 10px; border-bottom: 0.5px solid #f0f0f0; }
 .contact-row { display: flex; flex-direction: column; gap: 4px; }
 .contact-label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
 .contact-value {
@@ -280,22 +279,6 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .loc-gps-btn {
   margin-left: auto; font-size: 10px; background: #2a2a6e; color: #fff; border: none;
   border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: 500;
-}
-
-/* foto upload */
-.photo-upload-area {
-  border: 1.5px dashed #d0d0d0; border-radius: 10px; padding: 16px;
-  text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fafafa;
-}
-.photo-upload-area:hover { border-color: #2a2a6e; background: #f0f2ff; }
-.photo-upload-area input { display: none; }
-.photo-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.photo-thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e0e0e0; }
-.photo-thumb-wrap { position: relative; display: inline-block; }
-.photo-remove {
-  position: absolute; top: -6px; right: -6px; width: 18px; height: 18px;
-  border-radius: 50%; background: #e53935; color: #fff; border: none;
-  font-size: 11px; cursor: pointer; line-height: 18px; text-align: center; padding: 0;
 }
 
 .modal-footer {
@@ -527,15 +510,6 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
           <button class="loc-gps-btn" onclick="useGPS()">GPS</button>
         </div>
       </div>
-      <div class="field">
-        <label>FOTO (opzionale, max 4)</label>
-        <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" style="margin-bottom:4px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <div style="font-size:12px;color:#999">Tocca per aggiungere foto</div>
-          <input type="file" id="f-photos" accept="image/*" multiple onchange="handlePhotos(this)"/>
-        </div>
-        <div class="photo-preview-grid" id="photo-preview"></div>
-      </div>
     </div>
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
@@ -600,6 +574,17 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
+// ── HELPER: sanifica testo per innerHTML (previene XSS) ──
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── AUTH STATE ──
 let authToken = localStorage.getItem('qui_token') || null;
 let authUser  = null; // { id, email, tier }
@@ -625,10 +610,11 @@ function renderAuthUI() {
   const label = document.getElementById('nav-profile-label');
   if (authUser) {
     const tierLabel = authUser.tier === 3 ? 'Merchant' : 'Regular';
+    const emailShort = esc(authUser.email.split('@')[0]);
     el.innerHTML = `
       <div class="user-pill">
-        <span>${authUser.email.split('@')[0]}</span>
-        <span class="tier-badge">${tierLabel}</span>
+        <span>${emailShort}</span>
+        <span class="tier-badge">${esc(tierLabel)}</span>
         <button onclick="logout()" style="background:none;border:none;color:#2a2a6e;cursor:pointer;font-size:11px;padding:0;margin-left:4px">✕</button>
       </div>
       <button class="add-btn" style="margin-left:8px" onclick="openModal()">+ Aggiungi</button>`;
@@ -701,7 +687,6 @@ async function submitAuth() {
     localStorage.setItem('qui_token', authToken);
     closeAuthModal();
     renderAuthUI();
-    // Se stavamo cercando di fare qualcosa, riprendi
     if (pendingAction) { pendingAction(); pendingAction = null; }
   } catch(e) {
     errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
@@ -746,37 +731,49 @@ function closeContactModal() {
 
 async function fetchContact(listingId, sessionId) {
   try {
-    const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${sessionId||''}`,
+    const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${encodeURIComponent(sessionId||'')}`,
       { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     renderContact(d);
   } catch(e) {
     document.getElementById('contact-body').innerHTML =
-      `<div class="contact-loading">⚠️ ${e.message}<br><small>Contatta supporto@qui.it</small></div>`;
+      `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>Contatta supporto@qui.it</small></div>`;
   }
 }
 
 function renderContact(d) {
-  document.getElementById('contact-body').innerHTML = `
+  // FIX: usa esc() per prevenire XSS nei dati del listing
+  const contactSafe = esc(d.contact || '');
+  const titleSafe   = esc(d.title || 'Annuncio');
+  const descSafe    = esc(d.description || '');
+
+  // data-contact su un elemento separato per il copy, evita injection in onclick
+  const bodyEl = document.getElementById('contact-body');
+  bodyEl.innerHTML = `
     <div class="contact-body">
-      <div class="contact-listing-name">${d.title || 'Annuncio'}</div>
+      <div class="contact-listing-name">${titleSafe}</div>
       <div class="contact-row">
         <div class="contact-label">Contatto</div>
         <div class="contact-value">
-          <span>${d.contact}</span>
-          <button class="copy-btn" onclick="copyText('${d.contact}',this)">Copia</button>
+          <span id="contact-value-text">${contactSafe}</span>
+          <button class="copy-btn" id="copy-contact-btn">Copia</button>
         </div>
       </div>
-      ${d.description ? `
+      ${descSafe ? `
       <div class="contact-row">
         <div class="contact-label">Descrizione</div>
-        <div style="font-size:12px;color:#555;line-height:1.5">${d.description}</div>
+        <div style="font-size:12px;color:#555;line-height:1.5">${descSafe}</div>
       </div>` : ''}
     </div>
     <div class="contact-footer">
       <button class="contact-close-btn" onclick="closeContactModal()">Chiudi</button>
     </div>`;
+
+  // Bind copy con closure sicura (no inline onclick con dati utente)
+  document.getElementById('copy-contact-btn').addEventListener('click', function() {
+    copyText(d.contact || '', this);
+  });
 }
 
 function copyText(text, btn) {
@@ -808,7 +805,7 @@ async function load() {
     allListings = Array.isArray(d) ? d : (d.listings || []);
     render();
   } catch(e) {
-    const html = `<div class="state-box">⚠️ ${e.message}<br><small>Verifica che il backend sia online.</small></div>`;
+    const html = `<div class="state-box">⚠️ ${esc(e.message)}<br><small>Verifica che il backend sia online.</small></div>`;
     document.getElementById('list-desktop').innerHTML = html;
     document.getElementById('list-mobile').innerHTML = html;
   }
@@ -846,16 +843,19 @@ function renderList(list) {
 
 function itemHTML(l) {
   const type  = l.type || l.listing_type || 'product';
-  const title = l.title || '—';
-  const cat   = l.category || type;
+  // FIX: sanifica tutti i campi utente prima di inserire nel DOM
+  const title = esc(l.title || '—');
+  const cat   = esc(l.category || type);
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
   const when  = l.created_at ? timeAgo(l.created_at) : '';
   const exp   = expiresLabel(l.expires_at);
   const sel   = selectedId == l.id ? 'selected' : '';
+  const bg    = TYPE_BG[type]    || '#eee';
+  const dot   = TYPE_COLOR[type] || '#ccc';
   return `
   <div class="listing-item ${sel}" data-id="${l.id}">
-    <div class="listing-dot" style="background:${TYPE_BG[type]||'#eee'}">
-      <div class="dot-inner" style="background:${TYPE_COLOR[type]||'#ccc'}"></div>
+    <div class="listing-dot" style="background:${bg}">
+      <div class="dot-inner" style="background:${dot}"></div>
     </div>
     <div class="listing-info">
       <div class="listing-name">${title}</div>
@@ -889,21 +889,30 @@ function renderMarkers(list) {
 
 function popupHTML(l) {
   const type  = l.type || l.listing_type || 'product';
-  const title = l.title || '—';
-  const desc  = l.description || '';
+  // FIX: sanifica tutti i campi utente
+  const title = esc(l.title || '—');
+  const desc  = esc(l.description || '');
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
-  const canUnlock = !!authUser;
-  const btnHTML = canUnlock
-    ? `<button class="popup-btn" onclick="unlock(${l.id})">🔓 Sblocca contatto — €1</button>`
-    : `<button class="popup-btn" onclick="requireAuth(() => unlock(${l.id}))">🔓 Sblocca contatto — €1</button>`;
+  // FIX: usa data-id invece di inline onclick con dati utente
+  const btnHTML = `<button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>`;
   return `<div class="popup-inner">
-    <div class="popup-type ${type}">${TYPE_LABEL[type]||type}</div>
+    <div class="popup-type ${type}">${esc(TYPE_LABEL[type] || type)}</div>
     <div class="popup-title">${title}</div>
     ${desc || price ? `<div class="popup-meta">${[desc, price].filter(Boolean).join(' · ')}</div>` : ''}
     ${btnHTML}
     <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
+
+// Delega per i pulsanti sblocca nei popup (evita inline onclick con dati utente)
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-unlock-id]');
+  if (btn) {
+    const id = parseInt(btn.dataset.unlockId, 10);
+    if (!authUser) { requireAuth(() => unlock(id)); return; }
+    unlock(id);
+  }
+});
 
 function select(id) {
   selectedId = id;
@@ -961,7 +970,6 @@ function timeAgo(iso) {
 // ── MERCHANT MODAL ──
 let modalMap = null, modalMarker = null, selectedType = 'product';
 let pickedLat = null, pickedLng = null;
-let selectedPhotos = [];
 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
@@ -993,8 +1001,6 @@ function resetForm() {
   pickedLat = null; pickedLng = null;
   document.getElementById('loc-text').textContent = 'Nessuna posizione selezionata';
   if (modalMarker) { modalMarker.remove(); modalMarker = null; }
-  selectedPhotos = [];
-  document.getElementById('photo-preview').innerHTML = '';
   selectType('product');
 }
 
@@ -1024,32 +1030,6 @@ function useGPS() {
   }, () => alert('Impossibile ottenere la posizione GPS'));
 }
 
-function handlePhotos(input) {
-  const files = Array.from(input.files);
-  files.forEach(file => {
-    if (selectedPhotos.length >= 4) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      selectedPhotos.push({ file, dataUrl: e.target.result });
-      renderPhotoPreview();
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function renderPhotoPreview() {
-  document.getElementById('photo-preview').innerHTML = selectedPhotos.map((p, i) => `
-    <div class="photo-thumb-wrap">
-      <img class="photo-thumb" src="${p.dataUrl}" alt="foto ${i+1}"/>
-      <button class="photo-remove" onclick="removePhoto(${i})">×</button>
-    </div>`).join('');
-}
-
-function removePhoto(i) {
-  selectedPhotos.splice(i, 1);
-  renderPhotoPreview();
-}
-
 async function submitListing() {
   if (!authUser) { requireAuth(submitListing); return; }
   const title   = document.getElementById('f-title').value.trim();
@@ -1061,7 +1041,6 @@ async function submitListing() {
   const btn = document.getElementById('btn-submit');
   btn.disabled = true; btn.textContent = 'Pubblicazione…';
 
-  // Coordinate RAW — il blur è server-side
   const payload = {
     title,
     type: selectedType,
