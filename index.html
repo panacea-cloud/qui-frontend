@@ -1474,6 +1474,57 @@ document.getElementById('auth-overlay').addEventListener('click', function(e) {
 document.getElementById('profile-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeProfileModal();
 });
+ // ── SCOPRI ──
+let scopriFilter = 'all';
+
+function openScopri() {
+  document.getElementById('scopri-overlay').classList.add('open');
+  renderScopri();
+}
+
+function closeScopri() {
+  document.getElementById('scopri-overlay').classList.remove('open');
+}
+
+function setScopriFilter(btn, type) {
+  scopriFilter = type;
+  document.querySelectorAll('.scopri-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScopri();
+}
+
+function renderScopri() {
+  const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
+  let list = scopriFilter === 'all' ? allListings : allListings.filter(l => l.type === scopriFilter);
+  if (q) list = list.filter(l =>
+    (l.title||'').toLowerCase().includes(q) ||
+    (l.description||'').toLowerCase().includes(q) ||
+    (l.category||'').toLowerCase().includes(q)
+  );
+  const el = document.getElementById('scopri-list');
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>';
+    return;
+  }
+  el.innerHTML = list.map(l => {
+    const type = l.type || 'product';
+    const photo = (l.photos && l.photos[0])
+      ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
+      : `<div class="scopri-card-img-placeholder">📦</div>`;
+    const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+    return `<div class="scopri-card" onclick="closeScopri();select(${l.id})">
+      ${photo}
+      <div class="scopri-card-body">
+        <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
+        <div class="scopri-card-title">${esc(l.title||'—')}</div>
+        ${l.description ? `<div class="scopri-card-desc">${esc(l.description)}</div>` : ''}
+        <div class="scopri-card-meta">${[l.category, price].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('scopri-input').addEventListener('input', renderScopri);
  
  // ── SEARCH ──
 document.getElementById('search-input-desktop').addEventListener('input', function() {
