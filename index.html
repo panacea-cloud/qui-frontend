@@ -1017,6 +1017,21 @@ const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8e
 const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
+  function applySearch(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    render();
+    return;
+  }
+  const filtered = allListings.filter(l =>
+    (l.title || '').toLowerCase().includes(q) ||
+    (l.description || '').toLowerCase().includes(q) ||
+    (l.category || '').toLowerCase().includes(q) ||
+    (l.city || '').toLowerCase().includes(q)
+  );
+  renderList(filtered);
+  renderMarkers(filtered);
+}
 L.control.zoom({ position: 'topleft' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO', maxZoom: 19
@@ -1389,6 +1404,13 @@ async function submitListing() {
   }
 }
 
+  // ── SEARCH ──
+document.getElementById('search-input-desktop').addEventListener('input', function() {
+  applySearch(this.value);
+});
+document.getElementById('search-input-mobile').addEventListener('input', function() {
+  applySearch(this.value);
+});
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
