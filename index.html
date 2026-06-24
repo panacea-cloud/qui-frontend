@@ -366,6 +366,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   font-family: inherit; color: #c0392b;
 }
 .profile-logout-btn:hover { background: #fdf0f0; }
+  
 /* ── mobile navbar ── */
 .mobile-navbar { display: none; }
 @media (max-width: 680px) {
@@ -589,7 +590,29 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-
+  
+<!-- PROFILE MODAL -->
+<div class="profile-overlay" id="profile-overlay">
+  <div class="profile-modal">
+    <div class="profile-header">
+      <div class="profile-header-info">
+        <div class="profile-header-email" id="profile-email"></div>
+        <div class="profile-header-tier" id="profile-tier"></div>
+      </div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeProfileModal()">✕</button>
+    </div>
+    <div class="profile-body">
+      <div class="profile-section-title">I miei annunci</div>
+      <div id="profile-listings">
+        <div class="profile-empty">Caricamento…</div>
+      </div>
+    </div>
+    <div class="profile-footer">
+      <button class="profile-logout-btn" onclick="profileLogout()">Esci dall'account</button>
+    </div>
+  </div>
+</div>
+  
 <!-- MOBILE SEARCH BAR -->
 <div class="mobile-search">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
