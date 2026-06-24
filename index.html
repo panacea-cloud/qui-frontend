@@ -698,7 +698,24 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-  
+  <!-- SCOPRI OVERLAY (mobile) -->
+<div class="scopri-overlay" id="scopri-overlay">
+  <div class="scopri-header">
+    <div class="scopri-title">Scopri</div>
+    <button class="scopri-close" onclick="closeScopri()">✕</button>
+  </div>
+  <div class="scopri-search">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input id="scopri-input" type="text" placeholder="Cerca prodotti, servizi…"/>
+  </div>
+  <div class="scopri-filters">
+    <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')">Tutti</button>
+    <button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')">🔵 Prodotti</button>
+    <button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')">🟢 Servizi</button>
+    <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')">🔴 Esperienze</button>
+  </div>
+  <div class="scopri-list" id="scopri-list"></div>
+</div>
 <!-- MOBILE SEARCH BAR -->
 <div class="mobile-search">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
