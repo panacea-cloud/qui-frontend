@@ -7,8 +7,6 @@
 <link rel="icon" type="image/png" href="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1020,13 +1018,6 @@ const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Espe
 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-  L.Control.geocoder({
-  defaultMarkGeocode: false,
-  placeholder: 'Cerca sulla mappa…',
-  position: 'topleft'
-}).on('markgeocode', function(e) {
-  map.fitBounds(e.geocode.bbox);
-}).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO', maxZoom: 19
 }).addTo(map);
