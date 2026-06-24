@@ -1188,7 +1188,9 @@ function openModal() {
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false })
       .setView([center.lat, center.lng], 15);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(modalMap);
-    modalMap.on('click', e => setPickedLocation(e.latlng.lat, e.latlng.lng));
+    if (authUser && authUser.is_admin) {
+      modalMap.on('click', e => setPickedLocation(e.latlng.lat, e.latlng.lng));
+    }
   } else {
     const center = map.getCenter();
     modalMap.setView([center.lat, center.lng], 15);
