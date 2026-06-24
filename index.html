@@ -1383,6 +1383,12 @@ function handlePhotos(input) {
   const files = Array.from(input.files);
   files.forEach(file => {
     if (selectedPhotos.length >= 4) return;
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+      file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    if (isHeic) {
+      alert('Formato HEIC non supportato. Vai su Impostazioni iPhone → Fotocamera → Formato → scegli "Più compatibile" per usare JPG.');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = e => {
       selectedPhotos.push({ file, dataUrl: e.target.result });
