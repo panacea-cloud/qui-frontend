@@ -568,7 +568,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <div class="loc-display" id="loc-display">
           <div class="loc-dot"></div>
           <span id="loc-text">Nessuna posizione selezionata</span>
-          <button class="loc-gps-btn" onclick="useGPS()">GPS</button>
+          <button class="loc-gps-btn" id="loc-gps-btn" onclick="useGPS()">📍 Usa la mia posizione</button>
         </div>
       </div>
       <div class="field">
@@ -1179,6 +1179,8 @@ let pickedLat = null, pickedLng = null, selectedPhotos = [];
 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('loc-gps-btn').textContent =
+    authUser && authUser.is_admin ? '📍 GPS o clicca mappa' : '📍 Usa la mia posizione';
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
