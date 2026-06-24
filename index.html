@@ -436,7 +436,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     bottom: auto; top: 70px; right: 10px;
   }
 }
-@media (min-width: 681px) {
+@media (max-width: 680px) {
+  .leaflet-popup-pane { z-index: 1200 !important; }
+  .leaflet-popup { margin-bottom: 10px; }
+}
+  @media (min-width: 681px) {
   .mobile-sheet { display: none; }
 }
 </style>
