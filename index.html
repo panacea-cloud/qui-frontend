@@ -889,7 +889,7 @@ async function submitAuth() {
     const d = await r.json();
     if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
     authToken = d.token;
-    authUser = { id: d.id, email: d.email, tier: d.tier };
+    authUser = { id: d.id, email: d.email, tier: d.tier, is_admin: d.is_admin };
     localStorage.setItem('qui_token', authToken);
     closeAuthModal();
     renderAuthUI();
