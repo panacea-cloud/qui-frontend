@@ -11,9 +11,9 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #fff; }
-
+ 
 .app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
-
+ 
 /* topbar */
 .topbar {
   height: 44px; border-bottom: 0.5px solid #e0e0e0;
@@ -52,10 +52,10 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   font-size: 9px; font-weight: 600; padding: 1px 5px;
   border-radius: 4px; background: #2a2a6e; color: #fff;
 }
-
+ 
 /* body */
 .body { display: flex; flex: 1; overflow: hidden; }
-
+ 
 /* sidebar */
 .sidebar {
   width: 205px; min-width: 205px; border-right: 0.5px solid #e0e0e0;
@@ -94,13 +94,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .listing-price { font-size: 12px; font-weight: 500; color: #111; margin-top: 2px; }
 .listing-sub { font-size: 10px; color: #888; font-weight: 400; }
 .listing-expires { font-size: 9px; color: #e07030; font-weight: 500; margin-top: 1px; }
-
+ 
 .state-box { padding: 24px 10px; text-align: center; color: #aaa; font-size: 11px; line-height: 1.6; }
 .spinner { width: 20px; height: 20px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
+ 
 #map { flex: 1; z-index: 1; }
-
+ 
 .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 3px 16px rgba(0,0,0,0.13) !important; padding: 0 !important; }
 .leaflet-popup-content { margin: 0 !important; min-width: 200px; }
 .popup-inner { padding: 12px 14px; }
@@ -121,7 +121,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   background: #fff8e1; border: 0.5px solid #ffe082; border-radius: 8px;
   padding: 8px 10px; font-size: 11px; color: #795548; line-height: 1.5; margin-top: 8px;
 }
-
+ 
 .map-legend {
   position: absolute; bottom: 10px; right: 10px;
   background: rgba(255,255,255,0.93); border-radius: 8px; padding: 8px 10px;
@@ -130,11 +130,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .legend-row { display: flex; align-items: center; gap: 6px; color: #333; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-
+ 
 .map-pin { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; cursor: pointer; }
 .map-pin:hover { transform: scale(1.35); }
 .map-pin.selected { transform: scale(1.5); box-shadow: 0 0 0 3px rgba(42,42,110,.25); }
-
+ 
 /* ── AUTH MODAL ── */
 .auth-overlay {
   display: none; position: fixed; inset: 0;
@@ -175,7 +175,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .auth-submit:disabled { opacity: .45; cursor: not-allowed; }
 .auth-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; }
 .auth-info { font-size: 11px; color: #888; line-height: 1.5; text-align: center; }
-
+ 
 /* ── CONTACT MODAL ── */
 .contact-overlay {
   display: none; position: fixed; inset: 0;
@@ -220,7 +220,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   padding: 32px 20px; text-align: center; color: #888; font-size: 12px;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
-
+ 
 /* ── MERCHANT MODAL ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -245,7 +245,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .modal-close:hover { background: #e0e0e0; }
 .modal-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-
+ 
 .type-selector { display: flex; gap: 8px; }
 .type-opt {
   flex: 1; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 6px;
@@ -257,7 +257,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .type-opt.selected.service    { border-color: #a8dfc0; background: #ddf3ea; color: #2a7a4a; }
 .type-opt.selected.experience { border-color: #f5b8c8; background: #fde8ef; color: #a03060; }
 .type-opt:hover:not(.selected) { background: #fafafa; }
-
+ 
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
 .field input, .field textarea {
@@ -269,7 +269,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .field textarea { resize: vertical; min-height: 72px; }
 .field-row { display: flex; gap: 10px; }
 .field-row .field { flex: 1; }
-
+ 
 #modal-map { height: 160px; border-radius: 10px; border: 1px solid #e0e0e0; overflow: hidden; flex-shrink: 0; }
 .map-hint { font-size: 10px; color: #888; margin-top: 3px; }
 .loc-display {
@@ -281,7 +281,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   margin-left: auto; font-size: 10px; background: #2a2a6e; color: #fff; border: none;
   border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: 500;
 }
-
+ 
 /* foto upload */
 .photo-upload-area {
   border: 1.5px dashed #d0d0d0; border-radius: 10px; padding: 16px;
@@ -297,7 +297,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   border-radius: 50%; background: #e53935; color: #fff; border: none;
   font-size: 11px; cursor: pointer; line-height: 18px; text-align: center; padding: 0;
 }
-
+ 
 .modal-footer {
   padding: 14px 18px; border-top: 0.5px solid #e0e0e0;
   flex-shrink: 0; display: flex; gap: 8px;
@@ -315,7 +315,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .btn-submit:hover { opacity: .88; }
 .btn-submit:disabled { opacity: .45; cursor: not-allowed; }
-
+ 
 .modal-success {
   display: none; flex-direction: column; align-items: center;
   justify-content: center; padding: 40px 20px; text-align: center; gap: 10px;
@@ -394,12 +394,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     display: flex; align-items: center; justify-content: center;
   }
 }
-
+ 
 /* ── mobile ── */
 @media (max-width: 680px) {
   .topbar { display: none; }
   .sidebar { display: none; }
-
+ 
   /* search bar floating */
   .mobile-search {
     display: none;
@@ -409,7 +409,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     font-size: 13px; color: #888; z-index: 1100;
     box-shadow: 0 2px 12px rgba(0,0,0,.10);
   }
-
+ 
   /* sheet: solo filtri, no lista */
   .mobile-sheet {
     position: fixed; bottom: 60px; left: 0; right: 0; background: #fff;
@@ -424,14 +424,14 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     overflow-x: auto; flex-shrink: 0;
   }
   .mobile-filter-row::-webkit-scrollbar { display: none; }
-
+ 
   /* lista nascosta su mobile — la si usa solo desktop */
   .mobile-list { display: none; }
-
+ 
   /* Leaflet popup sopra tutto */
   .leaflet-popup { z-index: 1200 !important; }
   .leaflet-popup-pane { z-index: 1200 !important; }
-
+ 
   /* legenda: angolo in alto a destra, sotto la search */
   .map-legend {
     bottom: auto; top: 70px; right: 10px;
@@ -444,12 +444,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   @media (min-width: 681px) {
   .mobile-sheet { display: none; }
 }
-  .leaflet-control-zoom { display: none !important; }
 </style>
 </head>
 <body>
 <div class="app">
-
+ 
   <!-- TOPBAR -->
   <div class="topbar">
     <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
@@ -465,9 +464,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
   <input id="search-input-desktop" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
 </div>
-    <div id="topbar-auth" style="display:flex;align-items:center;gap:8px;margin-left:auto"></div>
+    <div id="topbar-auth"></div>
   </div>
-
+ 
   <!-- BODY -->
   <div class="body">
     <div class="sidebar">
@@ -484,7 +483,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <div class="state-box"><div class="spinner"></div>Caricamento…</div>
       </div>
     </div>
-
+ 
     <div style="flex:1;position:relative;">
       <div id="map" style="width:100%;height:100%"></div>
       <div class="map-legend">
@@ -495,7 +494,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-
+ 
 <!-- AUTH MODAL -->
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-modal">
@@ -522,7 +521,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-
+ 
 <!-- CONTACT MODAL -->
 <div class="contact-overlay" id="contact-overlay">
   <div class="contact-modal">
@@ -539,7 +538,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-
+ 
 <!-- MERCHANT MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
@@ -645,7 +644,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
   <input id="search-input-mobile" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:13px;color:#111;width:100%"/>
 </div>
-
+ 
 <!-- MOBILE NAVBAR -->
 <nav class="mobile-navbar">
   <button class="nav-item" onclick="showMobileAuth()">
@@ -667,7 +666,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     Mappa
   </button>
 </nav>
-
+ 
 <!-- MOBILE SHEET — solo filtri -->
 <div class="mobile-sheet">
   <div class="mobile-filter-row" id="filters-mobile">
@@ -685,7 +684,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 </div>
 <!-- list-mobile hidden: serve solo a renderList() per non rompere il codice JS -->
 <div id="list-mobile" style="display:none"></div>
-
+ 
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
   const CATEGORIES = {
@@ -743,7 +742,7 @@ const API = 'https://qui-backend-production.up.railway.app';
     "Workshop e Corsi Pratici"
   ]
 };
-
+ 
 // ── HELPER: sanifica testo per innerHTML (previene XSS) ──
 function esc(s) {
   if (s == null) return '';
@@ -754,17 +753,17 @@ function esc(s) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-
+ 
 // ── AUTH STATE ──
 let authToken = localStorage.getItem('qui_token') || null;
 let authUser  = null; // { id, email, tier }
-
+ 
 function authHeaders() {
   return authToken
     ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
     : { 'Content-Type': 'application/json' };
 }
-
+ 
 async function loadAuthUser() {
   if (!authToken) { renderAuthUI(); return; }
   try {
@@ -774,7 +773,7 @@ async function loadAuthUser() {
   } catch { logout(); }
   renderAuthUI();
 }
-
+ 
 function renderAuthUI() {
   const el = document.getElementById('topbar-auth');
   const label = document.getElementById('nav-profile-label');
@@ -782,21 +781,24 @@ function renderAuthUI() {
     const tierLabel = authUser.tier === 3 ? 'Merchant' : 'Regular';
     const emailShort = esc(authUser.email.split('@')[0]);
     el.innerHTML = `
-      <button class="auth-btn" onclick="openProfileModal()" style="display:flex;align-items:center;gap:6px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        ${emailShort}
+      <div class="user-pill" onclick="openProfileModal()" style="cursor:pointer">
+        <span>${emailShort}</span>
         <span class="tier-badge">${esc(tierLabel)}</span>
-      </button>
-      <button class="add-btn" onclick="openModal()">+ Aggiungi</button>`;
+      </div>
+      <button class="add-btn" style="margin-left:8px" onclick="openModal()">+ Aggiungi</button>`;
     if (label) label.textContent = authUser.email.split('@')[0];
+  } else {
+    el.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">Accedi</button>`;
+    if (label) label.textContent = 'Accedi';
   }
-
+}
+ 
 function logout() {
   authToken = null; authUser = null;
   localStorage.removeItem('qui_token');
   renderAuthUI();
 }
-
+ 
 function openProfileModal() {
   document.getElementById('profile-overlay').classList.add('open');
   document.getElementById('profile-email').textContent = authUser.email;
@@ -804,16 +806,16 @@ function openProfileModal() {
     authUser.tier === 3 ? '⭐ Merchant' : 'Regular';
   loadMyListings();
 }
-
+ 
 function closeProfileModal() {
   document.getElementById('profile-overlay').classList.remove('open');
 }
-
+ 
 function profileLogout() {
   closeProfileModal();
   logout();
 }
-
+ 
 async function loadMyListings() {
   const el = document.getElementById('profile-listings');
   el.innerHTML = '<div class="profile-empty">Caricamento…</div>';
@@ -842,7 +844,7 @@ async function loadMyListings() {
     el.innerHTML = `<div class="profile-empty">⚠️ ${esc(e.message)}</div>`;
   }
 }
-
+ 
 async function deleteListing(id) {
   if (!confirm('Eliminare questo annuncio?')) return;
   try {
@@ -856,10 +858,10 @@ async function deleteListing(id) {
     alert(`Errore: ${esc(e.message)}`);
   }
 }
-
+ 
 // ── AUTH MODAL ──
 let authMode = 'login';
-
+ 
 function openAuthModal() {
   document.getElementById('auth-overlay').classList.add('open');
   document.getElementById('auth-error').style.display = 'none';
@@ -867,16 +869,16 @@ function openAuthModal() {
   document.getElementById('auth-password').value = '';
   switchTab('login');
 }
-
+ 
 function closeAuthModal() {
   document.getElementById('auth-overlay').classList.remove('open');
 }
-
+ 
 function showMobileAuth() {
   if (authUser) { openProfileModal(); return; }
   openAuthModal();
 }
-
+ 
 function switchTab(mode) {
   authMode = mode;
   document.getElementById('tab-login').classList.toggle('active', mode === 'login');
@@ -887,7 +889,7 @@ function switchTab(mode) {
     : 'Accedi per pubblicare annunci e sbloccare contatti.';
   document.getElementById('auth-error').style.display = 'none';
 }
-
+ 
 async function submitAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value.trim();
@@ -895,10 +897,10 @@ async function submitAuth() {
   const btn = document.getElementById('auth-submit-btn');
   errEl.style.display = 'none';
   if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
-
+ 
   btn.disabled = true;
   btn.textContent = authMode === 'login' ? 'Accesso…' : 'Registrazione…';
-
+ 
   try {
     const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
     const r = await fetch(`${API}${endpoint}`, {
@@ -921,17 +923,17 @@ async function submitAuth() {
     btn.textContent = authMode === 'login' ? 'Accedi' : 'Registrati';
   }
 }
-
+ 
 let pendingAction = null;
-
+ 
 function requireAuth(action) {
   if (authUser) { action(); return; }
   pendingAction = action;
   openAuthModal();
 }
-
+ 
 function onAddClick() { requireAuth(openModal); }
-
+ 
 // ── STRIPE RETURN ──
 (async () => {
   const p = new URLSearchParams(window.location.search);
@@ -942,7 +944,7 @@ function onAddClick() { requireAuth(openModal); }
     openContactModal(listingId, session);
   }
 })();
-
+ 
 // ── CONTACT MODAL ──
 function openContactModal(listingId, sessionId) {
   document.getElementById('contact-overlay').classList.add('open');
@@ -950,11 +952,11 @@ function openContactModal(listingId, sessionId) {
     `<div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>`;
   fetchContact(listingId, sessionId);
 }
-
+ 
 function closeContactModal() {
   document.getElementById('contact-overlay').classList.remove('open');
 }
-
+ 
 async function fetchContact(listingId, sessionId) {
   try {
     const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${encodeURIComponent(sessionId||'')}`,
@@ -967,13 +969,13 @@ async function fetchContact(listingId, sessionId) {
       `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>Contatta supporto@qui.it</small></div>`;
   }
 }
-
+ 
 function renderContact(d) {
   // FIX: usa esc() per prevenire XSS nei dati del listing
   const contactSafe = esc(d.contact || '');
   const titleSafe   = esc(d.title || 'Annuncio');
   const descSafe    = esc(d.description || '');
-
+ 
   // data-contact su un elemento separato per il copy, evita injection in onclick
   const bodyEl = document.getElementById('contact-body');
   bodyEl.innerHTML = `
@@ -995,48 +997,33 @@ function renderContact(d) {
     <div class="contact-footer">
       <button class="contact-close-btn" onclick="closeContactModal()">Chiudi</button>
     </div>`;
-
+ 
   // Bind copy con closure sicura (no inline onclick con dati utente)
   document.getElementById('copy-contact-btn').addEventListener('click', function() {
     copyText(d.contact || '', this);
   });
 }
-
+ 
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✓ Copiato';
     setTimeout(() => { btn.textContent = 'Copia'; }, 1800);
   });
 }
-
+ 
 // ── MAP ──
 const TYPE_COLOR = { product: '#a8c8f0', service: '#a8dfc0', experience: '#f5b8c8' };
 const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8ef' };
 const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
-
+ 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
-  function applySearch(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    render();
-    return;
-  }
-  const filtered = allListings.filter(l =>
-    (l.title || '').toLowerCase().includes(q) ||
-    (l.description || '').toLowerCase().includes(q) ||
-    (l.category || '').toLowerCase().includes(q) ||
-    (l.city || '').toLowerCase().includes(q)
-  );
-  renderList(filtered);
-  renderMarkers(filtered);
-}
 L.control.zoom({ position: 'topleft' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO', maxZoom: 19
 }).addTo(map);
-
+ 
 let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
-
+ 
 async function load() {
   try {
     const r = await fetch(`${API}/listings`,
@@ -1051,14 +1038,14 @@ async function load() {
     document.getElementById('list-mobile').innerHTML = html;
   }
 }
-
+ 
 function render() {
   const list = activeFilter === 'all' ? allListings
     : allListings.filter(l => (l.type || l.listing_type) === activeFilter);
   renderList(list);
   renderMarkers(list);
 }
-
+ 
 function expiresLabel(iso) {
   if (!iso) return '';
   const diff = (new Date(iso) - Date.now()) / 1000;
@@ -1066,7 +1053,7 @@ function expiresLabel(iso) {
   if (diff < 86400) return `scade tra ${Math.round(diff/3600)}h`;
   return `scade tra ${Math.round(diff/86400)}g`;
 }
-
+ 
 function renderList(list) {
   if (!list.length) {
     const h = `<div class="state-box">Nessun annuncio trovato.</div>`;
@@ -1081,7 +1068,7 @@ function renderList(list) {
     el.addEventListener('click', () => select(el.dataset.id));
   });
 }
-
+ 
 function itemHTML(l) {
   const type  = l.type || l.listing_type || 'product';
   // FIX: sanifica tutti i campi utente prima di inserire nel DOM
@@ -1106,7 +1093,7 @@ function itemHTML(l) {
     </div>
   </div>`;
 }
-
+ 
 function renderMarkers(list) {
   Object.values(markerMap).forEach(m => m.remove());
   markerMap = {};
@@ -1127,7 +1114,7 @@ function renderMarkers(list) {
     markerMap[l.id] = m;
   });
 }
-
+ 
 function popupHTML(l) {
   const type  = l.type || l.listing_type || 'product';
   const title = esc(l.title || '—');
@@ -1148,7 +1135,7 @@ function popupHTML(l) {
     <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
-
+ 
 // Delega per i pulsanti sblocca nei popup (evita inline onclick con dati utente)
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-unlock-id]');
@@ -1158,7 +1145,7 @@ document.addEventListener('click', function(e) {
     unlock(id);
   }
 });
-
+ 
 function select(id) {
   selectedId = id;
   render();
@@ -1167,7 +1154,7 @@ function select(id) {
   document.querySelectorAll(`.listing-item[data-id="${id}"]`)
     .forEach(el => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
 }
-
+ 
 window.unlock = async function(id) {
   if (!authUser) { requireAuth(() => unlock(id)); return; }
   try {
@@ -1184,7 +1171,7 @@ window.unlock = async function(id) {
     alert('Errore pagamento: ' + e.message);
   }
 };
-
+ 
 function initFilters(id) {
   document.querySelectorAll(`#${id} .filter-btn`).forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1197,25 +1184,25 @@ function initFilters(id) {
 }
 initFilters('filters-desktop');
 initFilters('filters-mobile');
-
+ 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
     p => map.setView([p.coords.latitude, p.coords.longitude], 14),
     () => {}
   );
 }
-
+ 
 function timeAgo(iso) {
   const diff = (Date.now() - new Date(iso)) / 1000;
   if (diff < 3600)  return `${Math.round(diff/60)}min fa`;
   if (diff < 86400) return `${Math.round(diff/3600)}h fa`;
   return `${Math.round(diff/86400)}g fa`;
 }
-
+ 
 // ── MERCHANT MODAL ──
 let modalMap = null, modalMarker = null, selectedType = 'product';
 let pickedLat = null, pickedLng = null, selectedPhotos = [];
-
+ 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('loc-gps-btn').textContent =
@@ -1240,12 +1227,12 @@ function openModal() {
   }
   setTimeout(() => modalMap.invalidateSize(), 120);
 }
-
+ 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   resetForm();
 }
-
+ 
 function resetForm() {
   ['f-title','f-category','f-price','f-desc','f-contact'].forEach(id => {
     document.getElementById(id).value = '';
@@ -1257,7 +1244,7 @@ function resetForm() {
   document.getElementById('photo-preview').innerHTML = '';
   selectType('product');
 }
-
+ 
 function selectType(type) {
   selectedType = type;
   document.querySelectorAll('.type-opt').forEach(el => {
@@ -1273,7 +1260,7 @@ function selectType(type) {
     select.appendChild(opt);
   });
 }
-
+ 
 function setPickedLocation(lat, lng) {
   pickedLat = lat; pickedLng = lng;
   document.getElementById('loc-text').textContent =
@@ -1283,7 +1270,7 @@ function setPickedLocation(lat, lng) {
     radius: 8, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2
   }).addTo(modalMap);
 }
-
+ 
 function useGPS() {
   if (!navigator.geolocation) return alert('GPS non disponibile');
   navigator.geolocation.getCurrentPosition(p => {
@@ -1291,11 +1278,11 @@ function useGPS() {
     modalMap.setView([p.coords.latitude, p.coords.longitude], 16);
   }, () => alert('Impossibile ottenere la posizione GPS'));
 }
-
+ 
 // ── CLOUDINARY ──
 const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
 const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
-
+ 
 async function uploadToCloudinary(file) {
   const fd = new FormData();
   fd.append('file', file);
@@ -1309,7 +1296,7 @@ async function uploadToCloudinary(file) {
   const d = await r.json();
   return d.secure_url;
 }
-
+ 
 function handlePhotos(input) {
   const files = Array.from(input.files);
   files.forEach(file => {
@@ -1322,7 +1309,7 @@ function handlePhotos(input) {
     reader.readAsDataURL(file);
   });
 }
-
+ 
 function renderPhotoPreview() {
   document.getElementById('photo-preview').innerHTML = selectedPhotos.map((p, i) => `
     <div class="photo-thumb-wrap">
@@ -1330,12 +1317,12 @@ function renderPhotoPreview() {
       <button class="photo-remove" onclick="removePhoto(${i})">×</button>
     </div>`).join('');
 }
-
+ 
 function removePhoto(i) {
   selectedPhotos.splice(i, 1);
   renderPhotoPreview();
 }
-
+ 
 async function submitListing() {
   if (!authUser) { requireAuth(submitListing); return; }
   const title   = document.getElementById('f-title').value.trim();
@@ -1348,7 +1335,7 @@ async function submitListing() {
   if (selectedPhotos.length === 0) { alert('Aggiungi almeno una foto'); return; }
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
-
+ 
   // Step 1: carica le foto su Cloudinary (se presenti)
   let photoUrls = [];
   if (selectedPhotos.length > 0) {
@@ -1367,9 +1354,9 @@ async function submitListing() {
       return;
     }
   }
-
+ 
   btn.textContent = 'Pubblicazione…';
-
+ 
   const payload = {
     title,
     type: selectedType,
@@ -1381,7 +1368,7 @@ async function submitListing() {
     lng: pickedLng,
     photos: photoUrls,
   };
-
+ 
   try {
     const r = await fetch(`${API}/listings`, {
       method: 'POST',
@@ -1401,14 +1388,7 @@ async function submitListing() {
     btn.disabled = false; btn.textContent = 'Pubblica →';
   }
 }
-
-  // ── SEARCH ──
-document.getElementById('search-input-desktop').addEventListener('input', function() {
-  applySearch(this.value);
-});
-document.getElementById('search-input-mobile').addEventListener('input', function() {
-  applySearch(this.value);
-});
+ 
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
@@ -1418,7 +1398,7 @@ document.getElementById('auth-overlay').addEventListener('click', function(e) {
 document.getElementById('profile-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeProfileModal();
 });
-
+ 
 // ── INIT ──
   loadAuthUser().then(() => load());
 </script>
