@@ -1366,19 +1366,8 @@ const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
 const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
  
 async function uploadToCloudinary(file) {
-  let fileToUpload = file;
-  if (file.type === 'image/heic' || file.type === 'image/heif' ||
-      file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    canvas.getContext('2d').drawImage(bitmap, 0, 0);
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.88));
-    fileToUpload = new File([blob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
-  }
   const fd = new FormData();
-  fd.append('file', fileToUpload);
+  fd.append('file', file);
   fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
   fd.append('folder', 'qui');
   const r = await fetch(
