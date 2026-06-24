@@ -1219,6 +1219,14 @@ function selectType(type) {
     el.classList.remove('selected');
     if (el.dataset.type === type) el.classList.add('selected');
   });
+  const select = document.getElementById('f-category');
+  select.innerHTML = '<option value="">Seleziona categoria…</option>';
+  (CATEGORIES[type] || []).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    select.appendChild(opt);
+  });
 }
 
 function setPickedLocation(lat, lng) {
