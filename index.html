@@ -1327,7 +1327,7 @@ async function submitListing() {
   const payload = {
     title,
     type: selectedType,
-    category: document.getElementById('f-category').value.trim() || selectedType,
+    category: category,
     description: document.getElementById('f-desc').value.trim(),
     price: parseFloat(document.getElementById('f-price').value) || 0,
     contact,
