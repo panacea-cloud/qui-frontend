@@ -564,7 +564,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <div class="field">
         <label>POSIZIONE</label>
         <div id="modal-map"></div>
-        <div class="map-hint">📍 Tocca/clicca sulla mappa per scegliere la posizione</div>
+        <div class="map-hint" id="map-hint">📍 Usa il pulsante GPS per rilevare la tua posizione</div>
         <div class="loc-display" id="loc-display">
           <div class="loc-dot"></div>
           <span id="loc-text">Nessuna posizione selezionata</span>
@@ -1181,6 +1181,8 @@ function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('loc-gps-btn').textContent =
     authUser && authUser.is_admin ? '📍 GPS o clicca mappa' : '📍 Usa la mia posizione';
+  document.getElementById('map-hint').textContent =
+    authUser && authUser.is_admin ? '📍 Clicca sulla mappa o usa GPS' : '📍 Usa il pulsante GPS per rilevare la tua posizione';
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
