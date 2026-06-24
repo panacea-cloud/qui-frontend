@@ -783,6 +783,7 @@ function renderAuthUI() {
     const emailShort = esc(authUser.email.split('@')[0]);
     el.innerHTML = `
       <div class="user-pill" onclick="openProfileModal()" style="cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span>${emailShort}</span>
         <span class="tier-badge">${esc(tierLabel)}</span>
       </div>
