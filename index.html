@@ -1183,6 +1183,7 @@ function openModal() {
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
+  selectType('product');
   if (!modalMap) {
     const center = map.getCenter();
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false })
