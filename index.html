@@ -585,7 +585,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
       <div class="success-title">Annuncio pubblicato!</div>
-      <div class="success-sub">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~50m per la tua privacy.</div>
+      <div class="success-sub">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~100m per la tua privacy.</div>
     </div>
     <div class="modal-footer" id="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Annulla</button>
@@ -1239,7 +1239,7 @@ function selectType(type) {
 function setPickedLocation(lat, lng) {
   pickedLat = lat; pickedLng = lng;
   document.getElementById('loc-text').textContent =
-    `${lat.toFixed(5)}, ${lng.toFixed(5)} (approssimata ~50m)`;
+    `${lat.toFixed(5)}, ${lng.toFixed(5)} (approssimata ~100m)`;
   if (modalMarker) modalMarker.remove();
   modalMarker = L.circleMarker([lat, lng], {
     radius: 8, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2
