@@ -1400,7 +1400,40 @@ document.getElementById('profile-overlay').addEventListener('click', function(e)
 });
 
 // ── INIT ──
-loadAuthUser().then(() => load());
+function setupSearch(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  let timer;
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      clearTimeout(timer);
+      doSearch(this.value.trim());
+    }
+  });
+}
+
+async function doSearch(query) {
+  if (!query) return;
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
+      headers: { 'Accept-Language': 'it' }
+    });
+    const results = await r.json();
+    if (!results.length) { alert('Nessun risultato trovato'); return; }
+    const { lat, lon, boundingbox } = results[0];
+    if (boundingbox) {
+      map.fitBounds([[boundingbox[0], boundingbox[2]], [boundingbox[1], boundingbox[3]]]);
+    } else {
+      map.setView([parseFloat(lat), parseFloat(lon)], 14);
+    }
+  } catch(e) {
+    alert('Errore nella ricerca');
+  }
+}
+
+setupSearch('search-input-desktop');
+setupSearch('search-input-mobile');
+  loadAuthUser().then(() => load());
 </script>
 </body>
 </html>
