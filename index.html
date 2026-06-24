@@ -721,6 +721,66 @@ function logout() {
   renderAuthUI();
 }
 
+function openProfileModal() {
+  document.getElementById('profile-overlay').classList.add('open');
+  document.getElementById('profile-email').textContent = authUser.email;
+  document.getElementById('profile-tier').textContent =
+    authUser.tier === 3 ? '⭐ Merchant' : 'Regular';
+  loadMyListings();
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-overlay').classList.remove('open');
+}
+
+function profileLogout() {
+  closeProfileModal();
+  logout();
+}
+
+async function loadMyListings() {
+  const el = document.getElementById('profile-listings');
+  el.innerHTML = '<div class="profile-empty">Caricamento…</div>';
+  try {
+    const r = await fetch(`${API}/auth/my-listings`, { headers: authHeaders() });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const list = await r.json();
+    if (!list.length) {
+      el.innerHTML = '<div class="profile-empty">Nessun annuncio pubblicato.</div>';
+      return;
+    }
+    el.innerHTML = list.map(l => {
+      const exp = l.expires_at ? expiresLabel(l.expires_at) : 'Permanente';
+      const price = l.price === 0 ? 'Gratis' : `€${l.price}`;
+      return `
+      <div class="profile-listing-card" id="plcard-${l.id}">
+        <div class="profile-listing-top">
+          <div class="profile-listing-title">${esc(l.title)}</div>
+          <button class="profile-delete-btn" onclick="deleteListing(${l.id})">Elimina</button>
+        </div>
+        <div class="profile-listing-meta">${esc(l.category || l.type)} · ${price}</div>
+        <div class="profile-listing-expires">${exp}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="profile-empty">⚠️ ${esc(e.message)}</div>`;
+  }
+}
+
+async function deleteListing(id) {
+  if (!confirm('Eliminare questo annuncio?')) return;
+  try {
+    const r = await fetch(`${API}/listings/${id}`, {
+      method: 'DELETE', headers: authHeaders()
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    document.getElementById(`plcard-${id}`)?.remove();
+    load(); // aggiorna mappa
+  } catch(e) {
+    alert(`Errore: ${esc(e.message)}`);
+  }
+}
+
 // ── AUTH MODAL ──
 let authMode = 'login';
 
