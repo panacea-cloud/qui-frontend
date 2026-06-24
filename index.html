@@ -782,12 +782,10 @@ function renderAuthUI() {
     const tierLabel = authUser.tier === 3 ? 'Merchant' : 'Regular';
     const emailShort = esc(authUser.email.split('@')[0]);
     el.innerHTML = `
-      <div class="user-pill" onclick="openProfileModal()" style="cursor:pointer">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>${emailShort}</span>
-        <span class="tier-badge">${esc(tierLabel)}</span>
-      </div>
-      <button class="add-btn" style="margin-left:8px" onclick="openModal()">+ Aggiungi</button>`;
+      <button class="add-btn" onclick="openModal()">+ Aggiungi</button>
+      <button onclick="openProfileModal()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>`;
     if (label) label.textContent = authUser.email.split('@')[0];
   } else {
     el.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">Accedi</button>`;
