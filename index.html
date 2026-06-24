@@ -1521,7 +1521,7 @@ function renderScopri() {
     return `<div class="scopri-card" onclick="closeScopri();select(${l.id})">
       ${photo}
       <div class="scopri-card-overlay">
-        <div class="scopri-card-type">${esc(TYPE_LABEL[type]||type)}</div>
+        <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
         <div class="scopri-card-title">${esc(l.title||'—')}</div>
         ${l.description ? `<div class="scopri-card-desc">${esc(l.description)}</div>` : ''}
         ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
