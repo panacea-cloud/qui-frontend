@@ -542,9 +542,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <input type="text" id="f-title" placeholder="Es. Miele artigianale di montagna" maxlength="80"/>
       </div>
       <div class="field-row">
-        <div class="field">
+       <div class="field">
           <label>CATEGORIA</label>
-          <input type="text" id="f-category" placeholder="Es. Alimentari, Ripetizioni…"/>
+          <select id="f-category" style="border:1px solid #e0e0e0;border-radius:8px;padding:9px 11px;font-size:12px;font-family:inherit;color:#111;outline:none;background:#fafafa;width:100%">
+            <option value="">Seleziona categoria…</option>
+          </select>
         </div>
         <div class="field">
           <label>PREZZO (€)</label>
