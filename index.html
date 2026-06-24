@@ -1295,10 +1295,11 @@ async function submitListing() {
   if (!authUser) { requireAuth(submitListing); return; }
   const title   = document.getElementById('f-title').value.trim();
   const contact = document.getElementById('f-contact').value.trim();
+  const category = document.getElementById('f-category').value;
   if (!title)     { alert('Inserisci un titolo'); return; }
+  if (!category)  { alert('Seleziona una categoria'); return; }
   if (!pickedLat) { alert('Scegli una posizione sulla mappa'); return; }
   if (!contact)   { alert('Inserisci un contatto'); return; }
-
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
 
