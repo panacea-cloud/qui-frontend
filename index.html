@@ -1096,13 +1096,17 @@ function renderMarkers(list) {
 
 function popupHTML(l) {
   const type  = l.type || l.listing_type || 'product';
-  // FIX: sanifica tutti i campi utente
   const title = esc(l.title || '—');
   const desc  = esc(l.description || '');
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
-  // FIX: usa data-id invece di inline onclick con dati utente
   const btnHTML = `<button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>`;
+  const photos = l.photos || [];
+  const photosHTML = photos.length > 0 ? `
+    <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:10px;border-radius:8px;overflow:hidden">
+      ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length === 1 ? '100%' : '80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px" alt="foto"/>`).join('')}
+    </div>` : '';
   return `<div class="popup-inner">
+    ${photosHTML}
     <div class="popup-type ${type}">${esc(TYPE_LABEL[type] || type)}</div>
     <div class="popup-title">${title}</div>
     ${desc || price ? `<div class="popup-meta">${[desc, price].filter(Boolean).join(' · ')}</div>` : ''}
