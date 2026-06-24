@@ -663,6 +663,62 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
+  const CATEGORIES = {
+  product: [
+    "Frutta e verdura", "Carne e salumi", "Pesce e frutti di mare", "Formaggi e latticini",
+    "Pane e prodotti da forno", "Pasta e cereali", "Olio e condimenti", "Vino e birra artigianale",
+    "Miele e confetture", "Spezie ed erbe aromatiche", "Conserve e sottaceti", "Dolci e pasticceria",
+    "Caffè e tè", "Succhi e bevande", "Prodotti biologici", "Prodotti vegani",
+    "Piante da interno", "Piante da esterno", "Fiori recisi", "Semi e bulbi",
+    "Piante aromatiche", "Bonsai", "Cactus e succulente", "Piante da frutto",
+    "Terriccio e fertilizzanti", "Vasi e fioriere", "Attrezzi da giardino",
+    "Abbigliamento uomo", "Abbigliamento donna", "Abbigliamento bambino", "Scarpe",
+    "Borse e accessori", "Gioielli e bigiotteria", "Orologi", "Cappelli e berretti",
+    "Cinture e portafogli", "Abbigliamento sportivo", "Abbigliamento vintage", "Costumi da bagno",
+    "Mobili", "Illuminazione", "Tessili per la casa", "Decorazioni", "Cucina e stoviglie",
+    "Elettrodomestici", "Utensili", "Bagno e accessori", "Tappeti e pavimenti",
+    "Quadri e arte", "Oggetti da collezione", "Antiquariato",
+    "Smartphone e tablet", "Computer e laptop", "Accessori tech", "Fotocamere",
+    "Audio e cuffie", "TV e video", "Videogiochi e console", "Componenti PC",
+    "Droni", "Smartwatch", "Elettronica vintage",
+    "Utensili manuali", "Utensili elettrici", "Materiali edili", "Legname",
+    "Vernici e pitture", "Idraulica", "Elettricità", "Viti e bulloni", "Macchine da cantiere",
+    "Ricambi auto", "Accessori auto", "Ricambi moto", "Pneumatici", "Oli e lubrificanti",
+    "Tuning e preparazione", "Veicoli (auto/moto/bici)",
+    "Dipinti e quadri originali", "Sculture", "Fotografia stampata", "Ceramiche e pottery",
+    "Gioielli artigianali", "Tessuti e ricami", "Stampe e poster", "Fumetti e illustrazioni",
+    "Oggetti in legno intagliato",
+    "Libri nuovi", "Libri usati", "Fumetti e manga", "Riviste", "Vinili e CD",
+    "DVD e Blu-ray", "Spartiti musicali", "Mappe e cartografie",
+    "Chitarre", "Pianoforti e tastiere", "Strumenti a fiato", "Strumenti a percussione",
+    "Strumenti ad arco", "Accessori musicali", "Attrezzatura DJ", "Microfoni e audio",
+    "Attrezzatura calcio", "Attrezzatura ciclismo", "Attrezzatura palestra",
+    "Attrezzatura sci e neve", "Attrezzatura mare e surf", "Attrezzatura running",
+    "Attrezzatura arrampicata", "Attrezzatura caccia e pesca", "Campeggio e trekking",
+    "Yoga e pilates",
+    "Giocattoli", "Giochi da tavolo", "LEGO e costruzioni", "Peluche",
+    "Passeggini e carrozzine", "Abbigliamento neonato", "Libri per bambini",
+    "Videogiochi per bambini", "Bici e monopattini per bambini",
+    "Cibo per cani", "Cibo per gatti", "Accessori per animali", "Gabbie e acquari",
+    "Prodotti per cavalli", "Prodotti per uccelli", "Prodotti per rettili", "Cucce e lettiere",
+    "Integratori alimentari", "Prodotti erboristici", "Cosmetici naturali",
+    "Prodotti per la cura del corpo", "Prodotti per capelli", "Profumi",
+    "Dispositivi medici non prescritti", "Occhiali e lenti",
+    "Detergenti", "Prodotti ecologici", "Attrezzatura per pulizie",
+    "Candele e profumatori", "Deumidificatori e purificatori",
+    "Prodotti riciclati", "Prodotti a km zero", "Packaging sostenibile",
+    "Energia solare (pannelli, accessori)", "Compostaggio",
+    "Confezioni regalo", "Biglietti d'auguri artigianali", "Bomboniere",
+    "Decorazioni per feste", "Gadget personalizzati",
+    "Legno grezzo", "Metalli (ferro, acciaio, alluminio, rame)", "Pietre e marmo",
+    "Tessuti e stoffe", "Filati e lana", "Cuoio e pelle", "Argilla e gesso",
+    "Sabbia e ghiaia", "Calce e cemento", "Resine e polimeri", "Cera e paraffina",
+    "Carta e cartone grezzo", "Coloranti e pigmenti", "Oli essenziali grezzi",
+    "Semi oleosi", "Granaglie sfuse"
+  ],
+  service: [],
+  experience: []
+};
 
 // ── HELPER: sanifica testo per innerHTML (previene XSS) ──
 function esc(s) {
