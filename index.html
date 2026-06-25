@@ -11,9 +11,9 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #fff; }
- 
+
 .app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
- 
+
 /* topbar */
 .topbar {
   height: 44px; border-bottom: 0.5px solid #e0e0e0;
@@ -47,19 +47,10 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   cursor: pointer; border: 1px solid #2a2a6e; font-family: inherit;
 }
 .auth-btn:hover { background: #f0f0fa; }
-.user-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: #f0f0fa; border-radius: 6px; padding: 4px 10px;
-  font-size: 11px; color: #2a2a6e; font-weight: 500;
-}
-.tier-badge {
-  font-size: 9px; font-weight: 600; padding: 1px 5px;
-  border-radius: 4px; background: #2a2a6e; color: #fff;
-}
- 
+
 /* body */
 .body { display: flex; flex: 1; overflow: hidden; }
- 
+
 /* sidebar */
 .sidebar {
   width: 205px; min-width: 205px; border-right: 0.5px solid #e0e0e0;
@@ -98,13 +89,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .listing-price { font-size: 12px; font-weight: 500; color: #111; margin-top: 2px; }
 .listing-sub { font-size: 10px; color: #888; font-weight: 400; }
 .listing-expires { font-size: 9px; color: #e07030; font-weight: 500; margin-top: 1px; }
- 
+
 .state-box { padding: 24px 10px; text-align: center; color: #aaa; font-size: 11px; line-height: 1.6; }
 .spinner { width: 20px; height: 20px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
- 
+
 #map { flex: 1; z-index: 1; }
- 
+
 .leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 3px 16px rgba(0,0,0,0.13) !important; padding: 0 !important; }
 .leaflet-popup-content { margin: 0 !important; min-width: 200px; }
 .popup-inner { padding: 12px 14px; }
@@ -125,7 +116,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   background: #fff8e1; border: 0.5px solid #ffe082; border-radius: 8px;
   padding: 8px 10px; font-size: 11px; color: #795548; line-height: 1.5; margin-top: 8px;
 }
- 
+
 .map-legend {
   position: absolute; bottom: 10px; right: 10px;
   background: rgba(255,255,255,0.93); border-radius: 8px; padding: 8px 10px;
@@ -134,11 +125,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .legend-row { display: flex; align-items: center; gap: 6px; color: #333; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
- 
+
 .map-pin { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .15s; cursor: pointer; }
 .map-pin:hover { transform: scale(1.35); }
 .map-pin.selected { transform: scale(1.5); box-shadow: 0 0 0 3px rgba(42,42,110,.25); }
- 
+
 /* ── AUTH MODAL ── */
 .auth-overlay {
   display: none; position: fixed; inset: 0;
@@ -179,7 +170,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .auth-submit:disabled { opacity: .45; cursor: not-allowed; }
 .auth-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; }
 .auth-info { font-size: 11px; color: #888; line-height: 1.5; text-align: center; }
- 
+
 /* ── CONTACT MODAL ── */
 .contact-overlay {
   display: none; position: fixed; inset: 0;
@@ -224,7 +215,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   padding: 32px 20px; text-align: center; color: #888; font-size: 12px;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
- 
+
 /* ── MERCHANT MODAL ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -249,7 +240,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .modal-close:hover { background: #e0e0e0; }
 .modal-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
- 
+
 .type-selector { display: flex; gap: 8px; }
 .type-opt {
   flex: 1; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 6px;
@@ -261,7 +252,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .type-opt.selected.service    { border-color: #a8dfc0; background: #ddf3ea; color: #2a7a4a; }
 .type-opt.selected.experience { border-color: #f5b8c8; background: #fde8ef; color: #a03060; }
 .type-opt:hover:not(.selected) { background: #fafafa; }
- 
+
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
 .field input, .field textarea {
@@ -273,7 +264,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .field textarea { resize: vertical; min-height: 72px; }
 .field-row { display: flex; gap: 10px; }
 .field-row .field { flex: 1; }
- 
+
 #modal-map { height: 160px; border-radius: 10px; border: 1px solid #e0e0e0; overflow: hidden; flex-shrink: 0; }
 .map-hint { font-size: 10px; color: #888; margin-top: 3px; }
 .loc-display {
@@ -285,7 +276,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   margin-left: auto; font-size: 10px; background: #2a2a6e; color: #fff; border: none;
   border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: 500;
 }
- 
+
 /* foto upload */
 .photo-upload-area {
   border: 1.5px dashed #d0d0d0; border-radius: 10px; padding: 16px;
@@ -301,7 +292,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   border-radius: 50%; background: #e53935; color: #fff; border: none;
   font-size: 11px; cursor: pointer; line-height: 18px; text-align: center; padding: 0;
 }
- 
+
 .modal-footer {
   padding: 14px 18px; border-top: 0.5px solid #e0e0e0;
   flex-shrink: 0; display: flex; gap: 8px;
@@ -319,7 +310,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .btn-submit:hover { opacity: .88; }
 .btn-submit:disabled { opacity: .45; cursor: not-allowed; }
- 
+
 .modal-success {
   display: none; flex-direction: column; align-items: center;
   justify-content: center; padding: 40px 20px; text-align: center; gap: 10px;
@@ -328,6 +319,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 .success-icon { font-size: 36px; }
 .success-title { font-size: 15px; font-weight: 600; color: #111; }
 .success-sub { font-size: 12px; color: #888; line-height: 1.5; }
+
 /* ── PROFILE MODAL ── */
 .profile-overlay {
   display: none; position: fixed; inset: 0;
@@ -371,7 +363,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   font-family: inherit; color: #c0392b;
 }
 .profile-logout-btn:hover { background: #fdf0f0; }
-  
+
 /* ── mobile navbar ── */
 .mobile-navbar { display: none; }
 @media (max-width: 680px) {
@@ -398,58 +390,46 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     display: flex; align-items: center; justify-content: center;
   }
 }
- 
+
 /* ── mobile ── */
 @media (max-width: 680px) {
   .topbar { display: none; }
   .sidebar { display: none; }
- 
-  /* search bar floating */
+
   .mobile-search {
-    display: none;
     position: fixed; top: 14px; left: 14px; right: 14px; height: 44px;
     background: #fff; border-radius: 22px; border: 0.5px solid #e0e0e0;
     display: flex; align-items: center; padding: 0 14px; gap: 8px;
     font-size: 13px; color: #888; z-index: 1100;
     box-shadow: 0 2px 12px rgba(0,0,0,.10);
   }
- 
-  /* sheet: solo filtri, no lista */
+
   .mobile-sheet {
     position: fixed; bottom: 60px; left: 0; right: 0; background: #fff;
     border-radius: 14px 14px 0 0; box-shadow: 0 -2px 12px rgba(0,0,0,.08);
-    z-index: 800; display: flex; flex-direction: column;
-    /* altezza fissa, solo per i filtri */
-    height: auto;
+    z-index: 800; display: flex; flex-direction: column; height: auto;
   }
   .sheet-handle { display: none; }
   .mobile-filter-row {
-    display: flex; gap: 6px; padding: 10px 14px;
-    overflow-x: auto; flex-shrink: 0;
+    display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; flex-shrink: 0;
   }
   .mobile-filter-row::-webkit-scrollbar { display: none; }
- 
-  /* lista nascosta su mobile — la si usa solo desktop */
   .mobile-list { display: none; }
- 
-  /* Leaflet popup sopra tutto */
   .leaflet-popup { z-index: 1200 !important; }
   .leaflet-popup-pane { z-index: 1200 !important; }
- 
-  /* legenda: angolo in alto a destra, sotto la search */
-  .map-legend {
-    bottom: auto; top: 70px; right: 10px;
-  }
+  .map-legend { bottom: auto; top: 70px; right: 10px; }
 }
 @media (max-width: 680px) {
   .leaflet-popup-pane { z-index: 1200 !important; }
   .leaflet-popup { margin-bottom: 10px; }
 }
-  @media (min-width: 681px) {
+@media (min-width: 681px) {
   .mobile-sheet { display: none; }
+  .mobile-search { display: none; }
 }
- .leaflet-control-zoom { display: none !important; }
- /* ── SCOPRI OVERLAY ── */
+.leaflet-control-zoom { display: none !important; }
+
+/* ── SCOPRI OVERLAY ── */
 .scopri-overlay {
   display: none; position: fixed; inset: 0;
   background: #fff; z-index: 1500;
@@ -476,8 +456,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   font-family: inherit; font-size: 13px; color: #111; width: 100%;
 }
 .scopri-filters {
-  display: flex; gap: 6px; padding: 0 16px 10px;
-  overflow-x: auto; flex-shrink: 0;
+  display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto; flex-shrink: 0;
 }
 .scopri-filters::-webkit-scrollbar { display: none; }
 .scopri-filter-btn {
@@ -514,7 +493,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 </head>
 <body>
 <div class="app">
- 
+
   <!-- TOPBAR -->
   <div class="topbar">
     <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
@@ -527,12 +506,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       </svg>
     </div>
     <div class="search-bar">
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-  <input id="search-input-desktop" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
-</div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="search-input-desktop" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
+    </div>
     <div id="topbar-auth"></div>
   </div>
- 
+
   <!-- BODY -->
   <div class="body">
     <div class="sidebar">
@@ -549,7 +528,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <div class="state-box"><div class="spinner"></div>Caricamento…</div>
       </div>
     </div>
- 
+
     <div style="flex:1;position:relative;">
       <div id="map" style="width:100%;height:100%"></div>
       <div class="map-legend">
@@ -560,7 +539,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
- 
+
 <!-- AUTH MODAL -->
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-modal">
@@ -587,7 +566,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
- 
+
 <!-- CONTACT MODAL -->
 <div class="contact-overlay" id="contact-overlay">
   <div class="contact-modal">
@@ -604,7 +583,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
- 
+
 <!-- MERCHANT MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
@@ -632,7 +611,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <input type="text" id="f-title" placeholder="Titolo breve e chiaro (max 80 caratteri)" maxlength="80"/>
       </div>
       <div class="field-row">
-       <div class="field">
+        <div class="field">
           <label>CATEGORIA</label>
           <select id="f-category" style="border:1px solid #e0e0e0;border-radius:8px;padding:9px 11px;font-size:12px;font-family:inherit;color:#111;outline:none;background:#fafafa;width:100%">
             <option value="">Seleziona categoria…</option>
@@ -682,7 +661,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-  
+
 <!-- PROFILE MODAL -->
 <div class="profile-overlay" id="profile-overlay">
   <div class="profile-modal">
@@ -704,7 +683,8 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-  <!-- SCOPRI OVERLAY (mobile) -->
+
+<!-- SCOPRI OVERLAY -->
 <div class="scopri-overlay" id="scopri-overlay">
   <div class="scopri-header">
     <div class="scopri-title">Scopri</div>
@@ -716,18 +696,19 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   </div>
   <div class="scopri-filters">
     <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')">Tutti</button>
-<button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')"><span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block;margin-right:5px"></span>Prodotti</button>
-<button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')"><span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block;margin-right:5px"></span>Servizi</button>
-<button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span>Esperienze</button>
+    <button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')"><span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block;margin-right:5px"></span>Prodotti</button>
+    <button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')"><span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block;margin-right:5px"></span>Servizi</button>
+    <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span>Esperienze</button>
   </div>
   <div class="scopri-list" id="scopri-list"></div>
 </div>
+
 <!-- MOBILE SEARCH BAR -->
 <div class="mobile-search">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
   <input id="search-input-mobile" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:13px;color:#111;width:100%"/>
 </div>
- 
+
 <!-- MOBILE NAVBAR -->
 <nav class="mobile-navbar">
   <button class="nav-item" onclick="showMobileAuth()">
@@ -749,7 +730,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     Scopri
   </button>
 </nav>
- 
+
 <!-- MOBILE SHEET — solo filtri -->
 <div class="mobile-sheet">
   <div class="mobile-filter-row" id="filters-mobile">
@@ -765,88 +746,32 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
   </div>
 </div>
-<!-- list-mobile hidden: serve solo a renderList() per non rompere il codice JS -->
 <div id="list-mobile" style="display:none"></div>
- 
+
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
-  const CATEGORIES = {
-  product: [
-    "Agricoltura e Natura",
-    "Animali Domestici",
-    "Arredamento",
-    "Arte",
-    "Automotive",
-    "Bambini e Giochi",
-    "Beverage",
-    "Beni Industriali",
-    "Casa",
-    "Collezionismo e Vintage",
-    "Cultura",
-    "Cura della Persona",
-    "Elettronica",
-    "Energia",
-    "Fai da Te",
-    "Food",
-    "Intrattenimento",
-    "Materiali Riciclati",
-    "Materie Prime",
-    "Moda",
-    "Salute e Benessere",
-    "Sport e Outdoor",
-    "Tecnologia",
-    "Tessile"
-  ],
-  service: [
-    "Agricoltura e Ambiente",
-    "Animali",
-    "Artigianato e Manutenzione",
-    "Arte e Cultura",
-    "Benessere e Cura della Persona",
-    "Educazione e Formazione",
-    "Logistica e Trasporti",
-    "Ospitalità e Turismo",
-    "Sanità e Assistenza",
-    "Servizi Digitali e Tech",
-    "Servizi Finanziari e Assicurativi",
-    "Servizi Immobiliari",
-    "Servizi Professionali"
-  ],
-  experience: [
-    "Concerti, Festival e Spettacoli",
-    "Degustazioni e Turismo Gastronomico",
-    "Musei, Arte e Patrimonio Culturale",
-    "Incontri Sociali e Volontariato",
-    "Parchi Tematici e Esperienze Immersive",
-    "Ritiri, Spa e Percorsi di Benessere",
-    "Safari, Equitazione e Natura Selvaggia",
-    "Sport Estremo e Avventura",
-    "Tour Guidati e Viaggi di Gruppo",
-    "Workshop e Corsi Pratici"
-  ]
+
+const CATEGORIES = {
+  product: ["Agricoltura e Natura","Animali Domestici","Arredamento","Arte","Automotive","Bambini e Giochi","Beverage","Beni Industriali","Casa","Collezionismo e Vintage","Cultura","Cura della Persona","Elettronica","Energia","Fai da Te","Food","Intrattenimento","Materiali Riciclati","Materie Prime","Moda","Salute e Benessere","Sport e Outdoor","Tecnologia","Tessile"],
+  service: ["Agricoltura e Ambiente","Animali","Artigianato e Manutenzione","Arte e Cultura","Benessere e Cura della Persona","Educazione e Formazione","Logistica e Trasporti","Ospitalità e Turismo","Sanità e Assistenza","Servizi Digitali e Tech","Servizi Finanziari e Assicurativi","Servizi Immobiliari","Servizi Professionali"],
+  experience: ["Concerti, Festival e Spettacoli","Degustazioni e Turismo Gastronomico","Musei, Arte e Patrimonio Culturale","Incontri Sociali e Volontariato","Parchi Tematici e Esperienze Immersive","Ritiri, Spa e Percorsi di Benessere","Safari, Equitazione e Natura Selvaggia","Sport Estremo e Avventura","Tour Guidati e Viaggi di Gruppo","Workshop e Corsi Pratici"]
 };
- 
-// ── HELPER: sanifica testo per innerHTML (previene XSS) ──
+
 function esc(s) {
   if (s == null) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
- 
+
 // ── AUTH STATE ──
 let authToken = localStorage.getItem('qui_token') || null;
-let authUser  = null; // { id, email, tier }
- 
+let authUser  = null;
+
 function authHeaders() {
   return authToken
     ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
     : { 'Content-Type': 'application/json' };
 }
- 
+
 async function loadAuthUser() {
   if (!authToken) { renderAuthUI(); return; }
   try {
@@ -856,13 +781,11 @@ async function loadAuthUser() {
   } catch { logout(); }
   renderAuthUI();
 }
- 
+
 function renderAuthUI() {
   const el = document.getElementById('topbar-auth');
   const label = document.getElementById('nav-profile-label');
   if (authUser) {
-    const tierLabel = authUser.tier === 3 ? 'Merchant' : 'Regular';
-    const emailShort = esc(authUser.email.split('@')[0]);
     el.innerHTML = `
       <button class="add-btn" onclick="openModal()">+ Aggiungi</button>
       <button onclick="openProfileModal()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center">
@@ -874,30 +797,29 @@ function renderAuthUI() {
     if (label) label.textContent = 'Accedi';
   }
 }
- 
+
 function logout() {
   authToken = null; authUser = null;
   localStorage.removeItem('qui_token');
   renderAuthUI();
 }
- 
+
 function openProfileModal() {
   document.getElementById('profile-overlay').classList.add('open');
   document.getElementById('profile-email').textContent = authUser.email;
-  document.getElementById('profile-tier').textContent =
-    authUser.tier === 3 ? '⭐ Merchant' : 'Regular';
+  document.getElementById('profile-tier').textContent = authUser.tier === 3 ? '⭐ Merchant' : 'Regular';
   loadMyListings();
 }
- 
+
 function closeProfileModal() {
   document.getElementById('profile-overlay').classList.remove('open');
 }
- 
+
 function profileLogout() {
   closeProfileModal();
   logout();
 }
- 
+
 async function loadMyListings() {
   const el = document.getElementById('profile-listings');
   el.innerHTML = '<div class="profile-empty">Caricamento…</div>';
@@ -905,10 +827,7 @@ async function loadMyListings() {
     const r = await fetch(`${API}/auth/my-listings`, { headers: authHeaders() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const list = await r.json();
-    if (!list.length) {
-      el.innerHTML = '<div class="profile-empty">Nessun annuncio pubblicato.</div>';
-      return;
-    }
+    if (!list.length) { el.innerHTML = '<div class="profile-empty">Nessun annuncio pubblicato.</div>'; return; }
     el.innerHTML = list.map(l => {
       const exp = l.expires_at ? expiresLabel(l.expires_at) : 'Permanente';
       const price = l.price === 0 ? 'Gratis' : `€${l.price}`;
@@ -926,24 +845,25 @@ async function loadMyListings() {
     el.innerHTML = `<div class="profile-empty">⚠️ ${esc(e.message)}</div>`;
   }
 }
- 
+
 async function deleteListing(id) {
   if (!confirm('Eliminare questo annuncio?')) return;
   try {
     const r = await fetch(`${API}/listings/${id}`, {
-      method: 'DELETE', headers: authHeaders()
+      method: 'DELETE',
+      headers: authHeaders()
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     document.getElementById(`plcard-${id}`)?.remove();
-    load(); // aggiorna mappa
+    load();
   } catch(e) {
     alert(`Errore: ${esc(e.message)}`);
   }
 }
- 
+
 // ── AUTH MODAL ──
 let authMode = 'login';
- 
+
 function openAuthModal() {
   document.getElementById('auth-overlay').classList.add('open');
   document.getElementById('auth-error').style.display = 'none';
@@ -951,16 +871,16 @@ function openAuthModal() {
   document.getElementById('auth-password').value = '';
   switchTab('login');
 }
- 
+
 function closeAuthModal() {
   document.getElementById('auth-overlay').classList.remove('open');
 }
- 
+
 function showMobileAuth() {
   if (authUser) { openProfileModal(); return; }
   openAuthModal();
 }
- 
+
 function switchTab(mode) {
   authMode = mode;
   document.getElementById('tab-login').classList.toggle('active', mode === 'login');
@@ -971,7 +891,7 @@ function switchTab(mode) {
     : 'Accedi per pubblicare annunci e sbloccare contatti.';
   document.getElementById('auth-error').style.display = 'none';
 }
- 
+
 async function submitAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value.trim();
@@ -979,10 +899,8 @@ async function submitAuth() {
   const btn = document.getElementById('auth-submit-btn');
   errEl.style.display = 'none';
   if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
- 
   btn.disabled = true;
   btn.textContent = authMode === 'login' ? 'Accesso…' : 'Registrazione…';
- 
   try {
     const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
     const r = await fetch(`${API}${endpoint}`, {
@@ -1005,17 +923,17 @@ async function submitAuth() {
     btn.textContent = authMode === 'login' ? 'Accedi' : 'Registrati';
   }
 }
- 
+
 let pendingAction = null;
- 
+
 function requireAuth(action) {
   if (authUser) { action(); return; }
   pendingAction = action;
   openAuthModal();
 }
- 
+
 function onAddClick() { requireAuth(openModal); }
- 
+
 // ── STRIPE RETURN ──
 (async () => {
   const p = new URLSearchParams(window.location.search);
@@ -1026,7 +944,7 @@ function onAddClick() { requireAuth(openModal); }
     openContactModal(listingId, session);
   }
 })();
- 
+
 // ── CONTACT MODAL ──
 function openContactModal(listingId, sessionId) {
   document.getElementById('contact-overlay').classList.add('open');
@@ -1034,11 +952,11 @@ function openContactModal(listingId, sessionId) {
     `<div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>`;
   fetchContact(listingId, sessionId);
 }
- 
+
 function closeContactModal() {
   document.getElementById('contact-overlay').classList.remove('open');
 }
- 
+
 async function fetchContact(listingId, sessionId) {
   try {
     const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${encodeURIComponent(sessionId||'')}`,
@@ -1051,18 +969,18 @@ async function fetchContact(listingId, sessionId) {
       `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>Contatta supporto@qui.it</small></div>`;
   }
 }
- 
+
 function renderContact(d) {
-  // FIX: usa esc() per prevenire XSS nei dati del listing
   const contactSafe = esc(d.contact || '');
   const titleSafe   = esc(d.title || 'Annuncio');
   const descSafe    = esc(d.description || '');
- 
-  // data-contact su un elemento separato per il copy, evita injection in onclick
   const bodyEl = document.getElementById('contact-body');
   bodyEl.innerHTML = `
     <div class="contact-body">
-      <div class="contact-listing-name">${titleSafe}</div>
+      <div class="contact-row">
+        <div class="contact-label">Annuncio</div>
+        <div style="font-size:13px;font-weight:500;color:#111;padding:0 0 4px">${titleSafe}</div>
+      </div>
       <div class="contact-row">
         <div class="contact-label">Contatto</div>
         <div class="contact-value">
@@ -1079,33 +997,32 @@ function renderContact(d) {
     <div class="contact-footer">
       <button class="contact-close-btn" onclick="closeContactModal()">Chiudi</button>
     </div>`;
- 
-  // Bind copy con closure sicura (no inline onclick con dati utente)
   document.getElementById('copy-contact-btn').addEventListener('click', function() {
     copyText(d.contact || '', this);
   });
 }
- 
+
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = '✓ Copiato';
     setTimeout(() => { btn.textContent = 'Copia'; }, 1800);
   });
 }
- 
+
 // ── MAP ──
 const TYPE_COLOR = { product: '#a8c8f0', service: '#a8dfc0', experience: '#f5b8c8' };
 const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8ef' };
 const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
- 
+
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
 L.control.zoom({ position: 'topleft' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '© OpenStreetMap © CARTO', maxZoom: 19
 }).addTo(map);
- 
+
 let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
- 
+let userLat = null, userLng = null;
+
 async function load() {
   try {
     const r = await fetch(`${API}/listings`,
@@ -1120,14 +1037,29 @@ async function load() {
     document.getElementById('list-mobile').innerHTML = html;
   }
 }
- 
+
+function distKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function render() {
-  const list = activeFilter === 'all' ? allListings
-    : allListings.filter(l => (l.type || l.listing_type) === activeFilter);
+  let list = activeFilter === 'all' ? allListings : allListings.filter(l => (l.type || l.listing_type) === activeFilter);
+  // Ordina per prossimità se GPS disponibile
+  if (userLat !== null) {
+    list = [...list].sort((a, b) => {
+      const da = distKm(userLat, userLng, a.lat, a.lng);
+      const db = distKm(userLat, userLng, b.lat, b.lng);
+      return da - db;
+    });
+  }
   renderList(list);
   renderMarkers(list);
 }
- 
+
 function expiresLabel(iso) {
   if (!iso) return '';
   const diff = (new Date(iso) - Date.now()) / 1000;
@@ -1135,7 +1067,7 @@ function expiresLabel(iso) {
   if (diff < 86400) return `scade tra ${Math.round(diff/3600)}h`;
   return `scade tra ${Math.round(diff/86400)}g`;
 }
- 
+
 function renderList(list) {
   if (!list.length) {
     const h = `<div class="state-box">Nessun annuncio trovato.</div>`;
@@ -1150,10 +1082,9 @@ function renderList(list) {
     el.addEventListener('click', () => select(el.dataset.id));
   });
 }
- 
+
 function itemHTML(l) {
   const type  = l.type || l.listing_type || 'product';
-  // FIX: sanifica tutti i campi utente prima di inserire nel DOM
   const title = esc(l.title || '—');
   const cat   = esc(l.category || type);
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
@@ -1162,6 +1093,11 @@ function itemHTML(l) {
   const sel   = selectedId == l.id ? 'selected' : '';
   const bg    = TYPE_BG[type]    || '#eee';
   const dot   = TYPE_COLOR[type] || '#ccc';
+  let distLabel = '';
+  if (userLat !== null && l.lat && l.lng) {
+    const d = distKm(userLat, userLng, l.lat, l.lng);
+    distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+  }
   return `
   <div class="listing-item ${sel}" data-id="${l.id}">
     <div class="listing-dot" style="background:${bg}">
@@ -1169,13 +1105,13 @@ function itemHTML(l) {
     </div>
     <div class="listing-info">
       <div class="listing-name">${title}</div>
-      <div class="listing-meta"><span>${cat}</span></div>
+      <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
       <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
       ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
     </div>
   </div>`;
 }
- 
+
 function renderMarkers(list) {
   Object.values(markerMap).forEach(m => m.remove());
   markerMap = {};
@@ -1196,7 +1132,7 @@ function renderMarkers(list) {
     markerMap[l.id] = m;
   });
 }
- 
+
 function popupHTML(l) {
   const type  = l.type || l.listing_type || 'product';
   const title = esc(l.title || '—');
@@ -1217,8 +1153,7 @@ function popupHTML(l) {
     <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
- 
-// Delega per i pulsanti sblocca nei popup (evita inline onclick con dati utente)
+
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-unlock-id]');
   if (btn) {
@@ -1227,7 +1162,7 @@ document.addEventListener('click', function(e) {
     unlock(id);
   }
 });
- 
+
 function select(id) {
   selectedId = id;
   render();
@@ -1236,7 +1171,7 @@ function select(id) {
   document.querySelectorAll(`.listing-item[data-id="${id}"]`)
     .forEach(el => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
 }
- 
+
 window.unlock = async function(id) {
   if (!authUser) { requireAuth(() => unlock(id)); return; }
   try {
@@ -1253,7 +1188,7 @@ window.unlock = async function(id) {
     alert('Errore pagamento: ' + e.message);
   }
 };
- 
+
 function initFilters(id) {
   document.querySelectorAll(`#${id} .filter-btn`).forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1266,25 +1201,30 @@ function initFilters(id) {
 }
 initFilters('filters-desktop');
 initFilters('filters-mobile');
- 
+
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
-    p => map.setView([p.coords.latitude, p.coords.longitude], 14),
+    p => {
+      userLat = p.coords.latitude;
+      userLng = p.coords.longitude;
+      map.setView([userLat, userLng], 14);
+      render();
+    },
     () => {}
   );
 }
- 
+
 function timeAgo(iso) {
   const diff = (Date.now() - new Date(iso)) / 1000;
   if (diff < 3600)  return `${Math.round(diff/60)}min fa`;
   if (diff < 86400) return `${Math.round(diff/3600)}h fa`;
   return `${Math.round(diff/86400)}g fa`;
 }
- 
+
 // ── MERCHANT MODAL ──
 let modalMap = null, modalMarker = null, selectedType = 'product';
 let pickedLat = null, pickedLng = null, selectedPhotos = [];
- 
+
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   document.getElementById('loc-gps-btn').textContent =
@@ -1309,12 +1249,12 @@ function openModal() {
   }
   setTimeout(() => modalMap.invalidateSize(), 120);
 }
- 
+
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   resetForm();
 }
- 
+
 function resetForm() {
   ['f-title','f-category','f-price','f-desc','f-contact'].forEach(id => {
     document.getElementById(id).value = '';
@@ -1326,7 +1266,7 @@ function resetForm() {
   document.getElementById('photo-preview').innerHTML = '';
   selectType('product');
 }
- 
+
 function selectType(type) {
   selectedType = type;
   document.querySelectorAll('.type-opt').forEach(el => {
@@ -1337,12 +1277,11 @@ function selectType(type) {
   select.innerHTML = '<option value="">Seleziona categoria…</option>';
   (CATEGORIES[type] || []).forEach(cat => {
     const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = cat;
+    opt.value = cat; opt.textContent = cat;
     select.appendChild(opt);
   });
 }
- 
+
 function setPickedLocation(lat, lng) {
   pickedLat = lat; pickedLng = lng;
   document.getElementById('loc-text').textContent =
@@ -1352,7 +1291,7 @@ function setPickedLocation(lat, lng) {
     radius: 8, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2
   }).addTo(modalMap);
 }
- 
+
 function useGPS() {
   if (!navigator.geolocation) return alert('GPS non disponibile');
   navigator.geolocation.getCurrentPosition(p => {
@@ -1360,11 +1299,11 @@ function useGPS() {
     modalMap.setView([p.coords.latitude, p.coords.longitude], 16);
   }, () => alert('Impossibile ottenere la posizione GPS'));
 }
- 
+
 // ── CLOUDINARY ──
 const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
 const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
- 
+
 async function uploadToCloudinary(file) {
   const fd = new FormData();
   fd.append('file', file);
@@ -1378,7 +1317,7 @@ async function uploadToCloudinary(file) {
   const d = await r.json();
   return d.secure_url;
 }
- 
+
 function handlePhotos(input) {
   const files = Array.from(input.files);
   files.forEach(file => {
@@ -1397,7 +1336,7 @@ function handlePhotos(input) {
     reader.readAsDataURL(file);
   });
 }
- 
+
 function renderPhotoPreview() {
   document.getElementById('photo-preview').innerHTML = selectedPhotos.map((p, i) => `
     <div class="photo-thumb-wrap">
@@ -1405,26 +1344,24 @@ function renderPhotoPreview() {
       <button class="photo-remove" onclick="removePhoto(${i})">×</button>
     </div>`).join('');
 }
- 
+
 function removePhoto(i) {
   selectedPhotos.splice(i, 1);
   renderPhotoPreview();
 }
- 
+
 async function submitListing() {
   if (!authUser) { requireAuth(submitListing); return; }
-  const title   = document.getElementById('f-title').value.trim();
-  const contact = document.getElementById('f-contact').value.trim();
+  const title    = document.getElementById('f-title').value.trim();
+  const contact  = document.getElementById('f-contact').value.trim();
   const category = document.getElementById('f-category').value;
-  if (!title)                  { alert('Inserisci un titolo'); return; }
-  if (!category)               { alert('Seleziona una categoria'); return; }
-  if (!pickedLat)              { alert('Scegli una posizione'); return; }
-  if (!contact)                { alert('Inserisci un contatto'); return; }
+  if (!title)    { alert('Inserisci un titolo'); return; }
+  if (!category) { alert('Seleziona una categoria'); return; }
+  if (!pickedLat){ alert('Scegli una posizione'); return; }
+  if (!contact)  { alert('Inserisci un contatto'); return; }
   if (selectedPhotos.length === 0) { alert('Aggiungi almeno una foto'); return; }
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
- 
-  // Step 1: carica le foto su Cloudinary (se presenti)
   let photoUrls = [];
   if (selectedPhotos.length > 0) {
     btn.textContent = `Caricamento foto (0/${selectedPhotos.length})…`;
@@ -1442,31 +1379,18 @@ async function submitListing() {
       return;
     }
   }
- 
   btn.textContent = 'Pubblicazione…';
- 
   const payload = {
-    title,
-    type: selectedType,
-    category: category,
+    title, type: selectedType, category,
     description: document.getElementById('f-desc').value.trim(),
     price: parseFloat(document.getElementById('f-price').value) || 0,
-    contact,
-    lat: pickedLat,
-    lng: pickedLng,
-    photos: photoUrls,
+    contact, lat: pickedLat, lng: pickedLng, photos: photoUrls,
   };
- 
   try {
     const r = await fetch(`${API}/listings`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify(payload)
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(payload)
     });
-    if (!r.ok) {
-      const err = await r.json();
-      throw new Error(err.error || `HTTP ${r.status}`);
-    }
+    if (!r.ok) { const err = await r.json(); throw new Error(err.error || `HTTP ${r.status}`); }
     document.getElementById('modal-form-body').style.display = 'none';
     document.getElementById('modal-footer').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
@@ -1476,17 +1400,12 @@ async function submitListing() {
     btn.disabled = false; btn.textContent = 'Pubblica →';
   }
 }
- 
-document.getElementById('modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-document.getElementById('auth-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeAuthModal();
-});
-document.getElementById('profile-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeProfileModal();
-});
- // ── SCOPRI ──
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('auth-overlay').addEventListener('click', function(e) { if (e.target === this) closeAuthModal(); });
+document.getElementById('profile-overlay').addEventListener('click', function(e) { if (e.target === this) closeProfileModal(); });
+
+// ── SCOPRI ──
 let scopriFilter = 'all';
 
 function openScopri() {
@@ -1511,8 +1430,17 @@ function renderScopri() {
   if (q) list = list.filter(l =>
     (l.title||'').toLowerCase().includes(q) ||
     (l.description||'').toLowerCase().includes(q) ||
-    (l.category||'').toLowerCase().includes(q)
+    (l.category||'').toLowerCase().includes(q) ||
+    (l.city||'').toLowerCase().includes(q)
   );
+  // Ordina per prossimità se GPS disponibile
+  if (userLat !== null) {
+    list = [...list].sort((a, b) => {
+      const da = distKm(userLat, userLng, a.lat, a.lng);
+      const db = distKm(userLat, userLng, b.lat, b.lng);
+      return da - db;
+    });
+  }
   const el = document.getElementById('scopri-list');
   if (!list.length) {
     el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>';
@@ -1524,6 +1452,11 @@ function renderScopri() {
       ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
       : `<div class="scopri-card-img-placeholder">📦</div>`;
     const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+    let distLabel = '';
+    if (userLat !== null && l.lat && l.lng) {
+      const d = distKm(userLat, userLng, l.lat, l.lng);
+      distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+    }
     return `<div class="scopri-card" onclick="closeScopri();select(${l.id})">
       ${photo}
       <div class="scopri-card-overlay">
@@ -1531,15 +1464,15 @@ function renderScopri() {
         <div class="scopri-card-title">${esc(l.title||'—')}</div>
         ${l.description ? `<div class="scopri-card-desc">${esc(l.description)}</div>` : ''}
         ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
-        <div class="scopri-card-meta">${esc(l.category||'')}</div>
+        <div class="scopri-card-meta">${esc(l.category||'')}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
 document.getElementById('scopri-input').addEventListener('input', renderScopri);
- 
- // ── SEARCH ──
+
+// ── SEARCH ──
 document.getElementById('search-input-desktop').addEventListener('input', function() {
   const q = this.value.trim().toLowerCase();
   if (!q) { render(); return; }
@@ -1565,9 +1498,9 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
   renderList(filtered);
   renderMarkers(filtered);
 });
- 
+
 // ── INIT ──
-  loadAuthUser().then(() => load());
+loadAuthUser().then(() => load());
 </script>
 </body>
 </html>
