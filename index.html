@@ -889,6 +889,40 @@ async function renderProfileBody() {
   }
   html += `</div>`;
 
+  // Sezione Diventa Merchant (solo tier 2)
+  if (authUser.tier === 2) {
+    const u = authUser;
+    html += `
+    <div class="merchant-section">
+      <div class="merchant-section-header">⭐ Diventa Merchant</div>
+      <div class="merchant-section-body">
+        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:4px">
+          Carica i documenti richiesti per richiedere la promozione a Merchant. 
+          Il team QUI li verificherà e ti promuoverà entro 48 ore.
+        </div>
+        <div class="doc-upload-row">
+          <div class="doc-upload-label">Visura camerale</div>
+          <span class="doc-status ${u.doc_visura ? 'uploaded' : ''}" id="doc-visura-status">${u.doc_visura ? '✓ Caricato' : 'Non caricato'}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-visura-input').click()">Carica</button>
+          <input type="file" id="doc-visura-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'visura')"/>
+        </div>
+        <div class="doc-upload-row">
+          <div class="doc-upload-label">Documento P.IVA</div>
+          <span class="doc-status ${u.doc_vat ? 'uploaded' : ''}" id="doc-vat-status">${u.doc_vat ? '✓ Caricato' : 'Non caricato'}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-vat-input').click()">Carica</button>
+          <input type="file" id="doc-vat-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'vat')"/>
+        </div>
+        <div class="doc-upload-row">
+          <div class="doc-upload-label">Documento identità</div>
+          <span class="doc-status ${u.doc_identity ? 'uploaded' : ''}" id="doc-identity-status">${u.doc_identity ? '✓ Caricato' : 'Non caricato'}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-identity-input').click()">Carica</button>
+          <input type="file" id="doc-identity-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'identity')"/>
+        </div>
+        ${u.doc_visura && u.doc_vat && u.doc_identity ? `<div style="font-size:11px;color:#2a7a4a;font-weight:600;padding:6px 0">✅ Documenti caricati — in attesa di verifica da QUI</div>` : ''}
+      </div>
+    </div>`;
+  }
+
   // Sezione Merchant profile (solo tier 3)
   if (authUser.tier >= 3) {
     const u = authUser;
