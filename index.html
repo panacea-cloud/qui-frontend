@@ -1352,6 +1352,7 @@ function popupHTML(l) {
     <div class="popup-title">${esc(l.title||'—')}</div>
     ${l.description||price ? `<div class="popup-meta">${[esc(l.description||''),price].filter(Boolean).join(' · ')}</div>` : ''}
     <button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>
+    ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
     <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
