@@ -1558,7 +1558,45 @@ async function submitListing() {
     setTimeout(() => { load(); closeModal(); }, 2200);
   } catch(e) { alert(`Errore: ${e.message}`); btn.disabled = false; btn.textContent = 'Pubblica →'; }
 }
+async function loadReviewSection(listingId) {
+  const el = document.getElementById('review-section');
+  if (!el || !authUser) return;
+  try {
+    const r = await fetch(`${API}/reviews/my-unlocks`, { headers: authHeaders() });
+    if (!r.ok) return;
+    const unlocks = await r.json();
+    const entry = unlocks.find(u => u.listing_id === listingId);
+    if (!entry) return;
+    if (!entry.can_review && !entry.reviewed) {
+      el.innerHTML = `<div style="font-size:11px;color:#888;padding:10px 20px">Potrai lasciare una recensione tra ${entry.hours_left}h</div>`;
+      return;
+    }
+    if (entry.reviewed) {
+      el.innerHTML = `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">✓ Hai già recensito questo annuncio (${entry.stars} stelle)</div>`;
+      return;
+    }
+    el.innerHTML = `<div style="padding:10px 20px;border-top:0.5px solid #f0f0f0">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">Come valuti questa esperienza?</div>
+      <div style="display:flex;gap:8px;justify-content:center" id="star-btns">
+        ${[1,2,3,4,5].map(s => `<button onclick="submitReview(${listingId},${s})" style="font-size:22px;background:none;border:none;cursor:pointer">☆</button>`).join('')}
+      </div>
+    </div>`;
+  } catch {}
+}
 
+async function submitReview(listingId, stars) {
+  try {
+    const r = await fetch(`${API}/reviews/${listingId}`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ stars })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); return; }
+    document.getElementById('review-section').innerHTML =
+      `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">✓ Recensione inviata — ${stars} stelle</div>`;
+    load();
+  } catch(e) { alert('Errore: ' + e.message); }
+}
 document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
 document.getElementById('auth-overlay').addEventListener('click', function(e) { if (e.target===this) closeAuthModal(); });
 document.getElementById('profile-overlay').addEventListener('click', function(e) { if (e.target===this) closeProfileModal(); });
