@@ -1302,13 +1302,16 @@ function itemHTML(l) {
   const sel   = selectedId == l.id ? 'selected' : '';
   const bg    = TYPE_BG[type] || '#eee';
   const dot   = TYPE_COLOR[type] || '#ccc';
+  const thumb = (l.photos && l.photos[0])
+    ? `<img src="${esc(l.photos[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;flex-shrink:0;margin-top:2px"/>`
+    : `<div class="listing-dot" style="background:${bg}"><div class="dot-inner" style="background:${dot}"></div></div>`;
   let distLabel = '';
   if (userLat !== null && l.lat && l.lng) {
     const d = distKm(userLat, userLng, l.lat, l.lng);
     distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
   }
   return `<div class="listing-item ${sel}" data-id="${l.id}">
-    <div class="listing-dot" style="background:${bg}"><div class="dot-inner" style="background:${dot}"></div></div>
+    ${thumb}
     <div class="listing-info">
       <div class="listing-name">${title}</div>
       <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
