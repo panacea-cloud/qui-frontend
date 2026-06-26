@@ -987,7 +987,49 @@ async function renderProfileBody() {
 
   body.innerHTML = html;
 }
+async function renderAdminSection() {
+  let pending = [];
+  try {
+    const r = await fetch(`${API}/admin/pending`, { headers: authHeaders() });
+    if (r.ok) pending = await r.json();
+  } catch {}
 
+  let html = `
+  <div class="merchant-section">
+    <div class="merchant-section-header">🔑 Admin — Richieste Merchant</div>
+    <div class="merchant-section-body">`;
+
+  if (!pending.length) {
+    html += `<div class="profile-empty">Nessuna richiesta in attesa.</div>`;
+  } else {
+    html += pending.map(u => `
+      <div style="border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px" id="admin-row-${u.id}">
+        <div style="font-size:12px;font-weight:600;color:#111">${esc(u.email)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${u.doc_visura ? `<a href="${esc(u.doc_visura)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Visura</a>` : ''}
+          ${u.doc_vat ? `<a href="${esc(u.doc_vat)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 P.IVA</a>` : ''}
+          ${u.doc_identity ? `<a href="${esc(u.doc_identity)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Identità</a>` : ''}
+        </div>
+        <button class="merchant-save-btn" onclick="promoteUser(${u.id})">⭐ Promuovi a Merchant</button>
+      </div>`).join('');
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+async function promoteUser(userId) {
+  if (!confirm('Promuovere questo utente a Merchant?')) return;
+  try {
+    const r = await fetch(`${API}/admin/promote-jwt`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ user_id: userId })
+    });
+    if (!r.ok) throw new Error('Errore promozione');
+    document.getElementById(`admin-row-${userId}`)?.remove();
+  } catch(e) { alert('Errore: ' + e.message); }
+}
+  
 async function saveMerchantProfile() {
   const btn = document.getElementById('mp-save-btn');
   btn.disabled = true; btn.textContent = 'Salvataggio…';
