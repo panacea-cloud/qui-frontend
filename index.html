@@ -1435,8 +1435,9 @@ let pickedLat = null, pickedLng = null, selectedPhotos = [];
 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
+  const isAdmin = authUser && authUser.is_admin;
   document.getElementById('loc-gps-btn').textContent = '📍 Usa la mia posizione';
-  document.getElementById('map-hint').textContent = '📍 Usa il pulsante GPS per rilevare la tua posizione reale';
+  document.getElementById('map-hint').textContent = isAdmin ? '📍 Clicca sulla mappa o usa GPS' : '📍 Usa il pulsante GPS per rilevare la tua posizione reale';
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
@@ -1445,7 +1446,7 @@ function openModal() {
     const center = map.getCenter();
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([center.lat, center.lng], 15);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(modalMap);
-    // posizione solo via GPS, nessun click sulla mappa
+    if (isAdmin) modalMap.on('click', e => setPickedLocation(e.latlng.lat, e.latlng.lng));
   } else {
     modalMap.setView(map.getCenter(), 15);
   }
