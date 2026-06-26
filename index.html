@@ -980,6 +980,11 @@ async function renderProfileBody() {
     </div>`;
   }
 
+ // Sezione Admin
+  if (authUser.is_admin) {
+    html += await renderAdminSection();
+  }
+
   body.innerHTML = html;
 }
 
