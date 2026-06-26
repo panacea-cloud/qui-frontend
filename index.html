@@ -1312,6 +1312,7 @@ function itemHTML(l) {
       <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
       <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
       ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
+      ${l.stars_avg ? `<div style="font-size:10px;color:#f5a623">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count})</span></div>` : ''}
     </div>
   </div>`;
 }
