@@ -843,9 +843,10 @@ function logout() {
 
 // ── PROFILE MODAL ──
 function openProfileModal() {
+  if (authUser.tier >= 3) { window.location.href = '/merchant.html'; return; }
   document.getElementById('profile-overlay').classList.add('open');
   document.getElementById('profile-email').textContent = authUser.email;
-  document.getElementById('profile-tier').textContent = authUser.tier === 3 ? '⭐ Merchant' : 'Regular';
+  document.getElementById('profile-tier').textContent = 'Regular';
   renderProfileBody();
 }
 
