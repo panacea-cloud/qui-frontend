@@ -338,7 +338,8 @@ function renderDocs() {
     <button class="doc-btn" onclick="document.getElementById('doc-kyb-input').click()">Carica</button>
     <input type="file" id="doc-kyb-input" accept="image/*,application/pdf" style="display:none" onchange="uploadKybDoc(this)"/>
   </div>`;
-  body.innerHTML = html;
+  html += `</div>`;
+    body.innerHTML = html;
 }
 
 async function uploadKybDoc(input) {
