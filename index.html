@@ -788,10 +788,33 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
+// Categorie dalla tassonomia v2 — codici formali
 const CATEGORIES = {
-  product: ["Agricoltura e Natura","Animali Domestici","Arredamento","Arte","Automotive","Bambini e Giochi","Beverage","Beni Industriali","Casa","Collezionismo e Vintage","Cultura","Cura della Persona","Elettronica","Energia","Fai da Te","Food","Intrattenimento","Materiali Riciclati","Materie Prime","Moda","Salute e Benessere","Sport e Outdoor","Tecnologia","Tessile"],
-  service: ["Agricoltura e Ambiente","Animali","Artigianato e Manutenzione","Arte e Cultura","Benessere e Cura della Persona","Educazione e Formazione","Logistica e Trasporti","Ospitalità e Turismo","Sanità e Assistenza","Servizi Digitali e Tech","Servizi Finanziari e Assicurativi","Servizi Immobiliari","Servizi Professionali"],
-  experience: ["Concerti, Festival e Spettacoli","Degustazioni e Turismo Gastronomico","Musei, Arte e Patrimonio Culturale","Incontri Sociali e Volontariato","Parchi Tematici e Esperienze Immersive","Ritiri, Spa e Percorsi di Benessere","Safari, Equitazione e Natura Selvaggia","Sport Estremo e Avventura","Tour Guidati e Viaggi di Gruppo","Workshop e Corsi Pratici"]
+  product: [
+    'prod.wine','prod.bread','prod.meat','prod.organic','prod.vegetables','prod.dairy',
+    'prod.olive_oil','prod.honey','prod.preserves','prod.fresh_pasta','prod.beer_craft',
+    'prod.clothing','prod.accessories','prod.furniture','prod.art_object','prod.handcraft',
+    'prod.electronics','prod.book','prod.cosmetics','prod.sport_equipment',
+    'prod.hair_service','prod.massage_service','prod.consulting_hour','prod.design_service',
+    'prod.software','prod.online_course','prod.photo_service','prod.translation_service',
+    'prod.catering','prod.rental_service','prod.cleaning_service','prod.online_consulting'
+  ],
+  service: [
+    'service.legal','service.notary','service.accountant','service.financial',
+    'service.realestate','service.architect','service.engineer','service.marketing',
+    'service.software','service.design','service.photographer','service.translator',
+    'service.hairdresser','service.beauty','service.nail','service.spa','service.massage',
+    'service.medical_center','service.dentist','service.physio','service.psychologist',
+    'service.nutritionist','service.vet','service.laundry','service.tailor',
+    'service.garage','service.carwash','service.cleaning','service.moving'
+  ],
+  experience: [
+    'exp.guided_tour','exp.tasting','exp.cooking_class','exp.craft_class',
+    'exp.creative_workshop','exp.live_music','exp.theater','exp.exhibition',
+    'exp.hiking','exp.bike_tour','exp.boat_tour','exp.adventure','exp.wellness_outdoor',
+    'exp.retreat','exp.water_sports','exp.language_class','exp.game',
+    'exp.food_tour','exp.foraging','exp.agritourism','exp.tech_event'
+  ]
 };
 
 function esc(s) {
@@ -843,10 +866,10 @@ function logout() {
 
 // ── PROFILE MODAL ──
 function openProfileModal() {
-  if (authUser.tier >= 3) { window.location.href = '/merchant.html'; return; }
+  if (authUser.tier === 'enterprise') { window.location.href = '/merchant.html'; return; }
   document.getElementById('profile-overlay').classList.add('open');
   document.getElementById('profile-email').textContent = authUser.email;
-  document.getElementById('profile-tier').textContent = 'Regular';
+  document.getElementById('profile-tier').textContent = authUser.tier === 'enterprise' ? 'Enterprise' : 'Regular';
   renderProfileBody();
 }
 
@@ -859,6 +882,11 @@ function profileLogout() { closeProfileModal(); logout(); }
 async function renderProfileBody() {
   const body = document.getElementById('profile-body');
   body.innerHTML = '<div class="profile-empty">Caricamento…</div>';
+  // Ricarica dati freschi
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: authHeaders() });
+    if (r.ok) authUser = await r.json();
+  } catch {}
 
   // Carica listings
   let listings = [];
@@ -877,106 +905,30 @@ async function renderProfileBody() {
   } else {
     html += listings.map(l => {
       const exp = l.expires_at ? expiresLabel(l.expires_at) : 'Permanente';
-      const price = l.price === 0 ? 'Gratis' : `€${l.price}`;
+      const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
       return `<div class="profile-listing-card" id="plcard-${l.id}">
         <div class="profile-listing-top">
           <div class="profile-listing-title">${esc(l.title)}</div>
-          <button class="profile-delete-btn" onclick="deleteListing(${l.id})">Elimina</button>
+          <button class="profile-delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
         </div>
-        <div class="profile-listing-meta">${esc(l.category || l.type)} · ${price}</div>
+        <div class="profile-listing-meta">${esc(l.category || l.type)} ${price ? '· ' + price : ''}</div>
         <div class="profile-listing-expires">${exp}</div>
       </div>`;
     }).join('');
   }
   html += `</div>`;
 
-  // Sezione Diventa Merchant (solo tier 2)
-  if (authUser.tier === 2) {
-    const u = authUser;
+  // Sezione KYB — solo tier regular
+  if (authUser.tier === 'regular') {
     html += `
     <div class="merchant-section">
-      <div class="merchant-section-header">⭐ Diventa Merchant</div>
+      <div class="merchant-section-header">⭐ Diventa Enterprise</div>
       <div class="merchant-section-body">
         <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:4px">
-          Carica i documenti richiesti per richiedere la promozione a Merchant. 
-          Il team QUI li verificherà e ti promuoverà entro 48 ore.
+          Carica i documenti aziendali per richiedere l'upgrade a Enterprise.
+          Il team QUI li verificherà entro 48 ore.
         </div>
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Visura camerale</div>
-          <span class="doc-status ${u.doc_visura ? 'uploaded' : ''}" id="doc-visura-status">${u.doc_visura ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-visura-input').click()">Carica</button>
-          <input type="file" id="doc-visura-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'visura')"/>
-        </div>
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Documento P.IVA</div>
-          <span class="doc-status ${u.doc_vat ? 'uploaded' : ''}" id="doc-vat-status">${u.doc_vat ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-vat-input').click()">Carica</button>
-          <input type="file" id="doc-vat-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'vat')"/>
-        </div>
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Documento identità</div>
-          <span class="doc-status ${u.doc_identity ? 'uploaded' : ''}" id="doc-identity-status">${u.doc_identity ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-identity-input').click()">Carica</button>
-          <input type="file" id="doc-identity-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'identity')"/>
-        </div>
-        ${u.doc_visura && u.doc_vat && u.doc_identity ? `<div style="font-size:11px;color:#2a7a4a;font-weight:600;padding:6px 0">✅ Documenti caricati — in attesa di verifica da QUI</div>` : ''}
-      </div>
-    </div>`;
-  }
-
-  // Sezione Merchant profile (solo tier 3)
-  if (authUser.tier >= 3) {
-    const u = authUser;
-    html += `
-    <div class="merchant-section">
-      <div class="merchant-section-header">🏢 Profilo Merchant</div>
-      <div class="merchant-section-body">
-        <div class="merchant-field">
-          <label>Nome azienda</label>
-          <input type="text" id="mp-business-name" value="${esc(u.business_name || '')}" placeholder="Nome della tua azienda"/>
-        </div>
-        <div class="merchant-field">
-          <label>P.IVA</label>
-          <input type="text" id="mp-vat" value="${esc(u.vat_number || '')}" placeholder="IT12345678901"/>
-        </div>
-        <div class="merchant-field">
-          <label>Descrizione</label>
-          <textarea id="mp-desc" placeholder="Descrivi la tua attività…">${esc(u.business_description || '')}</textarea>
-        </div>
-        <div class="merchant-field">
-          <label>Foto profilo aziendale</label>
-          <div style="display:flex;align-items:center;gap:10px;">
-            ${u.business_photo ? `<img src="${esc(u.business_photo)}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:0.5px solid #e0e0e0"/>` : `<div style="width:52px;height:52px;border-radius:50%;background:#f0f0fa;display:flex;align-items:center;justify-content:center;font-size:22px">🏢</div>`}
-            <button class="doc-upload-btn" onclick="document.getElementById('mp-photo-input').click()">Carica foto</button>
-            <input type="file" id="mp-photo-input" accept="image/*" style="display:none" onchange="uploadBusinessPhoto(this)"/>
-          </div>
-        </div>
-        <button class="merchant-save-btn" id="mp-save-btn" onclick="saveMerchantProfile()">Salva profilo</button>
-      </div>
-    </div>
-
-    <div class="merchant-section">
-      <div class="merchant-section-header">📄 Documenti legali</div>
-      <div class="merchant-section-body">
-        ${u.docs_verified ? `<div class="docs-verified-badge">✅ Documenti verificati da QUI</div>` : `<div style="font-size:11px;color:#888;margin-bottom:4px">Carica i documenti richiesti per la verifica del tuo account Merchant.</div>`}
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Visura camerale</div>
-          <span class="doc-status ${u.doc_visura ? 'uploaded' : ''}" id="doc-visura-status">${u.doc_visura ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-visura-input').click()">Carica</button>
-          <input type="file" id="doc-visura-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'visura')"/>
-        </div>
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Documento P.IVA</div>
-          <span class="doc-status ${u.doc_vat ? 'uploaded' : ''}" id="doc-vat-status">${u.doc_vat ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-vat-input').click()">Carica</button>
-          <input type="file" id="doc-vat-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'vat')"/>
-        </div>
-        <div class="doc-upload-row">
-          <div class="doc-upload-label">Documento identità</div>
-          <span class="doc-status ${u.doc_identity ? 'uploaded' : ''}" id="doc-identity-status">${u.doc_identity ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-identity-input').click()">Carica</button>
-          <input type="file" id="doc-identity-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'identity')"/>
-        </div>
+        <div style="font-size:11px;color:#888">Contatta <strong>team@ilqui.com</strong> per avviare il processo KYB.</div>
       </div>
     </div>`;
   }
@@ -997,7 +949,7 @@ async function renderAdminSection() {
 
   let html = `
   <div class="merchant-section">
-    <div class="merchant-section-header">🔑 Admin — Richieste Merchant</div>
+    <div class="merchant-section-header">🔑 Admin — Richieste Enterprise</div>
     <div class="merchant-section-body">`;
 
   if (!pending.length) {
@@ -1006,12 +958,9 @@ async function renderAdminSection() {
     html += pending.map(u => `
       <div style="border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px" id="admin-row-${u.id}">
         <div style="font-size:12px;font-weight:600;color:#111">${esc(u.email)}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${u.doc_visura ? `<a href="${esc(u.doc_visura)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Visura</a>` : ''}
-          ${u.doc_vat ? `<a href="${esc(u.doc_vat)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 P.IVA</a>` : ''}
-          ${u.doc_identity ? `<a href="${esc(u.doc_identity)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Identità</a>` : ''}
-        </div>
-        <button class="merchant-save-btn" onclick="promoteUser(${u.id})">⭐ Promuovi a Merchant</button>
+        <div style="font-size:11px;color:#888">${esc(u.company_name || '')} ${u.vat_number ? '· ' + u.vat_number : ''}</div>
+        ${u.kyb_document_ref ? `<a href="${esc(u.kyb_document_ref)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Documento KYB</a>` : ''}
+        <button class="merchant-save-btn" onclick="promoteUser('${u.id}')">⭐ Promuovi a Enterprise</button>
       </div>`).join('');
   }
 
@@ -1038,9 +987,8 @@ async function saveMerchantProfile() {
     const r = await fetch(`${API}/auth/profile`, {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({
-        business_name: document.getElementById('mp-business-name').value.trim(),
+        display_name: document.getElementById('mp-business-name').value.trim(),
         vat_number: document.getElementById('mp-vat').value.trim(),
-        business_description: document.getElementById('mp-desc').value.trim(),
       })
     });
     if (!r.ok) throw new Error('Errore salvataggio');
@@ -1144,7 +1092,7 @@ async function submitAuth() {
     const d = await r.json();
     if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
     authToken = d.token;
-    authUser = { id: d.id, email: d.email, tier: d.tier, is_admin: d.is_admin };
+    authUser = d.user || d;
     localStorage.setItem('qui_token', authToken);
     // Ricarica profilo completo
     const me = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` } });
@@ -1261,7 +1209,17 @@ function distKm(lat1, lng1, lat2, lng2) {
 }
 
 function render() {
-  let list = activeFilter === 'all' ? allListings : allListings.filter(l => (l.type||l.listing_type) === activeFilter);
+  let list = allListings;
+  if (activeFilter !== 'all') {
+    list = allListings.filter(l => {
+      const tags = l.tags || [];
+      const type = l.type || '';
+      return tags.includes(activeFilter) || type === activeFilter ||
+        (activeFilter === 'product' && ['retail','product_digital'].includes(type)) ||
+        (activeFilter === 'service' && type.startsWith('service')) ||
+        (activeFilter === 'experience' && type === 'experience');
+    });
+  }
   if (userLat !== null) {
     list = [...list].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
   }
@@ -1292,10 +1250,22 @@ function renderList(list) {
   });
 }
 
+function typeFromEntity(l) {
+  const tags = l.tags || [];
+  if (tags.includes('product')) return 'product';
+  if (tags.includes('service')) return 'service';
+  if (tags.includes('experience')) return 'experience';
+  const t = l.type || '';
+  if (['retail','product_digital'].includes(t)) return 'product';
+  if (t.startsWith('service')) return 'service';
+  if (t === 'experience') return 'experience';
+  return 'product';
+}
+
 function itemHTML(l) {
-  const type  = l.type || l.listing_type || 'product';
-  const title = esc(l.title || '—');
-  const cat   = esc(l.category || type);
+  const type  = typeFromEntity(l);
+  const title = esc(l.title || l.name_it || '—');
+  const cat   = esc(l.category || l.primary_category || type);
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
   const when  = l.created_at ? timeAgo(l.created_at) : '';
   const exp   = expiresLabel(l.expires_at);
@@ -1326,10 +1296,10 @@ function renderMarkers(list) {
   Object.values(markerMap).forEach(m => m.remove());
   markerMap = {};
   list.forEach(l => {
-    const lat = l.lat ?? l.latitude;
-    const lng = l.lng ?? l.longitude ?? l.lon;
+    const lat = l.lat;
+    const lng = l.lng;
     if (lat == null || lng == null) return;
-    const type  = l.type || l.listing_type || 'product';
+    const type  = typeFromEntity(l);
     const color = TYPE_COLOR[type] || '#ccc';
     const size  = selectedId == l.id ? 18 : 14;
     const icon  = L.divIcon({
@@ -1344,28 +1314,30 @@ function renderMarkers(list) {
 }
 
 function popupHTML(l) {
-  const type  = l.type || l.listing_type || 'product';
+  const type  = typeFromEntity(l);
   const photos = l.photos || [];
   const photosHTML = photos.length > 0 ? `
     <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:10px;border-radius:8px;overflow:hidden">
       ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length===1?'100%':'80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px" alt="foto"/>`).join('')}
     </div>` : '';
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
+  const title = esc(l.title || l.name_it || '—');
+  const desc  = esc(l.description || l.description_it || '');
   return `<div class="popup-inner">
     ${photosHTML}
     <div class="popup-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
-    <div class="popup-title">${esc(l.title||'—')}</div>
-    ${l.description||price ? `<div class="popup-meta">${[esc(l.description||''),price].filter(Boolean).join(' · ')}</div>` : ''}
+    <div class="popup-title">${title}</div>
+    ${desc||price ? `<div class="popup-meta">${[desc,price].filter(Boolean).join(' · ')}</div>` : ''}
     <button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>
     ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
-    <div class="disclaimer-box">⚠️ QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+    <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
 }
 
 document.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-unlock-id]');
   if (btn) {
-    const id = parseInt(btn.dataset.unlockId, 10);
+    const id = btn.dataset.unlockId;
     if (!authUser) { requireAuth(() => unlock(id)); return; }
     unlock(id);
   }
@@ -1622,11 +1594,17 @@ function setScopriFilter(btn, type) {
 
 function renderScopri() {
   const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
-  let list = scopriFilter === 'all' ? allListings : allListings.filter(l => l.type === scopriFilter);
+  let list = allListings;
+  if (scopriFilter !== 'all') {
+    list = allListings.filter(l => {
+      const tags = l.tags || [];
+      return tags.includes(scopriFilter) || typeFromEntity(l) === scopriFilter;
+    });
+  }
   if (q) list = list.filter(l =>
-    (l.title||'').toLowerCase().includes(q) ||
-    (l.description||'').toLowerCase().includes(q) ||
-    (l.category||'').toLowerCase().includes(q) ||
+    (l.title||l.name_it||'').toLowerCase().includes(q) ||
+    (l.description||l.description_it||'').toLowerCase().includes(q) ||
+    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   if (userLat !== null) {
@@ -1635,7 +1613,7 @@ function renderScopri() {
   const el = document.getElementById('scopri-list');
   if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>'; return; }
   el.innerHTML = list.map(l => {
-    const type = l.type || 'product';
+    const type = typeFromEntity(l);
     const photo = (l.photos && l.photos[0])
       ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
       : `<div class="scopri-card-img-placeholder">📦</div>`;
@@ -1645,14 +1623,17 @@ function renderScopri() {
       const d = distKm(userLat, userLng, l.lat, l.lng);
       distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
     }
-    return `<div class="scopri-card" onclick="closeScopri();select(${l.id})">
+    const title = esc(l.title || l.name_it || '—');
+    const desc  = esc(l.description || l.description_it || '');
+    const cat   = esc(l.category || l.primary_category || '');
+    return `<div class="scopri-card" onclick="closeScopri();select('${l.id}')">
       ${photo}
       <div class="scopri-card-overlay">
         <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
-        <div class="scopri-card-title">${esc(l.title||'—')}</div>
-        ${l.description ? `<div class="scopri-card-desc">${esc(l.description)}</div>` : ''}
+        <div class="scopri-card-title">${title}</div>
+        ${desc ? `<div class="scopri-card-desc">${desc}</div>` : ''}
         ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
-        <div class="scopri-card-meta">${esc(l.category||'')}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
+        <div class="scopri-card-meta">${cat}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -1665,8 +1646,10 @@ document.getElementById('search-input-desktop').addEventListener('input', functi
   const q = this.value.trim().toLowerCase();
   if (!q) { render(); return; }
   const filtered = allListings.filter(l =>
-    (l.title||'').toLowerCase().includes(q) || (l.description||'').toLowerCase().includes(q) ||
-    (l.category||'').toLowerCase().includes(q) || (l.city||'').toLowerCase().includes(q)
+    (l.title||l.name_it||'').toLowerCase().includes(q) ||
+    (l.description||l.description_it||'').toLowerCase().includes(q) ||
+    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
 });
@@ -1675,8 +1658,10 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
   const q = this.value.trim().toLowerCase();
   if (!q) { render(); return; }
   const filtered = allListings.filter(l =>
-    (l.title||'').toLowerCase().includes(q) || (l.description||'').toLowerCase().includes(q) ||
-    (l.category||'').toLowerCase().includes(q) || (l.city||'').toLowerCase().includes(q)
+    (l.title||l.name_it||'').toLowerCase().includes(q) ||
+    (l.description||l.description_it||'').toLowerCase().includes(q) ||
+    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
 });
