@@ -395,6 +395,99 @@ function doLogout() {
   window.location.href = '/';
 }
 
+// ── API KEYS ──
+async function renderApiKeys() {
+  const body = document.getElementById('apikeys-body');
+  try {
+    const r = await fetch(`${API}/auth/api-keys`, { headers: authHeaders() });
+    if (!r.ok) throw new Error();
+    const keys = await r.json();
+
+    let html = '';
+
+    // Form crea nuova chiave
+    html += `<div class="apikey-new-box">
+      <div style="font-size:11px;font-weight:600;color:#2a2a6e">Genera nuova chiave</div>
+      <input type="text" id="new-key-name" placeholder="Nome chiave (es. Gestionale, Zapier…)" maxlength="80"/>
+      <button class="save-btn" onclick="createApiKey()" style="align-self:flex-start;padding:8px 14px;font-size:11px">Genera →</button>
+    </div>`;
+
+    // Chiave appena creata (mostrata una volta)
+    html += `<div id="new-key-reveal" style="display:none"></div>`;
+
+    // Lista chiavi esistenti
+    if (!keys.length) {
+      html += `<div class="empty">Nessuna chiave API. Generane una sopra.</div>`;
+    } else {
+      html += keys.map(k => {
+        const active = !k.revoked && k.is_active;
+        const lastUsed = k.last_used_at
+          ? `Usata ${timeAgo(k.last_used_at)}`
+          : 'Mai usata';
+        return `<div class="apikey-row" id="akrow-${k.id}">
+          <div style="flex:1;min-width:0">
+            <div class="apikey-prefix">${esc(k.key_prefix)}</div>
+            <div class="apikey-meta">${esc(k.name)} · ${lastUsed}</div>
+            ${!active ? '<div style="font-size:10px;color:#c0392b;font-weight:600">REVOCATA</div>' : ''}
+          </div>
+          ${active ? `<button class="apikey-revoke-btn" onclick="revokeApiKey('${k.id}')">Revoca</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    body.innerHTML = html;
+  } catch {
+    document.getElementById('apikeys-body').innerHTML = `<div class="empty">Errore caricamento chiavi.</div>`;
+  }
+}
+
+async function createApiKey() {
+  const name = document.getElementById('new-key-name').value.trim() || 'Chiave API';
+  try {
+    const r = await fetch(`${API}/auth/api-keys`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ name })
+    });
+    if (!r.ok) throw new Error('Errore creazione');
+    const d = await r.json();
+    // Mostra la chiave una sola volta
+    const revealEl = document.getElementById('new-key-reveal');
+    revealEl.style.display = 'block';
+    revealEl.innerHTML = `<div class="apikey-secret-box">
+      <div class="apikey-warning">⚠️ Copia questa chiave ora — non sarà più mostrata</div>
+      <div class="apikey-secret-value">${esc(d.key)}</div>
+      <button class="save-btn" style="align-self:flex-start;padding:6px 12px;font-size:11px" onclick="copyApiKey('${esc(d.key)}', this)">Copia</button>
+    </div>`;
+    // Ricarica lista
+    setTimeout(() => renderApiKeys(), 300);
+  } catch(e) { alert('Errore: ' + e.message); }
+}
+
+function copyApiKey(key, btn) {
+  navigator.clipboard.writeText(key).then(() => {
+    btn.textContent = '✓ Copiata';
+    setTimeout(() => { btn.textContent = 'Copia'; }, 2000);
+  });
+}
+
+async function revokeApiKey(keyId) {
+  if (!confirm('Revocare questa chiave? L\'operazione è irreversibile.')) return;
+  try {
+    const r = await fetch(`${API}/auth/api-keys/${keyId}`, {
+      method: 'DELETE', headers: authHeaders()
+    });
+    if (!r.ok) throw new Error();
+    document.getElementById(`akrow-${keyId}`)?.remove();
+  } catch { alert('Errore revoca chiave.'); }
+}
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 3600)  return `${Math.round(diff/60)}min fa`;
+  if (diff < 86400) return `${Math.round(diff/3600)}h fa`;
+  return `${Math.round(diff/86400)}g fa`;
+}
+  
 init();
 </script>
 </body>
