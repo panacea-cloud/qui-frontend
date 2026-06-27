@@ -415,7 +415,8 @@ async function renderApiKeys() {
 
     // Chiave appena creata (mostrata una volta)
     html += `<div id="new-key-reveal" style="display:none"></div>`;
-
+    html += `<div id="apikeys-list">`;
+    
     // Lista chiavi esistenti
     if (!keys.length) {
       html += `<div class="empty">Nessuna chiave API. Generane una sopra.</div>`;
