@@ -381,7 +381,8 @@ async function renderListings() {
         </div>
         ${isExpired ? `<button class="delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">Ripubblica</button>` : ''}
         <button class="delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch { body.innerHTML = `<div class="empty">Errore caricamento annunci.</div>`; }
 }
 
