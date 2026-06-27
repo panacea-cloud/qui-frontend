@@ -395,6 +395,16 @@ async function deleteListing(id) {
   } catch(e) { alert(`Errore: ${e.message}`); }
 }
 
+async function republishListing(id) {
+  try {
+    const r = await fetch(`${API}/listings/${id}/republish`, {
+      method: 'POST', headers: authHeaders()
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    renderListings();
+  } catch(e) { alert(`Errore: ${e.message}`); }
+}
+
 // ── LOGOUT ──
 function doLogout() {
   localStorage.removeItem('qui_token');
