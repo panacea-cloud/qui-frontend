@@ -370,7 +370,9 @@ async function renderListings() {
     if (!r.ok) throw new Error();
     const listings = await r.json();
     if (!listings.length) { body.innerHTML = `<div class="empty">Nessun annuncio pubblicato.</div>`; return; }
-    body.innerHTML = listings.map(l => `
+    body.innerHTML = listings.map(l => {
+      const isExpired = l.expires_at && new Date(l.expires_at) < new Date();
+      return ` `
       <div class="listing-card" id="lcard-${l.id}">
         <div class="listing-card-info">
           <div class="listing-card-title">${esc(l.title)}</div>
