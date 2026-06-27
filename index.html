@@ -920,15 +920,26 @@ async function renderProfileBody() {
 
   // Sezione KYB — solo tier regular
   if (authUser.tier === 'regular') {
+    const isPending = authUser.kyb_status === 'pending';
+    const hasDoc = !!authUser.kyb_document_ref;
     html += `
     <div class="merchant-section">
       <div class="merchant-section-header">⭐ Diventa Enterprise</div>
       <div class="merchant-section-body">
-        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:4px">
-          Carica i documenti aziendali per richiedere l'upgrade a Enterprise.
-          Il team QUI li verificherà entro 48 ore.
+        ${isPending ? `
+        <div style="font-size:12px;color:#2a7a4a;font-weight:600;padding:6px 0">
+          ✅ Richiesta inviata — in attesa di verifica da QUI (entro 48h)
+        </div>` : `
+        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">
+          Carica un documento che attesti la tua attività (visura camerale, P.IVA o documento equivalente).
+          Il team QUI lo verificherà entro 48 ore.
         </div>
-        <div style="font-size:11px;color:#888">Contatta <strong>team@ilqui.com</strong> per avviare il processo KYB.</div>
+        <div class="doc-upload-row">
+          <div class="doc-upload-label">Documento attività</div>
+          <span class="doc-status ${hasDoc ? 'uploaded' : ''}" id="doc-kyb-status">${hasDoc ? '✓ Caricato' : 'Non caricato'}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-kyb-input').click()">Carica</button>
+          <input type="file" id="doc-kyb-input" accept="image/*,application/pdf" style="display:none" onchange="uploadKYB(this)"/>
+        </div>`}
       </div>
     </div>`;
   }
