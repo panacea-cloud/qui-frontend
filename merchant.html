@@ -377,6 +377,7 @@ async function renderListings() {
           <div class="listing-card-meta">${esc(l.category || l.type)} · ${l.price === 0 ? 'Gratis' : `€${l.price}`}</div>
           <div class="listing-card-expires">${expiresLabel(l.expires_at)}</div>
         </div>
+        ${isExpired ? `<button class="delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">Ripubblica</button>` : ''}
         <button class="delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
       </div>`).join('');
   } catch { body.innerHTML = `<div class="empty">Errore caricamento annunci.</div>`; }
