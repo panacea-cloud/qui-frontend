@@ -459,8 +459,30 @@ async function createApiKey() {
       <div class="apikey-secret-value">${esc(d.key)}</div>
       <button class="save-btn" style="align-self:flex-start;padding:6px 12px;font-size:11px" onclick="copyApiKey('${esc(d.key)}', this)">Copia</button>
     </div>`;
-    // Ricarica lista
-    setTimeout(() => renderApiKeys(), 300);
+    // Ricarica lista mantenendo il reveal
+    try {
+      const r2 = await fetch(`${API}/auth/api-keys`, { headers: authHeaders() });
+      if (r2.ok) {
+        const keys = await r2.json();
+        const body = document.getElementById('apikeys-body');
+        // Aggiorna solo la lista, non il reveal
+        const listEl = document.getElementById('apikeys-list');
+        if (listEl) {
+          listEl.innerHTML = keys.map(k => {
+            const active = !k.revoked && k.is_active;
+            const lastUsed = k.last_used_at ? `Usata ${timeAgo(k.last_used_at)}` : 'Mai usata';
+            return `<div class="apikey-row" id="akrow-${k.id}">
+              <div style="flex:1;min-width:0">
+                <div class="apikey-prefix">${esc(k.key_prefix)}</div>
+                <div class="apikey-meta">${esc(k.name)} · ${lastUsed}</div>
+                ${!active ? '<div style="font-size:10px;color:#c0392b;font-weight:600">REVOCATA</div>' : ''}
+              </div>
+              ${active ? `<button class="apikey-revoke-btn" onclick="revokeApiKey('${k.id}')">Revoca</button>` : ''}
+            </div>`;
+          }).join('');
+        }
+      }
+    } catch {}
   } catch(e) { alert('Errore: ' + e.message); }
 }
 
