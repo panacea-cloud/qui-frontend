@@ -1027,25 +1027,22 @@ async function uploadBusinessPhoto(input) {
   } catch(e) { alert('Errore upload: ' + e.message); }
 }
 
-async function uploadDoc(input, docType) {
+async function uploadKYB(input) {
   const file = input.files[0];
   if (!file) return;
-  const statusId = `doc-${docType}-status`;
-  const statusEl = document.getElementById(statusId);
+  const statusEl = document.getElementById('doc-kyb-status');
   if (statusEl) { statusEl.textContent = 'Caricamento…'; statusEl.className = 'doc-status'; }
   try {
     const url = await uploadToCloudinary(file);
-    const payload = {};
-    payload[`doc_${docType}`] = url;
-    const r = await fetch(`${API}/auth/documents`, {
+    const r = await fetch(`${API}/auth/kyb-request`, {
       method: 'PUT', headers: authHeaders(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ kyb_document_ref: url })
     });
-    if (!r.ok) throw new Error('Errore salvataggio');
+    if (!r.ok) throw new Error('Errore invio richiesta');
     authUser = await r.json();
-    if (statusEl) { statusEl.textContent = '✓ Caricato'; statusEl.className = 'doc-status uploaded'; }
+    renderProfileBody();
   } catch(e) {
-    alert('Errore upload: ' + e.message);
+    alert('Errore: ' + e.message);
     if (statusEl) { statusEl.textContent = 'Errore'; statusEl.className = 'doc-status'; }
   }
 }
