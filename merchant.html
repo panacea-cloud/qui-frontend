@@ -116,6 +116,38 @@ html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; bac
 .spinner { width: 20px; height: 20px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* api keys */
+.apikey-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border: 0.5px solid #e0e0e0; border-radius: 8px; gap: 8px;
+}
+.apikey-prefix { font-size: 12px; font-weight: 600; color: #111; font-family: monospace; }
+.apikey-meta { font-size: 11px; color: #888; margin-top: 2px; }
+.apikey-revoke-btn {
+  font-size: 11px; color: #c0392b; background: #fdf0f0; border: 0.5px solid #f5c0b8;
+  border-radius: 6px; padding: 5px 10px; cursor: pointer; font-family: inherit;
+  font-weight: 500; white-space: nowrap; flex-shrink: 0;
+}
+.apikey-revoke-btn:hover { background: #fbe0e0; }
+.apikey-new-box {
+  background: #f0f2ff; border: 1px solid #c0c0e0; border-radius: 10px;
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.apikey-new-box input {
+  border: 1px solid #c0c0e0; border-radius: 8px; padding: 8px 10px;
+  font-size: 12px; font-family: inherit; color: #111; outline: none;
+  background: #fff; width: 100%;
+}
+.apikey-new-box input:focus { border-color: #2a2a6e; }
+.apikey-secret-box {
+  background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.apikey-secret-value {
+  font-family: monospace; font-size: 11px; color: #111;
+  word-break: break-all; line-height: 1.5;
+}
+.apikey-warning { font-size: 11px; color: #e07030; font-weight: 600; }
 .logout-btn {
   width: 100%; padding: 11px; border: 1px solid #e0e0e0; border-radius: 10px;
   background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
