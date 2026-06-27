@@ -143,9 +143,9 @@ html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; bac
   <div class="card">
     <div class="card-header">🏢 Profilo aziendale</div>
     <div class="card-body">
-      <div class="field"><label>Nome azienda</label><input type="text" id="mp-name" placeholder="Nome della tua azienda"/></div>
+      <div class="field"><label>Nome visualizzato</label><input type="text" id="mp-display-name" placeholder="Nome che appare sulla mappa"/></div>
+      <div class="field"><label>Ragione sociale</label><input type="text" id="mp-company-name" placeholder="Nome legale dell'azienda"/></div>
       <div class="field"><label>P.IVA</label><input type="text" id="mp-vat" placeholder="IT12345678901"/></div>
-      <div class="field"><label>Descrizione</label><textarea id="mp-desc" placeholder="Descrivi la tua attività…"></textarea></div>
       <button class="save-btn" id="save-btn" onclick="saveProfile()">Salva</button>
     </div>
   </div>
@@ -214,7 +214,7 @@ async function init() {
     const r = await fetch(`${API}/auth/me`, { headers: authHeaders() });
     if (!r.ok) { window.location.href = '/'; return; }
     authUser = await r.json();
-    if (authUser.tier < 3) { window.location.href = '/'; return; }
+    if (authUser.tier !== 'enterprise') { window.location.href = '/'; return; }
   } catch { window.location.href = '/'; return; }
   renderHero();
   renderDocs();
@@ -230,13 +230,13 @@ function renderHero() {
   document.getElementById('hero').innerHTML = `
     ${photo}
     <div class="hero-info">
-      <div class="hero-name">${esc(u.business_name || 'Merchant')}</div>
+      <div class="hero-name">${esc(u.display_name || u.company_name || 'Enterprise')}</div>
       <div class="hero-email">${esc(u.email)}</div>
-      <div class="hero-badge">⭐ Merchant</div>
+      <div class="hero-badge">Enterprise</div>
     </div>`;
-  document.getElementById('mp-name').value = u.business_name || '';
+  document.getElementById('mp-display-name').value = u.display_name || '';
+  document.getElementById('mp-company-name').value = u.company_name || '';
   document.getElementById('mp-vat').value = u.vat_number || '';
-  document.getElementById('mp-desc').value = u.business_description || '';
 }
 
 async function uploadPhoto(input) {
@@ -262,9 +262,9 @@ async function saveProfile() {
     const r = await fetch(`${API}/auth/profile`, {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({
-        business_name: document.getElementById('mp-name').value.trim(),
+        display_name: document.getElementById('mp-display-name').value.trim(),
+        company_name: document.getElementById('mp-company-name').value.trim(),
         vat_number: document.getElementById('mp-vat').value.trim(),
-        business_description: document.getElementById('mp-desc').value.trim(),
       })
     });
     if (!r.ok) throw new Error('Errore salvataggio');
@@ -278,44 +278,38 @@ async function saveProfile() {
   }
 }
 
-// ── DOCUMENTI ──
+// ── DOCUMENTI KYB ──
 function renderDocs() {
   const u = authUser;
   const body = document.getElementById('docs-body');
   let html = '';
-  if (u.docs_verified) {
-    html += `<div class="verified-badge">✅ Documenti verificati da QUI</div>`;
+  if (u.kyb_status === 'verified') {
+    html += `<div class="verified-badge">✅ KYB verificato da QUI</div>`;
+  } else if (u.kyb_status === 'pending') {
+    html += `<div style="font-size:12px;color:#e07030;line-height:1.5;background:#fff8e1;border-radius:8px;padding:10px 12px">⏳ Documento inviato — verifica in corso (entro 48h).</div>`;
   } else {
-    html += `<div style="font-size:12px;color:#888;line-height:1.5">Carica i documenti richiesti per la verifica del tuo account.</div>`;
+    html += `<div style="font-size:12px;color:#888;line-height:1.5">Carica il documento KYB per la verifica Enterprise. Il team QUI lo verificherà entro 48h.</div>`;
   }
-  const docs = [
-    { key: 'visura', label: 'Visura camerale', val: u.doc_visura },
-    { key: 'vat', label: 'Documento P.IVA', val: u.doc_vat },
-    { key: 'identity', label: 'Documento identità', val: u.doc_identity },
-  ];
-  docs.forEach(d => {
-    html += `<div class="doc-row">
-      <div class="doc-label">${d.label}</div>
-      <span class="doc-status ${d.val ? 'uploaded' : ''}" id="doc-${d.key}-status">${d.val ? '✓ Caricato' : 'Non caricato'}</span>
-      <button class="doc-btn" onclick="document.getElementById('doc-${d.key}-input').click()">Carica</button>
-      <input type="file" id="doc-${d.key}-input" accept="image/*,application/pdf" style="display:none" onchange="uploadDoc(this,'${d.key}')"/>
-    </div>`;
-  });
+  const hasDoc = !!u.kyb_document_ref;
+  html += `<div class="doc-row">
+    <div class="doc-label">Documento KYB</div>
+    <span class="doc-status ${hasDoc ? 'uploaded' : ''}" id="doc-kyb-status">${hasDoc ? '✓ Caricato' : 'Non caricato'}</span>
+    <button class="doc-btn" onclick="document.getElementById('doc-kyb-input').click()">Carica</button>
+    <input type="file" id="doc-kyb-input" accept="image/*,application/pdf" style="display:none" onchange="uploadKybDoc(this)"/>
+  </div>`;
   body.innerHTML = html;
 }
 
-async function uploadDoc(input, docType) {
+async function uploadKybDoc(input) {
   const file = input.files[0];
   if (!file) return;
-  const statusEl = document.getElementById(`doc-${docType}-status`);
+  const statusEl = document.getElementById('doc-kyb-status');
   if (statusEl) { statusEl.textContent = 'Caricamento…'; statusEl.className = 'doc-status'; }
   try {
     const url = await uploadToCloudinary(file);
-    const payload = {};
-    payload[`doc_${docType}`] = url;
-    const r = await fetch(`${API}/auth/documents`, {
+    const r = await fetch(`${API}/auth/profile`, {
       method: 'PUT', headers: authHeaders(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ kyb_document_ref: url })
     });
     if (!r.ok) throw new Error('Errore salvataggio');
     authUser = await r.json();
@@ -341,7 +335,7 @@ async function renderListings() {
           <div class="listing-card-meta">${esc(l.category || l.type)} · ${l.price === 0 ? 'Gratis' : `€${l.price}`}</div>
           <div class="listing-card-expires">${expiresLabel(l.expires_at)}</div>
         </div>
-        <button class="delete-btn" onclick="deleteListing(${l.id})">Elimina</button>
+        <button class="delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
       </div>`).join('');
   } catch { body.innerHTML = `<div class="empty">Errore caricamento annunci.</div>`; }
 }
