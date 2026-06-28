@@ -785,6 +785,23 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 </div>
 <div id="list-mobile" style="display:none"></div>
 
+<footer class="site-footer">
+  <span>© 2025 IL QUI</span>
+  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank">Privacy Policy</a>
+</footer>
+
+<style>
+.site-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 28px; background: #fff; border-top: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #aaa; z-index: 50; gap: 12px;
+}
+.site-footer a { color: #aaa; text-decoration: none; }
+.site-footer a:hover { color: #555; }
+@media (max-width: 680px) { .site-footer { display: none; } }
+</style>
+
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
