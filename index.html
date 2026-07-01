@@ -668,6 +668,23 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   </div>
 </div>
 
+<!-- DETAIL MODAL (scheda completa annuncio) -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-modal">
+    <div class="detail-photos" id="detail-photos"></div>
+    <button class="modal-close" id="detail-close-btn" onclick="closeDetailModal()">✕</button>
+    <div class="detail-body">
+      <div class="detail-type" id="detail-type"></div>
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-meta" id="detail-meta"></div>
+      <div class="detail-desc" id="detail-desc"></div>
+      <div class="detail-stars" id="detail-stars"></div>
+      <button class="popup-btn" id="detail-unlock-btn">🔓 Sblocca contatto — €1</button>
+      <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+    </div>
+  </div>
+</div>
+
 <!-- MERCHANT MODAL (pubblica annuncio) -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
