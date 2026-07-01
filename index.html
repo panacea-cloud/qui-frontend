@@ -1366,7 +1366,7 @@ function renderList(list) {
   document.getElementById('list-desktop').innerHTML = h;
   document.getElementById('list-mobile').innerHTML = h;
   document.querySelectorAll('.listing-item').forEach(el => {
-    el.addEventListener('click', () => select(el.dataset.id));
+    el.addEventListener('click', () => { select(el.dataset.id); openDetailModal(el.dataset.id); });
   });
 }
 
