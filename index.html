@@ -1430,7 +1430,8 @@ function renderMarkers(list) {
     const m = L.marker([lat,lng], {icon}).addTo(map).bindPopup(popupHTML(l), {maxWidth:240});
     m.on('click', () => {
       select(l.id);
-      if (window.innerWidth <= 680) { m.closePopup(); openDetailModal(l.id); }
+      m.closePopup();
+      openDetailModal(l.id);
     });
     markerMap[l.id] = m;
   });
