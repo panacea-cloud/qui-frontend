@@ -1223,6 +1223,35 @@ function openContactModal(listingId, sessionId) {
 }
 function closeContactModal() { document.getElementById('contact-overlay').classList.remove('open'); }
 
+// ── DETAIL MODAL ──
+function openDetailModal(id) {
+  const l = allListings.find(x => String(x.id) === String(id));
+  if (!l) return;
+  const type = typeFromEntity(l);
+  const photos = l.photos || [];
+  document.getElementById('detail-photos').innerHTML = photos.length
+    ? photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')
+    : `<div class="detail-photos-placeholder">📦</div>`;
+  const typeEl = document.getElementById('detail-type');
+  typeEl.textContent = TYPE_LABEL[type] || type;
+  typeEl.className = `detail-type ${type}`;
+  document.getElementById('detail-title').textContent = l.title || l.name_it || '—';
+  const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+  const cat = l.category || l.primary_category || '';
+  const city = l.city || '';
+  document.getElementById('detail-meta').innerHTML = [
+    cat ? `<span>${esc(cat)}</span>` : '',
+    city ? `<span>· 📍 ${esc(city)}</span>` : '',
+    price ? `<span class="detail-price">${esc(price)}</span>` : ''
+  ].filter(Boolean).join(' ');
+  document.getElementById('detail-desc').textContent = l.description || l.description_it || '';
+  document.getElementById('detail-stars').innerHTML = l.stars_avg
+    ? `★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span>` : '';
+  document.getElementById('detail-unlock-btn').dataset.unlockId = l.id;
+  document.getElementById('detail-overlay').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detail-overlay').classList.remove('open'); }
+
 async function fetchContact(listingId, sessionId) {
   try {
     const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${encodeURIComponent(sessionId||'')}`,
