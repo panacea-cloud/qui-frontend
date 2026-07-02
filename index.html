@@ -1304,7 +1304,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
 }).addTo(map);
 
 let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
-let userLat = null, userLng = null;
+let userLat = null, userLng = null, listingsLoaded = false;
 
 async function load() {
   try {
