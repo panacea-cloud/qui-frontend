@@ -1759,7 +1759,7 @@ function useGPS() {
 
 function handlePhotos(input) {
   Array.from(input.files).forEach(file => {
-    if (selectedPhotos.length >= 4) return;
+    if (existingPhotoUrls.length + selectedPhotos.length >= 4) return;
     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
       file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
     if (isHeic) { alert('Formato HEIC non supportato. Vai su Impostazioni iPhone → Fotocamera → Formato → "Più compatibile".'); return; }
@@ -1770,50 +1770,86 @@ function handlePhotos(input) {
 }
 
 function renderPhotoPreview() {
-  document.getElementById('photo-preview').innerHTML = selectedPhotos.map((p,i) => `
+  const existingHTML = existingPhotoUrls.map((url,i) => `
+    <div class="photo-thumb-wrap">
+      <img class="photo-thumb" src="${esc(url)}" alt="foto esistente ${i+1}"/>
+      <button class="photo-remove" onclick="removeExistingPhoto(${i})">×</button>
+    </div>`).join('');
+  const newHTML = selectedPhotos.map((p,i) => `
     <div class="photo-thumb-wrap">
       <img class="photo-thumb" src="${p.dataUrl}" alt="foto ${i+1}"/>
       <button class="photo-remove" onclick="removePhoto(${i})">×</button>
     </div>`).join('');
+  document.getElementById('photo-preview').innerHTML = existingHTML + newHTML;
 }
 
 function removePhoto(i) { selectedPhotos.splice(i,1); renderPhotoPreview(); }
+function removeExistingPhoto(i) { existingPhotoUrls.splice(i,1); renderPhotoPreview(); }
 
 async function submitListing() {
   if (!authUser) { requireAuth(submitListing); return; }
+  const isEdit   = !!editingListingId;
   const title    = document.getElementById('f-title').value.trim();
   const contact  = document.getElementById('f-contact').value.trim();
   const category = document.getElementById('f-category').value;
   if (!title)    { alert('Inserisci un titolo'); return; }
   if (!category) { alert('Seleziona una categoria'); return; }
-  if (!pickedLat){ alert('Scegli una posizione'); return; }
-  if (!contact)  { alert('Inserisci un contatto'); return; }
-  if (!selectedPhotos.length) { alert('Aggiungi almeno una foto'); return; }
+  if (!isEdit && !pickedLat) { alert('Scegli una posizione'); return; }
+  if (!isEdit && !contact)   { alert('Inserisci un contatto'); return; }
+  if (!isEdit && !selectedPhotos.length) { alert('Aggiungi almeno una foto'); return; }
+  if (isEdit && existingPhotoUrls.length + selectedPhotos.length === 0) { alert('Aggiungi almeno una foto'); return; }
+
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
-  let photoUrls = [];
-  btn.textContent = `Caricamento foto (0/${selectedPhotos.length})…`;
-  try {
-    for (let i = 0; i < selectedPhotos.length; i++) {
-      btn.textContent = `Caricamento foto (${i+1}/${selectedPhotos.length})…`;
-      photoUrls.push(await uploadToCloudinary(selectedPhotos[i].file));
+  let newPhotoUrls = [];
+  if (selectedPhotos.length) {
+    btn.textContent = `Caricamento foto (0/${selectedPhotos.length})…`;
+    try {
+      for (let i = 0; i < selectedPhotos.length; i++) {
+        btn.textContent = `Caricamento foto (${i+1}/${selectedPhotos.length})…`;
+        newPhotoUrls.push(await uploadToCloudinary(selectedPhotos[i].file));
+      }
+    } catch(e) {
+      alert(`Errore upload foto: ${e.message}`);
+      btn.disabled = false; btn.textContent = isEdit ? 'Salva modifiche →' : 'Pubblica →';
+      return;
     }
-  } catch(e) { alert(`Errore upload foto: ${e.message}`); btn.disabled = false; btn.textContent = 'Pubblica →'; return; }
-  btn.textContent = 'Pubblicazione…';
+  }
+  const allPhotoUrls = existingPhotoUrls.concat(newPhotoUrls);
+
+  btn.textContent = isEdit ? 'Salvataggio…' : 'Pubblicazione…';
   try {
-    const r = await fetch(`${API}/listings`, {
-      method: 'POST', headers: authHeaders(),
-      body: JSON.stringify({ title, type: selectedType, category,
+    let r;
+    if (isEdit) {
+      const payload = {
+        title, type: selectedType, category,
         description: document.getElementById('f-desc').value.trim(),
         price: parseFloat(document.getElementById('f-price').value) || 0,
-        contact, lat: pickedLat, lng: pickedLng, photos: photoUrls })
-    });
+        photos: allPhotoUrls
+      };
+      if (contact) payload.contact = contact;
+      r = await fetch(`${API}/listings/${editingListingId}`, {
+        method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload)
+      });
+    } else {
+      r = await fetch(`${API}/listings`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ title, type: selectedType, category,
+          description: document.getElementById('f-desc').value.trim(),
+          price: parseFloat(document.getElementById('f-price').value) || 0,
+          contact, lat: pickedLat, lng: pickedLng, photos: allPhotoUrls })
+      });
+    }
     if (!r.ok) { const err = await r.json(); throw new Error(err.error || `HTTP ${r.status}`); }
     document.getElementById('modal-form-body').style.display = 'none';
     document.getElementById('modal-footer').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
+    document.querySelector('.success-title').textContent = isEdit ? 'Annuncio aggiornato!' : 'Annuncio pubblicato!';
     setTimeout(() => { load(); closeModal(); }, 2200);
-  } catch(e) { alert(`Errore: ${e.message}`); btn.disabled = false; btn.textContent = 'Pubblica →'; }
+  } catch(e) {
+    alert(`Errore: ${e.message}`);
+    btn.disabled = false; btn.textContent = isEdit ? 'Salva modifiche →' : 'Pubblica →';
+  }
 }
 async function loadReviewSection(listingId) {
   const el = document.getElementById('review-section');
