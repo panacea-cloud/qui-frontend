@@ -1313,6 +1313,7 @@ async function load() {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     allListings = Array.isArray(d) ? d : (d.listings || []);
+    listingsLoaded = true;
     render();
   } catch(e) {
     const html = `<div class="state-box">⚠️ ${esc(e.message)}</div>`;
@@ -1329,6 +1330,7 @@ function distKm(lat1, lng1, lat2, lng2) {
 }
 
 function render() {
+  if (!listingsLoaded) return;
   let list = allListings;
   if (activeFilter !== 'all') {
     list = allListings.filter(l => {
