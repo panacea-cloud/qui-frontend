@@ -1238,6 +1238,71 @@ let pendingAction = null;
 function requireAuth(action) { if (authUser) { action(); return; } pendingAction = action; openAuthModal(); }
 function onAddClick() { requireAuth(openModal); }
 
+// ── FORGOT / RESET PASSWORD ──
+function openForgotModal() {
+  closeAuthModal();
+  document.getElementById('forgot-overlay').classList.add('open');
+  document.getElementById('forgot-error').style.display = 'none';
+  document.getElementById('forgot-success').style.display = 'none';
+  document.getElementById('forgot-email').value = '';
+}
+function closeForgotModal() { document.getElementById('forgot-overlay').classList.remove('open'); }
+
+async function submitForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errEl = document.getElementById('forgot-error');
+  const okEl  = document.getElementById('forgot-success');
+  const btn   = document.getElementById('forgot-submit-btn');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  if (!email) { errEl.textContent = 'Inserisci la tua email'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Invio…';
+  try {
+    await fetch(`${API}/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    okEl.textContent = "Se l'email esiste, riceverai a breve un link per reimpostare la password.";
+    okEl.style.display = 'block';
+  } catch(e) {
+    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Invia link di reset';
+  }
+}
+
+let resetTokenValue = null;
+function openResetModal(token) {
+  resetTokenValue = token;
+  document.getElementById('reset-overlay').classList.add('open');
+  document.getElementById('reset-error').style.display = 'none';
+  document.getElementById('reset-password').value = '';
+}
+function closeResetModal() { document.getElementById('reset-overlay').classList.remove('open'); }
+
+async function submitResetPassword() {
+  const password = document.getElementById('reset-password').value.trim();
+  const errEl = document.getElementById('reset-error');
+  const btn   = document.getElementById('reset-submit-btn');
+  errEl.style.display = 'none';
+  if (!password || password.length < 6) { errEl.textContent = 'Password minimo 6 caratteri'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Salvataggio…';
+  try {
+    const r = await fetch(`${API}/auth/reset-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: resetTokenValue, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
+    closeResetModal();
+    alert('Password aggiornata! Ora puoi accedere.');
+    openAuthModal();
+  } catch(e) {
+    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Reimposta password';
+  }
+}
+
 // ── STRIPE RETURN ──
 (async () => {
   const p = new URLSearchParams(window.location.search);
