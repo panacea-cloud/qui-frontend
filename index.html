@@ -998,6 +998,7 @@ async function renderProfileBody() {
     const r = await fetch(`${API}/auth/my-listings`, { headers: authHeaders() });
     if (r.ok) listings = await r.json();
   } catch {}
+  myListingsCache = listings;
 
   let html = '';
 
@@ -1015,6 +1016,7 @@ async function renderProfileBody() {
           <div class="profile-listing-title">${esc(l.title)}</div>
           <div style="display:flex;gap:6px">
             ${(l.expires_at && new Date(l.expires_at) < new Date()) ? `<button class="profile-delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">Ripubblica</button>` : ''}
+            <button class="profile-delete-btn" style="background:#eef0fb;color:#2a2a6e;border-color:#c8cdf0" onclick="editListing('${l.id}')">Modifica</button>
             <button class="profile-delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
           </div>
         </div>
@@ -1643,6 +1645,8 @@ async function uploadToCloudinary(file) {
 // ── MERCHANT MODAL ──
 let modalMap = null, modalMarker = null, selectedType = 'product';
 let pickedLat = null, pickedLng = null, selectedPhotos = [];
+let editingListingId = null, existingPhotoUrls = [];
+let myListingsCache = [];
 
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
@@ -1666,13 +1670,60 @@ function openModal() {
 
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); resetForm(); }
 
+function editListing(id) {
+  const l = myListingsCache.find(x => String(x.id) === String(id));
+  if (!l) return;
+  editingListingId = id;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-form-body').style.display = '';
+  document.getElementById('modal-success').classList.remove('show');
+  document.getElementById('modal-footer').style.display = '';
+  document.querySelector('.modal-title').textContent = 'Modifica annuncio';
+  document.getElementById('btn-submit').textContent = 'Salva modifiche →';
+
+  const type = (l.tags || []).find(t => ['product','service','experience'].includes(t)) || typeFromEntity(l);
+  selectType(type);
+  document.getElementById('f-title').value = l.title || '';
+  document.getElementById('f-desc').value = l.description || '';
+  document.getElementById('f-price').value = l.price || '';
+  document.getElementById('f-contact').value = '';
+  document.getElementById('f-contact').placeholder = 'Lascia vuoto per non modificare il contatto attuale';
+
+  setTimeout(() => {
+    const sel = document.getElementById('f-category');
+    if (l.category) sel.value = l.category;
+  }, 0);
+
+  existingPhotoUrls = (l.photos || []).slice(0, 4);
+  selectedPhotos = [];
+  renderPhotoPreview();
+
+  document.getElementById('loc-text').textContent = 'Posizione non modificabile in fase di modifica';
+  document.getElementById('loc-gps-btn').style.display = 'none';
+  pickedLat = l.lat; pickedLng = l.lng;
+
+  if (!modalMap) {
+    modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([l.lat, l.lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(modalMap);
+  } else {
+    modalMap.setView([l.lat, l.lng], 15);
+  }
+  setTimeout(() => modalMap.invalidateSize(), 120);
+}
+
 function resetForm() {
   ['f-title','f-price','f-desc','f-contact'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-contact').placeholder = 'Telefono, email o link';
   pickedLat = null; pickedLng = null;
   document.getElementById('loc-text').textContent = 'Nessuna posizione selezionata';
+  document.getElementById('loc-gps-btn').style.display = '';
   if (modalMarker) { modalMarker.remove(); modalMarker = null; }
   selectedPhotos = [];
+  existingPhotoUrls = [];
+  editingListingId = null;
   document.getElementById('photo-preview').innerHTML = '';
+  document.querySelector('.modal-title').textContent = 'Pubblica un annuncio';
+  document.getElementById('btn-submit').textContent = 'Pubblica →';
   selectType('product');
 }
 
