@@ -892,34 +892,30 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
-// Categorie dalla tassonomia v2 — codici formali
-const CATEGORIES = {
-  product: [
-    'prod.wine','prod.bread','prod.meat','prod.organic','prod.vegetables','prod.dairy',
-    'prod.olive_oil','prod.honey','prod.preserves','prod.fresh_pasta','prod.beer_craft',
-    'prod.clothing','prod.accessories','prod.furniture','prod.art_object','prod.handcraft',
-    'prod.electronics','prod.book','prod.cosmetics','prod.sport_equipment',
-    'prod.hair_service','prod.massage_service','prod.consulting_hour','prod.design_service',
-    'prod.software','prod.online_course','prod.photo_service','prod.translation_service',
-    'prod.catering','prod.rental_service','prod.cleaning_service','prod.online_consulting'
-  ],
-  service: [
-    'service.legal','service.notary','service.accountant','service.financial',
-    'service.realestate','service.architect','service.engineer','service.marketing',
-    'service.software','service.design','service.photographer','service.translator',
-    'service.hairdresser','service.beauty','service.nail','service.spa','service.massage',
-    'service.medical_center','service.dentist','service.physio','service.psychologist',
-    'service.nutritionist','service.vet','service.laundry','service.tailor',
-    'service.garage','service.carwash','service.cleaning','service.moving'
-  ],
-  experience: [
-    'exp.guided_tour','exp.tasting','exp.cooking_class','exp.craft_class',
-    'exp.creative_workshop','exp.live_music','exp.theater','exp.exhibition',
-    'exp.hiking','exp.bike_tour','exp.boat_tour','exp.adventure','exp.wellness_outdoor',
-    'exp.retreat','exp.water_sports','exp.language_class','exp.game',
-    'exp.food_tour','exp.foraging','exp.agritourism','exp.tech_event'
-  ]
-};
+// Tassonomia caricata dinamicamente dal DB (fonte unica di verità — niente più codici hardcoded)
+let TAXONOMY = { product: {}, service: {}, experience: {} };
+
+async function loadTaxonomyFromAPI() {
+  try {
+    const r = await fetch(`${API}/taxonomy?family=product,service,experience`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const rows = await r.json();
+    const tree = { product: {}, service: {}, experience: {} };
+    rows.forEach(row => {
+      if (!row.parent_code) {
+        tree[row.family][row.code] = { label: row.label_it, categories: [] };
+      }
+    });
+    rows.forEach(row => {
+      if (row.parent_code && tree[row.family][row.parent_code]) {
+        tree[row.family][row.parent_code].categories.push({ code: row.code, label: row.label_it });
+      }
+    });
+    TAXONOMY = tree;
+  } catch (e) {
+    console.error('Errore caricamento tassonomia:', e);
+  }
+}
 
 function esc(s) {
   if (s == null) return '';
