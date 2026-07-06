@@ -1340,7 +1340,7 @@ function openDetailModal(id) {
   typeEl.className = `detail-type ${type}`;
   document.getElementById('detail-title').textContent = l.title || l.name_it || '—';
   const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
-  const cat = l.category || l.primary_category || '';
+  const cat = l.category_label || l.category || l.primary_category || '';
   const city = l.city || '';
   document.getElementById('detail-meta').innerHTML = [
     cat ? `<span>${esc(cat)}</span>` : '',
@@ -1490,7 +1490,7 @@ function typeFromEntity(l) {
 function itemHTML(l) {
   const type  = typeFromEntity(l);
   const title = esc(l.title || l.name_it || '—');
-  const cat   = esc(l.category || l.primary_category || type);
+  const cat   = esc(l.category_label || l.category || l.primary_category || type);
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
   const when  = l.created_at ? timeAgo(l.created_at) : '';
   const exp   = expiresLabel(l.expires_at);
@@ -1951,7 +1951,7 @@ function renderScopri() {
     }
     const title = esc(l.title || l.name_it || '—');
     const desc  = esc(l.description || l.description_it || '');
-    const cat   = esc(l.category || l.primary_category || '');
+    const cat   = esc(l.category_label || l.category || l.primary_category || '');
     return `<div class="scopri-card" onclick="closeScopri();select('${l.id}')">
       ${photo}
       <div class="scopri-card-overlay">
