@@ -1731,10 +1731,19 @@ function selectType(type) {
   });
   const sel = document.getElementById('f-category');
   sel.innerHTML = '<option value="">Seleziona categoria…</option>';
-  (CATEGORIES[type] || []).forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = cat;
-    sel.appendChild(opt);
+  const macros = TAXONOMY[type] || {};
+  Object.keys(macros).forEach(macroCode => {
+    const macro = macros[macroCode];
+    if (!macro.categories.length) return;
+    const group = document.createElement('optgroup');
+    group.label = macro.label;
+    macro.categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.code;
+      opt.textContent = cat.label;
+      group.appendChild(opt);
+    });
+    sel.appendChild(group);
   });
 }
 
@@ -1984,6 +1993,7 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
 });
 
 // ── INIT ──
+loadTaxonomyFromAPI();
 loadAuthUser().then(() => load());
 </script>
 </body>
