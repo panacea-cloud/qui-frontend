@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{{META_TITLE}}</title>
+<meta name="description" content="{{META_DESCRIPTION}}"/>
+<link rel="canonical" href="{{OG_URL}}"/>
+
+<meta property="og:type" content="product"/>
+<meta property="og:title" content="{{META_TITLE}}"/>
+<meta property="og:description" content="{{META_DESCRIPTION}}"/>
+<meta property="og:image" content="{{OG_IMAGE}}"/>
+<meta property="og:url" content="{{OG_URL}}"/>
+<meta property="og:site_name" content="QUI"/>
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="{{META_TITLE}}"/>
+<meta name="twitter:description" content="{{META_DESCRIPTION}}"/>
+<meta name="twitter:image" content="{{OG_IMAGE}}"/>
+
+<link rel="icon" type="image/png" href="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; background: #f5f5f7; min-height: 100%; }
+
+.topbar {
+  height: 48px; background: #fff; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; }
+.topbar-back {
+  font-size: 12px; font-weight: 600; color: #2a2a6e; cursor: pointer;
+  background: none; border: none; font-family: inherit; display: flex; align-items: center; gap: 4px;
+  text-decoration: none;
+}
+.topbar-back:hover { opacity: 0.7; }
+
+.page { max-width: 640px; margin: 0 auto; padding: 0 0 60px; }
+
+.state-box { padding: 60px 20px; text-align: center; color: #aaa; font-size: 13px; }
+.spinner { width: 22px; height: 22px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.photos { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; background: #0a0a1a; }
+.photos img { width: 100%; flex-shrink: 0; scroll-snap-align: start; height: 320px; object-fit: contain; background: #0a0a1a; }
+.photos-placeholder {
+  width: 100%; height: 320px; background: #0a0a1a;
+  display: flex; align-items: center; justify-content: center; color: #555; font-size: 56px;
+}
+
+.body-content { background: #fff; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.type-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.type-badge.product    { color: #2a6aad; }
+.type-badge.service    { color: #2a7a4a; }
+.type-badge.experience { color: #a03060; }
+.listing-title { font-size: 22px; font-weight: 700; color: #111; line-height: 1.3; }
+.listing-meta { font-size: 13px; color: #888; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.listing-price { font-size: 18px; font-weight: 700; color: #2a2a6e; }
+.listing-desc { font-size: 14px; color: #444; line-height: 1.6; margin: 6px 0; }
+.listing-stars { font-size: 13px; color: #f5a623; }
+
+.unlock-btn {
+  width: 100%; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 10px; padding: 13px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; margin-top: 6px;
+}
+.unlock-btn:hover { opacity: .88; }
+.disclaimer-box {
+  background: #fff8e1; border: 0.5px solid #ffe082; border-radius: 8px;
+  padding: 10px 12px; font-size: 12px; color: #795548; line-height: 1.5; margin-top: 4px;
+}
+
+.map-preview { height: 200px; border-radius: 10px; overflow: hidden; border: 0.5px solid #e0e0e0; margin-top: 8px; }
+
+.review-section { border-top: 0.5px solid #f0f0f0; padding-top: 14px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="/">← Mappa</a>
+  <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true" class="topbar-logo" alt="QUI"/>
+  <div style="width:60px"></div>
+</div>
+
+<div class="page" id="page-content">
+  <div class="state-box"><div class="spinner"></div>Caricamento…</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script>
+const API = 'https://qui-backend-production.up.railway.app';
+const ENTITY_ID = '{{ENTITY_ID}}';
+
+let authToken = localStorage.getItem('qui_token') || null;
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function authHeaders() {
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
+
+function typeFromEntity(l) {
+  const tags = l.tags || [];
+  if (tags.includes('product')) return 'product';
+  if (tags.includes('service')) return 'service';
+  if (tags.includes('experience')) return 'experience';
+  const t = l.type || '';
+  if (['retail','product_digital'].includes(t)) return 'product';
+  if (t.startsWith('service')) return 'service';
+  if (t === 'experience') return 'experience';
+  return 'product';
+}
+
+async function loadListing() {
+  try {
+    const r = await fetch(`${API}/listings/${ENTITY_ID}`, {
+      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+    });
+    if (!r.ok) throw new Error(r.status === 404 ? 'Annuncio non trovato o non più disponibile.' : `Errore HTTP ${r.status}`);
+    const l = await r.json();
+    render(l);
+  } catch (e) {
+    document.getElementById('page-content').innerHTML =
+      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="/" style="justify-content:center">← Torna alla mappa</a></div>`;
+  }
+}
+
+function render(l) {
+  const type = typeFromEntity(l);
+  const photos = l.photos || [];
+  const photosHTML = photos.length
+    ? `<div class="photos">${photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')}</div>`
+    : `<div class="photos-placeholder">📦</div>`;
+
+  const price = l.price === 0 ? 'Gratis' : (l.price != null ? `€${l.price}` : '');
+  const cat = l.category_label || l.category || l.primary_category || '';
+  const city = l.city || '';
+  const title = esc(l.title || l.name_it || '—');
+  const desc = esc(l.description || l.description_it || '');
+
+  document.title = `${l.title || l.name_it || 'Annuncio'} — QUI`;
+
+  document.getElementById('page-content').innerHTML = `
+    ${photosHTML}
+    <div class="body-content">
+      <div class="type-badge ${type}">${esc(TYPE_LABEL[type] || type)}</div>
+      <div class="listing-title">${title}</div>
+      <div class="listing-meta">
+        ${cat ? `<span>${esc(cat)}</span>` : ''}
+        ${city ? `<span>· 📍 ${esc(city)}</span>` : ''}
+        ${price ? `<span class="listing-price">${esc(price)}</span>` : ''}
+      </div>
+      ${desc ? `<div class="listing-desc">${desc}</div>` : ''}
+      ${l.stars_avg ? `<div class="listing-stars">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
+      <button class="unlock-btn" id="unlock-btn">🔓 Sblocca contatto — €1</button>
+      <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+      ${(l.lat && l.lng) ? `<div class="map-preview" id="map-preview"></div>` : ''}
+      <div class="review-section" id="review-section"></div>
+    </div>
+  `;
+
+  document.getElementById('unlock-btn').addEventListener('click', () => unlock(l.id));
+
+  if (l.lat && l.lng) {
+    const m = L.map('map-preview', { zoomControl: false, dragging: false, scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(m);
+    L.circleMarker([l.lat, l.lng], { radius: 9, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2 }).addTo(m);
+  }
+
+  if (authToken) loadReviewSection(l.id);
+}
+
+async function unlock(id) {
+  if (!authToken) {
+    window.location.href = `/?listing=${id}&auth_required=1`;
+    return;
+  }
+  try {
+    const r = await fetch(`${API}/unlock/checkout`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ listing_id: id })
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    if (data.already_unlocked) {
+      window.location.href = `/?listing=${id}&session_id=${data.session_id}`;
+      return;
+    }
+    window.location.href = data.url;
+  } catch (e) {
+    alert('Errore pagamento: ' + e.message);
+  }
+}
+
+async function loadReviewSection(listingId) {
+  const el = document.getElementById('review-section');
+  if (!el) return;
+  try {
+    const r = await fetch(`${API}/reviews/my-unlocks`, { headers: authHeaders() });
+    if (!r.ok) return;
+    const unlocks = await r.json();
+    const entry = unlocks.find(u => u.listing_id === listingId);
+    if (!entry) return;
+    if (!entry.can_review && !entry.reviewed) {
+      el.innerHTML = `<div style="font-size:12px;color:#888">Potrai lasciare una recensione tra ${entry.hours_left}h</div>`;
+      return;
+    }
+    if (entry.reviewed) {
+      el.innerHTML = `<div style="font-size:12px;color:#2a7a4a">✓ Hai già recensito questo annuncio (${entry.stars} stelle)</div>`;
+      return;
+    }
+    el.innerHTML = `
+      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px">Come valuti questa esperienza?</div>
+      <div style="display:flex;gap:8px" id="star-btns">
+        ${[1,2,3,4,5].map(s => `<button onclick="submitReview('${listingId}',${s})" style="font-size:24px;background:none;border:none;cursor:pointer">☆</button>`).join('')}
+      </div>`;
+  } catch {}
+}
+
+async function submitReview(listingId, stars) {
+  try {
+    const r = await fetch(`${API}/reviews/${listingId}`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ stars })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); return; }
+    document.getElementById('review-section').innerHTML =
+      `<div style="font-size:12px;color:#2a7a4a">✓ Recensione inviata — ${stars} stelle</div>`;
+  } catch (e) { alert('Errore: ' + e.message); }
+}
+
+loadListing();
+</script>
+</body>
+</html>
