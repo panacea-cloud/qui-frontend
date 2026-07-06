@@ -1952,7 +1952,7 @@ function renderScopri() {
     const title = esc(l.title || l.name_it || '—');
     const desc  = esc(l.description || l.description_it || '');
     const cat   = esc(l.category_label || l.category || l.primary_category || '');
-    return `<div class="scopri-card" onclick="closeScopri();select('${l.id}')">
+    return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
       ${photo}
       <div class="scopri-card-overlay">
         <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
