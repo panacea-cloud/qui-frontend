@@ -1930,7 +1930,7 @@ function renderScopri() {
   if (q) list = list.filter(l =>
     (l.title||l.name_it||'').toLowerCase().includes(q) ||
     (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   if (userLat !== null) {
@@ -1974,7 +1974,7 @@ document.getElementById('search-input-desktop').addEventListener('input', functi
   const filtered = allListings.filter(l =>
     (l.title||l.name_it||'').toLowerCase().includes(q) ||
     (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
@@ -1986,7 +1986,7 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
   const filtered = allListings.filter(l =>
     (l.title||l.name_it||'').toLowerCase().includes(q) ||
     (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
