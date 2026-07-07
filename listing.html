@@ -81,7 +81,7 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 <body>
 
 <div class="topbar">
-  <a class="topbar-back" href="/">← Mappa</a>
+  <a class="topbar-back" href="https://www.ilqui.com">← Mappa</a>
   <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true" class="topbar-logo" alt="QUI"/>
   <div style="width:60px"></div>
 </div>
@@ -133,7 +133,7 @@ async function loadListing() {
     render(l);
   } catch (e) {
     document.getElementById('page-content').innerHTML =
-      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="/" style="justify-content:center">← Torna alla mappa</a></div>`;
+      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="https://www.ilqui.com" style="justify-content:center">← Torna alla mappa</a></div>`;
   }
 }
 
