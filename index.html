@@ -1557,6 +1557,7 @@ function popupHTML(l) {
     <div class="popup-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
     <div class="popup-title">${title}</div>
     ${desc||price ? `<div class="popup-meta">${[desc,price].filter(Boolean).join(' · ')}</div>` : ''}
+    <a href="https://listing.ilqui.com/l/${l.id}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">Vedi dettagli →</a>
     <button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>
     ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
     <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
