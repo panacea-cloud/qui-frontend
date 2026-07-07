@@ -714,6 +714,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <div class="detail-meta" id="detail-meta"></div>
       <div class="detail-desc" id="detail-desc"></div>
       <div class="detail-stars" id="detail-stars"></div>
+      <a id="detail-link" href="#" target="_blank" rel="noopener" style="font-size:12px;color:#2a2a6e;font-weight:600;text-decoration:none">Vedi pagina completa →</a>
       <button class="popup-btn" id="detail-unlock-btn">🔓 Sblocca contatto — €1</button>
       <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
     </div>
@@ -1348,6 +1349,7 @@ function openDetailModal(id) {
     price ? `<span class="detail-price">${esc(price)}</span>` : ''
   ].filter(Boolean).join(' ');
   document.getElementById('detail-desc').textContent = l.description || l.description_it || '';
+  document.getElementById('detail-link').href = `https://listing.ilqui.com/l/${l.id}`;
   document.getElementById('detail-stars').innerHTML = l.stars_avg
     ? `★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span>` : '';
   document.getElementById('detail-unlock-btn').dataset.unlockId = l.id;
