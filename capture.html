@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUI — Conferma cattura</title>
+<link rel="icon" type="image/png" href="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #f5f5f7; min-height: 100%; }
+
+.topbar {
+  height: 44px; background: #fff; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; }
+
+.page { max-width: 520px; margin: 0 auto; padding: 24px 16px 60px; display: flex; flex-direction: column; gap: 16px; }
+
+.card {
+  background: #fff; border-radius: 14px; overflow: hidden;
+  border: 0.5px solid #e8e8e8;
+}
+.card-header {
+  padding: 12px 16px; border-bottom: 0.5px solid #f0f0f0;
+  font-size: 11px; font-weight: 600; color: #2a2a6e;
+  display: flex; align-items: center; gap: 6px; background: #f8f8fc;
+}
+.card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.state-box { padding: 40px 16px; text-align: center; color: #aaa; font-size: 12px; line-height: 1.6; }
+.spinner { width: 22px; height: 22px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box {
+  background: #fdf0f0; color: #c0392b; border-radius: 10px;
+  padding: 14px 16px; font-size: 12px; line-height: 1.6;
+}
+
+.source-url {
+  font-size: 11px; color: #888; word-break: break-all;
+  background: #f5f5f5; border-radius: 8px; padding: 8px 10px;
+}
+.captured-text-box {
+  font-size: 12px; color: #333; line-height: 1.6; white-space: pre-wrap;
+  max-height: 260px; overflow-y: auto; background: #fafafa;
+  border: 0.5px solid #eee; border-radius: 8px; padding: 12px;
+}
+.photos-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.photos-grid img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 0.5px solid #e0e0e0; }
+.photos-count { font-size: 11px; color: #888; }
+
+.confirm-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 10px;
+  background: #2a2a6e; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.confirm-btn:hover { opacity: .88; }
+.confirm-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.success-box {
+  text-align: center; padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.success-icon { font-size: 32px; }
+.success-title { font-size: 15px; font-weight: 600; color: #111; }
+.success-sub { font-size: 12px; color: #888; line-height: 1.6; }
+
+.auth-tabs { display: flex; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+.auth-tab {
+  flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: #888; background: #fff; border: none; font-family: inherit;
+}
+.auth-tab.active { background: #2a2a6e; color: #fff; }
+.auth-field { display: flex; flex-direction: column; gap: 5px; }
+.auth-field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
+.auth-field input {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 13px; font-family: inherit; color: #111; outline: none;
+  background: #fafafa; width: 100%;
+}
+.auth-field input:focus { border-color: #2a2a6e; background: #fff; }
+.auth-submit {
+  width: 100%; padding: 11px; border: none; border-radius: 8px;
+  background: #2a2a6e; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.auth-submit:hover { opacity: .88; }
+.auth-submit:disabled { opacity: .45; cursor: not-allowed; }
+.auth-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; }
+.auth-info { font-size: 11px; color: #888; line-height: 1.5; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true" class="topbar-logo" alt="QUI"/>
+  <div style="font-size:12px;font-weight:600;color:#2a2a6e">Conferma cattura</div>
+  <div style="width:28px"></div>
+</div>
+
+<div class="page" id="page-root">
+  <div class="state-box"><div class="spinner"></div>Caricamento…</div>
+</div>
+
+<script>
+const API = 'https://qui-backend-production.up.railway.app';
+let authToken = localStorage.getItem('qui_token') || null;
+
+const params = new URLSearchParams(window.location.search);
+const draftId = params.get('draft_id');
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function authHeaders() {
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+const root = document.getElementById('page-root');
+
+async function init() {
+  if (!draftId) {
+    root.innerHTML = `<div class="error-box">Link non valido: manca l'identificativo della cattura.</div>`;
+    return;
+  }
+  if (!authToken) {
+    renderAuthForm();
+    return;
+  }
+  await loadDraft();
+}
+
+let authMode = 'login';
+
+function renderAuthForm() {
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-header">🔐 Accedi per continuare</div>
+      <div class="card-body">
+        <div class="auth-info">Per collegare questa cattura al tuo account QUI, accedi o registrati.</div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Accedi</button>
+          <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Registrati</button>
+        </div>
+        <div id="auth-error" style="display:none" class="auth-error"></div>
+        <div class="auth-field"><label>EMAIL</label><input type="email" id="auth-email" placeholder="tuaemail@esempio.it"/></div>
+        <div class="auth-field"><label>PASSWORD</label><input type="password" id="auth-password" placeholder="Minimo 6 caratteri"/></div>
+        <button class="auth-submit" id="auth-submit-btn" onclick="submitAuth()">Accedi</button>
+      </div>
+    </div>`;
+}
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value.trim();
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Accesso…' : 'Registrazione…';
+  try {
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const r = await fetch(`${API}${endpoint}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
+    authToken = d.token;
+    localStorage.setItem('qui_token', authToken);
+    await loadDraft();
+  } catch(e) {
+    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'Accedi' : 'Registrati';
+  }
+}
+
+let currentDraft = null;
+
+async function loadDraft() {
+  root.innerHTML = `<div class="state-box"><div class="spinner"></div>Caricamento cattura…</div>`;
+  try {
+    const r = await fetch(`${API}/capture/drafts/${draftId}`, { headers: authHeaders() });
+    if (r.status === 401) { renderAuthForm(); return; }
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      root.innerHTML = `<div class="error-box">${esc(d.error || 'Cattura non trovata o non più disponibile.')}</div>`;
+      return;
+    }
+    currentDraft = await r.json();
+    renderDraftPreview();
+  } catch(e) {
+    root.innerHTML = `<div class="error-box">Errore di connessione: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderDraftPreview() {
+  const d = currentDraft;
+  const photos = d.image_candidates || [];
+  const photosHTML = photos.length
+    ? `<div class="photos-grid">${photos.slice(0, 12).map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')}</div>
+       <div class="photos-count">${photos.length} immagine${photos.length === 1 ? '' : 'i'} candidata${photos.length === 1 ? '' : 'e'}</div>`
+    : `<div class="photos-count">Nessuna immagine catturata.</div>`;
+
+  const alreadyClaimedNote = d.already_claimed
+    ? `<div class="auth-info">Questa cattura è già stata confermata sul tuo account.</div>`
+    : '';
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-header">📥 Anteprima cattura</div>
+      <div class="card-body">
+        ${d.source_url ? `<div class="source-url">${esc(d.source_url)}</div>` : ''}
+        <div class="captured-text-box">${esc(d.captured_text)}</div>
+        ${photosHTML}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        ${alreadyClaimedNote}
+        <button class="confirm-btn" id="confirm-btn" onclick="confirmClaim()">
+          ${d.already_claimed ? 'Confermato ✓' : 'Conferma e collega al mio account →'}
+        </button>
+      </div>
+    </div>`;
+
+  if (d.already_claimed) {
+    document.getElementById('confirm-btn').disabled = true;
+  }
+}
+
+async function confirmClaim() {
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Conferma in corso…';
+  try {
+    const r = await fetch(`${API}/capture/drafts/${draftId}/claim`, {
+      method: 'POST', headers: authHeaders()
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${r.status}`);
+    }
+    renderSuccess();
+  } catch(e) {
+    alert(`Errore: ${e.message}`);
+    btn.disabled = false;
+    btn.textContent = 'Conferma e collega al mio account →';
+  }
+}
+
+function renderSuccess() {
+  root.innerHTML = `
+    <div class="card">
+      <div class="success-box">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Cattura confermata</div>
+        <div class="success-sub">
+          Il contenuto è ora collegato al tuo account QUI.<br>
+          Il prossimo passo — creare un annuncio da questo contenuto — sarà disponibile a breve.
+        </div>
+      </div>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html>
