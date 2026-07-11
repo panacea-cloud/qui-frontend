@@ -216,7 +216,7 @@ function renderDraftPreview() {
   const photos = d.image_candidates || [];
   const photosHTML = photos.length
     ? `<div class="photos-grid">${photos.slice(0, 12).map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')}</div>
-       <div class="photos-count">${photos.length} immagine${photos.length === 1 ? '' : 'i'} candidata${photos.length === 1 ? '' : 'e'}</div>`
+       <div class="photos-count">${photos.length} immagin${photos.length===1?'e':'i'} candidat${photos.length===1?'a':'e'}</div>`
     : `<div class="photos-count">Nessuna immagine catturata.</div>`;
 
   const alreadyClaimedNote = d.already_claimed
