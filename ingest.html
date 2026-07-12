@@ -330,11 +330,12 @@ function buildListingState(job) {
       categoryLabel: (f.category && f.category.present) ? `${lst.macro_label} › ${lst.category_label}` : null,
       price: (f.price && f.price.present) ? f.price.value : '',
       contact: (f.contact && f.contact.value) || '',
-      contactConfirmed: !!(f.contact && f.contact.present && f.contact.source === 'profile_prefill'),
+      contactPrefilled: !!(f.contact && f.contact.present && f.contact.source === 'profile_prefill'),
+      contactConfirmed: false, // anche se prefillato, serve sempre il click esplicito di conferma
       lat: (f.lat && f.lat.value) || null,
       lng: (f.lng && f.lng.value) || null,
       locationSource: (f.lat && f.lat.source) || 'gps_device_required',
-      locationConfirmed: !!(f.lat && f.lat.present && f.lat.source === 'existing_profile_place' && false), // richiede sempre conferma esplicita anche se prefilled
+      locationConfirmed: false, // richiede sempre conferma esplicita, anche se prefilled dalla sede enterprise
       photos: new Set(),
       published: false,
       entityId: null,
@@ -434,12 +435,12 @@ function renderListingCard(lst, i) {
     ? `<div class="prefill-box"><div class="prefill-value">${esc(st.categoryLabel)}</div></div>`
     : renderCategoryPicker(lst, i);
 
-  const contactHtml = st.contact
+  const contactHtml = st.contactPrefilled
     ? `<div class="prefill-box">
          <div class="prefill-value">${esc(st.contact)}</div>
          <button class="confirm-chip ${st.contactConfirmed ? 'confirmed' : ''}" onclick="confirmContact(${i})">${st.contactConfirmed ? '✓ Confermato' : 'Conferma'}</button>
        </div>`
-    : `<input type="text" placeholder="Telefono o email" oninput="updateField(${i},'contact',this.value)"/>`;
+    : `<input type="text" placeholder="Telefono o email" value="${esc(st.contact)}" oninput="updateField(${i},'contact',this.value)"/>`;
 
   const locationHtml = st.locationSource === 'existing_profile_place' && st.lat
     ? `<div class="prefill-box">
@@ -574,9 +575,9 @@ function togglePhoto(i, photoIndex) {
 
 function isListingReady(i) {
   const st = listingState[i];
+  const contactOk = st.contactPrefilled ? st.contactConfirmed : !!st.contact;
   return !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null
-    && st.contact && (st.contactConfirmed || true) && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0)
-    && !!st.contact;
+    && contactOk && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0);
 }
 function refreshPublishButton(i) {
   const btn = document.getElementById(`publish-btn-${i}`);
