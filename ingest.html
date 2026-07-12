@@ -335,6 +335,7 @@ function buildListingState(job) {
       lat: (f.lat && f.lat.value) || null,
       lng: (f.lng && f.lng.value) || null,
       locationSource: (f.lat && f.lat.source) || 'gps_device_required',
+      locationLabel: null,
       locationConfirmed: false, // richiede sempre conferma esplicita, anche se prefilled dalla sede enterprise
       photos: new Set(),
       published: false,
@@ -442,15 +443,7 @@ function renderListingCard(lst, i) {
        </div>`
     : `<input type="text" placeholder="Telefono o email" value="${esc(st.contact)}" oninput="updateField(${i},'contact',this.value)"/>`;
 
-  const locationHtml = st.locationSource === 'existing_profile_place' && st.lat
-    ? `<div class="prefill-box">
-         <div class="prefill-value">Sede salvata: ${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div>
-         <button class="confirm-chip ${st.locationConfirmed ? 'confirmed' : ''}" onclick="confirmSavedLocation(${i})">${st.locationConfirmed ? '✓ Confermata' : 'Usa questa sede'}</button>
-       </div>
-       <button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Usa GPS attuale invece</button>`
-    : (st.locationConfirmed
-        ? `<div class="prefill-box"><div class="prefill-value">📍 Posizione GPS acquisita: ${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div></div>`
-        : `<button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Cattura posizione GPS (obbligatoria)</button>`);
+  const locationHtml = renderLocationSection(i, st);
 
   const photoPicker = jobImageCandidates.length
     ? `<div class="photo-select-grid">
@@ -546,6 +539,62 @@ function confirmSavedLocation(i) {
   listingState[i].locationConfirmed = true;
   refreshListingCard(i);
 }
+let addressResults = {}; // { listingIndex: [ {display_name, lat, lng}, ... ] }
+
+function renderLocationSection(i, st) {
+  if (st.locationConfirmed) {
+    const label = st.locationLabel ? `${esc(st.locationLabel)} — ` : '';
+    return `<div class="prefill-box"><div class="prefill-value">📍 ${label}${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div></div>`;
+  }
+  if (st.locationSource === 'existing_profile_place' && st.lat) {
+    return `<div class="prefill-box">
+         <div class="prefill-value">Sede salvata: ${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div>
+         <button class="confirm-chip" onclick="confirmSavedLocation(${i})">Usa questa sede</button>
+       </div>
+       <button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Usa GPS attuale invece</button>`;
+  }
+  if (st.locationSource === 'address_geocoded') {
+    return `
+      <div style="display:flex;gap:6px">
+        <input type="text" id="addr-search-${i}" placeholder="Indirizzo o nome del venue"/>
+        <button class="secondary-btn" onclick="searchAddress(${i})">Cerca</button>
+      </div>
+      <div id="addr-results-${i}"></div>
+      <div class="field-hint">Evento: cerca l'indirizzo del venue e conferma il risultato corretto — mai coordinate inserite a mano.</div>`;
+  }
+  return `<button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Cattura posizione GPS (obbligatoria)</button>`;
+}
+
+async function searchAddress(i) {
+  const input = document.getElementById(`addr-search-${i}`);
+  const query = input.value.trim();
+  const resultsEl = document.getElementById(`addr-results-${i}`);
+  if (query.length < 3) { resultsEl.innerHTML = `<div class="field-hint">Scrivi almeno 3 caratteri.</div>`; return; }
+  resultsEl.innerHTML = `<div class="field-hint">Cerco…</div>`;
+  try {
+    const r = await fetch(`${API}/geocode/search?q=${encodeURIComponent(query)}`, { headers: authHeaders() });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Errore ricerca');
+    addressResults[i] = d.results || [];
+    if (!addressResults[i].length) { resultsEl.innerHTML = `<div class="field-hint">Nessun risultato. Prova un indirizzo più preciso.</div>`; return; }
+    resultsEl.innerHTML = addressResults[i].map((res, ri) => `
+      <div class="prefill-box" style="margin-top:6px">
+        <div class="prefill-value">${esc(res.display_name)}</div>
+        <button class="confirm-chip" onclick="confirmGeocodedAddress(${i}, ${ri})">Conferma</button>
+      </div>`).join('');
+  } catch(e) {
+    resultsEl.innerHTML = `<div class="field-hint">Errore: ${esc(e.message)}</div>`;
+  }
+}
+function confirmGeocodedAddress(i, ri) {
+  const res = addressResults[i][ri];
+  listingState[i].lat = res.lat;
+  listingState[i].lng = res.lng;
+  listingState[i].locationLabel = res.display_name;
+  listingState[i].locationConfirmed = true;
+  refreshListingCard(i);
+}
+
 function captureGps(i) {
   const btn = event.target;
   btn.disabled = true; btn.textContent = 'Acquisizione GPS…';
