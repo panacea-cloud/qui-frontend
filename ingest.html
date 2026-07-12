@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUI — Ingestion AI</title>
+<link rel="icon" type="image/png" href="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #f5f5f7; min-height: 100%; }
+
+.topbar {
+  height: 44px; background: #fff; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; }
+.topbar-back {
+  font-size: 12px; font-weight: 500; color: #2a2a6e; cursor: pointer;
+  background: none; border: none; font-family: inherit; display: flex; align-items: center; gap: 4px;
+}
+.topbar-back:hover { opacity: 0.7; }
+
+.page { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; display: flex; flex-direction: column; gap: 16px; }
+
+.card { background: #fff; border-radius: 14px; overflow: hidden; border: 0.5px solid #e8e8e8; }
+.card-header {
+  padding: 12px 16px; border-bottom: 0.5px solid #f0f0f0;
+  font-size: 11px; font-weight: 600; color: #2a2a6e;
+  display: flex; align-items: center; gap: 6px; background: #f8f8fc;
+}
+.card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
+.field input, .field textarea, .field select {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 13px; font-family: inherit; color: #111; outline: none;
+  background: #fafafa; width: 100%; transition: border-color .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: #2a2a6e; background: #fff; }
+.field textarea { resize: vertical; min-height: 70px; }
+.field-hint { font-size: 11px; color: #aaa; line-height: 1.5; }
+
+.tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tier-btn {
+  border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 12px 10px;
+  background: #fafafa; cursor: pointer; text-align: left; font-family: inherit;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.tier-btn.selected { border-color: #2a2a6e; background: #f0f0fa; }
+.tier-name { font-size: 13px; font-weight: 600; color: #111; text-transform: capitalize; }
+.tier-desc { font-size: 11px; color: #888; }
+
+.primary-btn {
+  padding: 12px; border: none; border-radius: 10px; background: #2a2a6e; color: #fff;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; width: 100%;
+}
+.primary-btn:hover { opacity: .88; }
+.primary-btn:disabled { opacity: .45; cursor: not-allowed; }
+.secondary-btn {
+  padding: 9px 14px; border: 1px solid #2a2a6e; border-radius: 8px; background: #fff; color: #2a2a6e;
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.secondary-btn:hover { background: #f0f0fa; }
+.secondary-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.state-box { padding: 50px 16px; text-align: center; color: #aaa; font-size: 12px; line-height: 1.6; }
+.spinner { width: 22px; height: 22px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { background: #fdf0f0; color: #c0392b; border-radius: 10px; padding: 14px 16px; font-size: 12px; line-height: 1.6; }
+
+.entity-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.entity-name { font-size: 15px; font-weight: 600; color: #111; }
+.entity-type { font-size: 11px; color: #888; margin-top: 2px; }
+.score-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.score-high { background: #ddf3ea; color: #2a7a4a; }
+.score-mid { background: #fff8e1; color: #b8860b; }
+.score-low { background: #fdf0f0; color: #c0392b; }
+.review-note { font-size: 11px; color: #e07030; background: #fff8e1; border-radius: 8px; padding: 8px 10px; line-height: 1.5; }
+
+.photo-pool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.photo-pool-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e0e0e0; }
+.upload-photo-btn {
+  width: 60px; height: 60px; border-radius: 8px; border: 1.5px dashed #c0c0e0; background: #f8f8fc;
+  color: #2a2a6e; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+.listing-card { border: 0.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+.listing-card-header {
+  padding: 12px 14px; background: #fafafa; border-bottom: 0.5px solid #eee;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.listing-title-input { font-size: 14px; font-weight: 600; border: none; background: transparent; width: 100%; font-family: inherit; outline: none; }
+.confidence-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.conf-high { background: #2a7a4a; } .conf-medium { background: #e0a030; } .conf-low { background: #c0392b; }
+.listing-card-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+
+.subsection { display: flex; flex-direction: column; gap: 6px; }
+.subsection-label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.done-tick { color: #2a7a4a; }
+.pending-tick { color: #c0392b; }
+
+.prefill-box {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: #f0f2ff; border: 1px solid #dcdcf5; border-radius: 8px; padding: 8px 10px;
+}
+.prefill-value { font-size: 12px; color: #333; }
+.confirm-chip {
+  font-size: 11px; font-weight: 600; color: #fff; background: #2a2a6e; border: none;
+  border-radius: 6px; padding: 6px 10px; cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.confirm-chip.confirmed { background: #2a7a4a; cursor: default; }
+
+.photo-select-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.photo-select-item { position: relative; cursor: pointer; }
+.photo-select-item img { width: 56px; height: 56px; border-radius: 6px; object-fit: cover; display: block; border: 2px solid transparent; }
+.photo-select-item.selected img { border-color: #2a2a6e; }
+.photo-select-check {
+  position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: #2a2a6e; color: #fff; font-size: 10px; display: none; align-items: center; justify-content: center;
+}
+.photo-select-item.selected .photo-select-check { display: flex; }
+
+.gap-note { font-size: 11px; color: #888; line-height: 1.5; background: #fafafa; border-radius: 6px; padding: 8px 10px; }
+.publish-status { font-size: 12px; font-weight: 600; color: #2a7a4a; text-align: center; padding: 10px; }
+
+.retry-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff8e1; border-radius: 10px; padding: 12px 14px; }
+.retry-text { font-size: 12px; color: #7a5a00; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="topbar-back" onclick="window.location.href='/merchant.html'">← Profilo</button>
+  <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true" class="topbar-logo" alt="QUI"/>
+  <div style="width:60px"></div>
+</div>
+
+<div class="page" id="page-root">
+  <div class="state-box"><div class="spinner"></div>Caricamento…</div>
+</div>
+
+<input type="file" id="photo-upload-input" accept="image/*" style="display:none"/>
+
+<script>
+const API = 'https://qui-backend-production.up.railway.app';
+const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
+const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
+const TIER_LABELS = {
+  singolo:  { desc: '1 annuncio' },
+  base:     { desc: 'fino a 5 annunci' },
+  standard: { desc: 'fino a 15 annunci' },
+  ampia:    { desc: 'fino a 20 annunci' },
+};
+const TYPE_IT_TO_EN = { prodotto: 'product', servizio: 'service', esperienza: 'experience' };
+const TYPE_IT_TO_FAMILY = { prodotto: 'product', servizio: 'service', esperienza: 'experience' };
+
+let authToken = localStorage.getItem('qui_token') || null;
+const root = document.getElementById('page-root');
+const params = new URLSearchParams(window.location.search);
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function authHeaders() {
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'qui');
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error('Errore upload foto');
+  return (await r.json()).secure_url;
+}
+
+// ── STATO GLOBALE ──
+let taxonomyRows = null;
+let currentJobId = params.get('ingest_job') || null;
+let pollTimer = null;
+let jobResult = null;
+let jobImageCandidates = [];
+let listingState = []; // per indice: { title, description, categoryCode, price, contact, contactConfirmed, lat, lng, locationConfirmed, photos:Set, published, entityId }
+
+async function loadTaxonomy() {
+  if (taxonomyRows) return taxonomyRows;
+  const r = await fetch(`${API}/taxonomy?family=product,service,experience`);
+  taxonomyRows = r.ok ? await r.json() : [];
+  return taxonomyRows;
+}
+function macrosForFamily(family) {
+  return (taxonomyRows || []).filter(r => r.family === family && !r.parent_code);
+}
+function categoriesForMacro(macroCode) {
+  return (taxonomyRows || []).filter(r => r.parent_code === macroCode);
+}
+
+// ── INIT ──
+async function init() {
+  if (!authToken) {
+    root.innerHTML = `<div class="error-box">Devi accedere al tuo account QUI per usare l'ingestion AI. <a href="/merchant.html" style="color:#c0392b">Vai al login →</a></div>`;
+    return;
+  }
+  await loadTaxonomy();
+  if (currentJobId) {
+    renderPollingState();
+    pollJob();
+  } else {
+    renderSetupForm();
+  }
+}
+
+// ── STEP 1: SETUP ──
+let selectedTier = 'base';
+function renderSetupForm() {
+  const draftId = params.get('draft_id') || '';
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-header">🧠 Nuova ingestion AI</div>
+      <div class="card-body">
+        <div class="field-hint">Fornisci il materiale grezzo sull'attività (URL, bio social, descrizione) oppure usa una cattura fatta col bookmarklet. Il motore AI struttura tutto in annunci pronti da rifinire e pubblicare.</div>
+
+        <div class="field">
+          <label>Fascia (numero massimo di annunci)</label>
+          <div class="tier-grid" id="tier-grid">
+            ${Object.keys(TIER_LABELS).map(t => `
+              <button type="button" class="tier-btn ${t === selectedTier ? 'selected' : ''}" data-tier="${t}" onclick="selectTier('${t}')">
+                <div class="tier-name">${t}</div>
+                <div class="tier-desc">${TIER_LABELS[t].desc}</div>
+              </button>`).join('')}
+          </div>
+        </div>
+
+        ${draftId ? `
+          <div class="prefill-box">
+            <div class="prefill-value">📥 Userò la cattura confermata (draft ${esc(draftId.slice(0,8))}…)</div>
+          </div>
+        ` : `
+          <div class="field"><label>URL (uno per riga)</label><textarea id="in-urls" placeholder="https://instagram.com/tuobrand&#10;https://tuosito.it"></textarea></div>
+          <div class="field"><label>Bio social (opzionale)</label><textarea id="in-bio" placeholder="Incolla qui la bio Instagram/Facebook"></textarea></div>
+          <div class="field"><label>Descrizione libera (opzionale)</label><textarea id="in-desc" placeholder="Racconta la tua attività con parole tue"></textarea></div>
+        `}
+
+        <div id="setup-error" style="display:none" class="error-box"></div>
+        <button class="primary-btn" id="setup-submit" onclick="submitCheckout('${esc(draftId)}')">Procedi al pagamento →</button>
+      </div>
+    </div>`;
+}
+function selectTier(t) {
+  selectedTier = t;
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('selected', b.dataset.tier === t));
+}
+async function submitCheckout(draftId) {
+  const btn = document.getElementById('setup-submit');
+  const errEl = document.getElementById('setup-error');
+  errEl.style.display = 'none';
+
+  const body = { tier: selectedTier };
+  if (draftId) {
+    body.draft_id = draftId;
+  } else {
+    const urls = (document.getElementById('in-urls').value || '').split('\n').map(s => s.trim()).filter(Boolean);
+    const bio = (document.getElementById('in-bio').value || '').trim();
+    const desc = (document.getElementById('in-desc').value || '').trim();
+    if (urls.length) body.urls = urls;
+    if (bio) body.social_bio = bio;
+    if (desc) body.merchant_description = desc;
+    if (!urls.length && !bio && !desc) {
+      errEl.textContent = 'Fornisci almeno un URL, una bio o una descrizione.';
+      errEl.style.display = 'block';
+      return;
+    }
+  }
+
+  btn.disabled = true; btn.textContent = 'Creo la sessione di pagamento…';
+  try {
+    const r = await fetch(`${API}/ingest/checkout`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+    window.location.href = d.url;
+  } catch(e) {
+    errEl.textContent = `Errore: ${e.message}`;
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Procedi al pagamento →';
+  }
+}
+
+// ── STEP 2: POLLING ──
+function renderPollingState() {
+  root.innerHTML = `<div class="state-box"><div class="spinner"></div>Analisi in corso — può richiedere fino a un paio di minuti…</div>`;
+}
+async function pollJob() {
+  try {
+    const r = await fetch(`${API}/ingest/jobs/${currentJobId}`, { headers: authHeaders() });
+    if (!r.ok) { root.innerHTML = `<div class="error-box">Job non trovato o non accessibile.</div>`; return; }
+    const job = await r.json();
+    if (job.status === 'done') {
+      jobResult = job.result || {};
+      jobImageCandidates = job.image_candidates || [];
+      buildListingState(job);
+      renderResults(job);
+      return;
+    }
+    if (job.status === 'error') {
+      root.innerHTML = `<div class="error-box">L'ingestion non è riuscita: ${esc(job.error_message || 'errore sconosciuto')}.<br><br><a href="/ingest.html" style="color:#c0392b">Riprova da capo →</a></div>`;
+      return;
+    }
+    pollTimer = setTimeout(pollJob, 3000);
+  } catch(e) {
+    pollTimer = setTimeout(pollJob, 5000);
+  }
+}
+
+function buildListingState(job) {
+  const listings = jobResult.listings || [];
+  const fv = jobResult.field_validation || [];
+  listingState = listings.map((lst, i) => {
+    const f = (fv[i] && fv[i].fields) || {};
+    return {
+      title: lst.title || '',
+      description: lst.description || '',
+      type: lst.type,
+      categoryCode: (f.category && f.category.present) ? f.category.value : null,
+      categoryLabel: (f.category && f.category.present) ? `${lst.macro_label} › ${lst.category_label}` : null,
+      price: (f.price && f.price.present) ? f.price.value : '',
+      contact: (f.contact && f.contact.value) || '',
+      contactConfirmed: !!(f.contact && f.contact.present && f.contact.source === 'profile_prefill'),
+      lat: (f.lat && f.lat.value) || null,
+      lng: (f.lng && f.lng.value) || null,
+      locationSource: (f.lat && f.lat.source) || 'gps_device_required',
+      locationConfirmed: !!(f.lat && f.lat.present && f.lat.source === 'existing_profile_place' && false), // richiede sempre conferma esplicita anche se prefilled
+      photos: new Set(),
+      published: false,
+      entityId: null,
+    };
+  });
+}
+
+// ── STEP 3: RISULTATI ──
+function renderResults(job) {
+  const entity = jobResult.entity || {};
+  const listings = jobResult.listings || [];
+  const score = jobResult.ingestion_quality_score;
+  const scoreClass = score >= 70 ? 'score-high' : (score >= 40 ? 'score-mid' : 'score-low');
+  const canRetry = job.can_retry_free;
+
+  let html = `
+    <div class="card">
+      <div class="card-body">
+        <div class="entity-header">
+          <div>
+            <div class="entity-name">${esc(entity.name || 'Entità senza nome')}</div>
+            <div class="entity-type">${esc(entity.entity_type || '')}${entity.city ? ' · ' + esc(entity.city) : ''}</div>
+          </div>
+          <div class="score-badge ${scoreClass}">${score ?? 'N/A'}/100</div>
+        </div>
+        ${jobResult.needs_review ? `<div class="review-note">⚠ Revisione consigliata: ${esc(jobResult.extraction_notes || 'controlla i dettagli prima di pubblicare.')}</div>` : ''}
+      </div>
+    </div>`;
+
+  if (canRetry) {
+    html += `
+      <div class="retry-box">
+        <div class="retry-text">Il punteggio di qualità è basso — hai diritto a un tentativo gratuito con lo stesso materiale.</div>
+        <button class="secondary-btn" onclick="retryFree()">Rigenera gratis</button>
+      </div>`;
+  }
+
+  if (jobImageCandidates.length) {
+    html += `
+      <div class="card">
+        <div class="card-header">📸 Foto disponibili (scelte durante lo scraping/cattura)</div>
+        <div class="card-body">
+          <div class="photo-pool-grid" id="photo-pool-grid">
+            ${jobImageCandidates.map((url, i) => `<img class="photo-pool-thumb" src="${esc(url)}" alt="foto candidata"/>`).join('')}
+            <button class="upload-photo-btn" onclick="uploadGlobalPhoto()" title="Carica una foto">+</button>
+          </div>
+          <div class="field-hint">Seleziona quali foto usare per ciascun annuncio qui sotto.</div>
+        </div>
+      </div>`;
+  } else {
+    html += `
+      <div class="card"><div class="card-body">
+        <div class="field-hint">Nessuna foto catturata automaticamente — dovrai caricarne almeno una per ogni annuncio.</div>
+        <button class="secondary-btn" onclick="uploadGlobalPhoto()" style="align-self:flex-start">+ Carica foto</button>
+      </div></div>`;
+  }
+
+  listings.forEach((lst, i) => html += renderListingCard(lst, i));
+
+  root.innerHTML = html;
+}
+
+function retryFree() {
+  fetch(`${API}/ingest/jobs/${currentJobId}/retry`, { method: 'POST', headers: authHeaders() })
+    .then(r => r.json().then(d => ({ ok: r.ok, d })))
+    .then(({ ok, d }) => {
+      if (!ok) { alert(`Errore: ${d.error}`); return; }
+      currentJobId = d.job_id;
+      history.replaceState(null, '', `/ingest.html?ingest_job=${currentJobId}`);
+      renderPollingState();
+      pollJob();
+    })
+    .catch(e => alert(`Errore: ${e.message}`));
+}
+
+async function uploadGlobalPhoto() {
+  const input = document.getElementById('photo-upload-input');
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    try {
+      const url = await uploadToCloudinary(file);
+      jobImageCandidates.push(url);
+      renderResults({ can_retry_free: false, image_candidates: jobImageCandidates });
+    } catch(e) { alert(`Errore upload: ${e.message}`); }
+    input.value = '';
+  };
+  input.click();
+}
+
+function renderListingCard(lst, i) {
+  const st = listingState[i];
+  const confClass = { high: 'conf-high', medium: 'conf-medium', low: 'conf-low' }[lst.confidence] || 'conf-medium';
+  const ready = isListingReady(i);
+
+  const categoryHtml = st.categoryCode
+    ? `<div class="prefill-box"><div class="prefill-value">${esc(st.categoryLabel)}</div></div>`
+    : renderCategoryPicker(lst, i);
+
+  const contactHtml = st.contact
+    ? `<div class="prefill-box">
+         <div class="prefill-value">${esc(st.contact)}</div>
+         <button class="confirm-chip ${st.contactConfirmed ? 'confirmed' : ''}" onclick="confirmContact(${i})">${st.contactConfirmed ? '✓ Confermato' : 'Conferma'}</button>
+       </div>`
+    : `<input type="text" placeholder="Telefono o email" oninput="updateField(${i},'contact',this.value)"/>`;
+
+  const locationHtml = st.locationSource === 'existing_profile_place' && st.lat
+    ? `<div class="prefill-box">
+         <div class="prefill-value">Sede salvata: ${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div>
+         <button class="confirm-chip ${st.locationConfirmed ? 'confirmed' : ''}" onclick="confirmSavedLocation(${i})">${st.locationConfirmed ? '✓ Confermata' : 'Usa questa sede'}</button>
+       </div>
+       <button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Usa GPS attuale invece</button>`
+    : (st.locationConfirmed
+        ? `<div class="prefill-box"><div class="prefill-value">📍 Posizione GPS acquisita: ${st.lat.toFixed(5)}, ${st.lng.toFixed(5)}</div></div>`
+        : `<button class="secondary-btn" onclick="captureGps(${i})" style="align-self:flex-start">📍 Cattura posizione GPS (obbligatoria)</button>`);
+
+  const photoPicker = jobImageCandidates.length
+    ? `<div class="photo-select-grid">
+        ${jobImageCandidates.map((url, pi) => `
+          <div class="photo-select-item ${st.photos.has(url) ? 'selected' : ''}" onclick="togglePhoto(${i}, ${pi})">
+            <img src="${esc(url)}" alt="foto"/>
+            <div class="photo-select-check">✓</div>
+          </div>`).join('')}
+       </div>`
+    : `<div class="field-hint">Carica una foto qui sopra, poi torna qui per selezionarla.</div>`;
+
+  return `
+    <div class="listing-card" id="listing-card-${i}">
+      <div class="listing-card-header">
+        <span class="confidence-dot ${confClass}" title="Affidabilità: ${esc(lst.confidence)}"></span>
+        <input class="listing-title-input" value="${esc(st.title)}" oninput="updateField(${i},'title',this.value)"/>
+      </div>
+      <div class="listing-card-body">
+        <div class="subsection">
+          <div class="subsection-label">Descrizione</div>
+          <textarea oninput="updateField(${i},'description',this.value)">${esc(st.description)}</textarea>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Categoria ${st.categoryCode ? '<span class="done-tick">✓</span>' : '<span class="pending-tick">●</span>'}</div>
+          ${categoryHtml}
+          ${lst.taxonomy_gap ? `<div class="gap-note">🗺 ${esc(lst.taxonomy_gap)}</div>` : ''}
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Prezzo</div>
+          <input type="number" step="0.01" value="${esc(st.price)}" placeholder="0.00" oninput="updateField(${i},'price',this.value)"/>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Contatto ${st.contactConfirmed || (st.contact && !st.contact) ? '' : ''}</div>
+          ${contactHtml}
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Posizione (GPS live obbligatorio)</div>
+          ${locationHtml}
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Foto</div>
+          ${photoPicker}
+        </div>
+
+        ${st.published
+          ? `<div class="publish-status">✓ Pubblicato</div>`
+          : `<button class="primary-btn" id="publish-btn-${i}" ${ready ? '' : 'disabled'} onclick="publishListing(${i})">Pubblica annuncio</button>`}
+      </div>
+    </div>`;
+}
+
+function renderCategoryPicker(lst, i) {
+  const family = TYPE_IT_TO_FAMILY[lst.type] || 'product';
+  const macros = macrosForFamily(family);
+  return `
+    <select id="macro-select-${i}" onchange="onMacroChange(${i})">
+      <option value="">— Seleziona macrocategoria —</option>
+      ${macros.map(m => `<option value="${esc(m.code)}">${esc(m.label_it)}</option>`).join('')}
+    </select>
+    <select id="category-select-${i}" onchange="onCategoryChange(${i})" disabled>
+      <option value="">— Seleziona categoria —</option>
+    </select>`;
+}
+function onMacroChange(i) {
+  const macroCode = document.getElementById(`macro-select-${i}`).value;
+  const catSelect = document.getElementById(`category-select-${i}`);
+  const cats = macroCode ? categoriesForMacro(macroCode) : [];
+  catSelect.innerHTML = `<option value="">— Seleziona categoria —</option>` + cats.map(c => `<option value="${esc(c.code)}">${esc(c.label_it)}</option>`).join('');
+  catSelect.disabled = !macroCode;
+}
+function onCategoryChange(i) {
+  const code = document.getElementById(`category-select-${i}`).value;
+  listingState[i].categoryCode = code || null;
+  const opt = document.querySelector(`#category-select-${i} option[value="${code}"]`);
+  listingState[i].categoryLabel = opt ? opt.textContent : null;
+  refreshListingCard(i);
+}
+
+function updateField(i, field, value) {
+  listingState[i][field] = value;
+  refreshPublishButton(i);
+}
+function confirmContact(i) {
+  listingState[i].contactConfirmed = true;
+  refreshListingCard(i);
+}
+function confirmSavedLocation(i) {
+  listingState[i].locationConfirmed = true;
+  refreshListingCard(i);
+}
+function captureGps(i) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Acquisizione GPS…';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      listingState[i].lat = pos.coords.latitude;
+      listingState[i].lng = pos.coords.longitude;
+      listingState[i].locationSource = 'gps_device_required';
+      listingState[i].locationConfirmed = true;
+      refreshListingCard(i);
+    },
+    (err) => {
+      alert(`Impossibile ottenere la posizione: ${err.message}. Assicurati di aver dato il permesso GPS al browser.`);
+      btn.disabled = false; btn.textContent = '📍 Cattura posizione GPS (obbligatoria)';
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+}
+function togglePhoto(i, photoIndex) {
+  const url = jobImageCandidates[photoIndex];
+  const set = listingState[i].photos;
+  if (set.has(url)) set.delete(url);
+  else if (set.size < 4) set.add(url);
+  else alert('Massimo 4 foto per annuncio.');
+  refreshListingCard(i);
+}
+
+function isListingReady(i) {
+  const st = listingState[i];
+  return !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null
+    && st.contact && (st.contactConfirmed || true) && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0)
+    && !!st.contact;
+}
+function refreshPublishButton(i) {
+  const btn = document.getElementById(`publish-btn-${i}`);
+  if (btn) btn.disabled = !isListingReady(i);
+}
+function refreshListingCard(i) {
+  const lst = (jobResult.listings || [])[i];
+  const el = document.getElementById(`listing-card-${i}`);
+  if (el && lst) el.outerHTML = renderListingCard(lst, i);
+}
+
+async function publishListing(i) {
+  const st = listingState[i];
+  const lst = jobResult.listings[i];
+  const btn = document.getElementById(`publish-btn-${i}`);
+  btn.disabled = true; btn.textContent = 'Pubblico…';
+
+  const body = {
+    title: st.title,
+    description: st.description,
+    type: TYPE_IT_TO_EN[lst.type] || 'product',
+    category: st.categoryCode,
+    price: parseFloat(st.price),
+    contact: st.contact,
+    lat: st.lat,
+    lng: st.lng,
+    photos: Array.from(st.photos),
+  };
+
+  try {
+    const r = await fetch(`${API}/listings`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+    st.published = true;
+    st.entityId = d.id;
+    refreshListingCard(i);
+  } catch(e) {
+    alert(`Errore pubblicazione: ${e.message}`);
+    btn.disabled = false; btn.textContent = 'Pubblica annuncio';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
