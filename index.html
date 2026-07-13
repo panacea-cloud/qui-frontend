@@ -594,9 +594,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <!-- TOPBAR -->
   <div class="topbar">
     <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
-      class="topbar-logo" alt="QUI"
+      class="topbar-logo" alt="QUI" style="cursor:pointer" title="Pubblica un annuncio" onclick="onAddClick()"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-    <div class="topbar-logo-fallback" style="display:none">
+    <div class="topbar-logo-fallback" style="display:none;cursor:pointer" title="Pubblica un annuncio" onclick="onAddClick()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
         <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
@@ -2008,7 +2008,7 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
 
 // ── INIT ──
 loadTaxonomyFromAPI();
-loadAuthUser().then(() => load());
+loadAuthUser().then(() => { load(); if (pendingOpenAdd) onAddClick(); });
 </script>
 </body>
 </html>
