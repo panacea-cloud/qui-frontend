@@ -273,9 +273,11 @@ function renderSuccess() {
         <div class="success-icon">✅</div>
         <div class="success-title">Cattura confermata</div>
         <div class="success-sub">
-          Il contenuto è ora collegato al tuo account QUI.<br>
-          Il prossimo passo — creare un annuncio da questo contenuto — sarà disponibile a breve.
+          Il contenuto è ora collegato al tuo account QUI.
         </div>
+        <button class="confirm-btn" onclick="window.location.href='/ingest.html?draft_id=${draftId}'">
+          Crea annuncio da questa cattura →
+        </button>
       </div>
     </div>`;
 }
