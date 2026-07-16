@@ -179,6 +179,15 @@ async function uploadToCloudinary(file) {
   if (!r.ok) throw new Error('Errore upload foto');
   return (await r.json()).secure_url;
 }
+async function uploadDocToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'qui/documents');
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error('Errore upload documento');
+  return (await r.json()).secure_url;
+}
 
 // ── STATO GLOBALE ──
 let taxonomyRows = null;
@@ -247,6 +256,24 @@ function renderSetupForm() {
           <div class="field"><label>Descrizione libera (opzionale)</label><textarea id="in-desc" placeholder="Racconta la tua attività con parole tue"></textarea></div>
         `}
 
+        <div class="field">
+          <label>Documenti (Excel, CSV, PDF — es. listino prezzi)</label>
+          <div class="photo-upload-area" onclick="document.getElementById('in-documents').click()" style="padding:14px">
+            <div style="font-size:12px;color:#999">Tocca per caricare documenti</div>
+            <input type="file" id="in-documents" accept=".xlsx,.xls,.csv,.pdf" multiple style="display:none" onchange="handleDocUpload(this)"/>
+          </div>
+          <div id="doc-upload-list" style="display:flex;flex-direction:column;gap:4px"></div>
+        </div>
+
+        <div class="field">
+          <label>Foto prodotti/servizi/esperienze (obbligatorio se non hai URL con foto)</label>
+          <div class="photo-upload-area" onclick="document.getElementById('in-photos').click()" style="padding:14px">
+            <div style="font-size:12px;color:#999">Tocca per caricare foto — solo tue, mai da terzi</div>
+            <input type="file" id="in-photos" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this)"/>
+          </div>
+          <div class="photo-pool-grid" id="photo-upload-list"></div>
+        </div>
+
         <div id="setup-error" style="display:none" class="error-box"></div>
         <button class="primary-btn" id="setup-submit" onclick="submitCheckout('${esc(draftId)}')">Procedi al pagamento →</button>
       </div>
@@ -255,6 +282,46 @@ function renderSetupForm() {
 function selectTier(t) {
   selectedTier = t;
   document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('selected', b.dataset.tier === t));
+}
+
+let uploadedDocumentUrls = [];
+let uploadedPhotoUrls = [];
+
+async function handleDocUpload(input) {
+  const listEl = document.getElementById('doc-upload-list');
+  for (const file of Array.from(input.files)) {
+    const row = document.createElement('div');
+    row.style.cssText = 'font-size:11px;color:#888';
+    row.textContent = `⏳ ${file.name}…`;
+    listEl.appendChild(row);
+    try {
+      const url = await uploadDocToCloudinary(file);
+      uploadedDocumentUrls.push(url);
+      row.textContent = `✓ ${file.name}`;
+      row.style.color = '#2a7a4a';
+    } catch(e) {
+      row.textContent = `✗ ${file.name} — ${e.message}`;
+      row.style.color = '#c0392b';
+    }
+  }
+  input.value = '';
+}
+
+async function handlePhotoUpload(input) {
+  const listEl = document.getElementById('photo-upload-list');
+  for (const file of Array.from(input.files)) {
+    try {
+      const url = await uploadToCloudinary(file);
+      uploadedPhotoUrls.push(url);
+      const img = document.createElement('img');
+      img.className = 'photo-pool-thumb';
+      img.src = url;
+      listEl.appendChild(img);
+    } catch(e) {
+      alert(`Errore upload foto ${file.name}: ${e.message}`);
+    }
+  }
+  input.value = '';
 }
 async function submitCheckout(draftId) {
   const btn = document.getElementById('setup-submit');
@@ -271,8 +338,10 @@ async function submitCheckout(draftId) {
     if (urls.length) body.urls = urls;
     if (bio) body.social_bio = bio;
     if (desc) body.merchant_description = desc;
-    if (!urls.length && !bio && !desc) {
-      errEl.textContent = 'Fornisci almeno un URL, una bio o una descrizione.';
+    if (uploadedDocumentUrls.length) body.document_urls = uploadedDocumentUrls;
+    if (uploadedPhotoUrls.length) body.user_photo_urls = uploadedPhotoUrls;
+    if (!urls.length && !bio && !desc && !uploadedDocumentUrls.length) {
+      errEl.textContent = 'Fornisci almeno un URL, una bio, una descrizione o un documento.';
       errEl.style.display = 'block';
       return;
     }
