@@ -148,6 +148,28 @@ html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; bac
   word-break: break-all; line-height: 1.5;
 }
 .apikey-warning { font-size: 11px; color: #e07030; font-weight: 600; }
+
+.sync-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+.sync-badge.active { background:#ddf3ea; color:#2a7a4a; }
+.sync-badge.inactive { background:#f0f0f0; color:#999; }
+.sync-badge.past_due { background:#fff8e1; color:#b8860b; }
+.sync-badge.canceled { background:#fdf0f0; color:#c0392b; }
+.place-row { display:flex; flex-direction:column; gap:8px; padding:12px; border:0.5px solid #e0e0e0; border-radius:10px; }
+.place-row + .place-row { margin-top:8px; }
+.place-row-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.place-address { font-size:12px; font-weight:500; color:#111; line-height:1.4; }
+.place-meta { font-size:11px; color:#888; margin-top:2px; }
+.billing-picker { display:flex; gap:8px; }
+.billing-btn { flex:1; border:1.5px solid #e0e0e0; border-radius:8px; padding:8px; background:#fafafa; cursor:pointer; font-family:inherit; text-align:center; font-size:11px; line-height:1.5; }
+.billing-btn.selected { border-color:#2a2a6e; background:#f0f0fa; color:#2a2a6e; font-weight:600; }
+.review-row { display:flex; flex-direction:column; gap:6px; padding:10px 12px; border:0.5px solid #e0e0e0; border-radius:8px; }
+.review-row + .review-row { margin-top:8px; }
+.review-diff { font-size:11px; color:#555; line-height:1.5; }
+.review-actions { display:flex; gap:8px; }
+.review-btn { font-size:11px; font-weight:600; border-radius:6px; padding:5px 10px; cursor:pointer; font-family:inherit; border:none; }
+.review-btn.confirm { background:#ddf3ea; color:#2a7a4a; }
+.review-btn.reject { background:#fdf0f0; color:#c0392b; }
+
 .logout-btn {
   width: 100%; padding: 11px; border: 1px solid #e0e0e0; border-radius: 10px;
   background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
@@ -198,6 +220,20 @@ html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; bac
     </div>
   </div>
 
+  <!-- SEDI & SYNC -->
+  <div class="card">
+    <div class="card-header">🔄 Sedi & Sync automatico</div>
+    <div class="card-body" id="places-body">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- REVISIONI SYNC -->
+  <div class="card" id="sync-reviews-card" style="display:none">
+    <div class="card-header">📝 Modifiche da rivedere</div>
+    <div class="card-body" id="sync-reviews-body"></div>
+  </div>
+
   <!-- CATTURA ANNUNCI -->
   <div class="card">
     <div class="card-header">🎯 Cattura annunci</div>
@@ -240,6 +276,10 @@ const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
 
 let authToken = localStorage.getItem('qui_token');
 let authUser = null;
+let placesData = [];
+let syncReviewsData = [];
+let billingSelection = {};
+let pickerOpenFor = null;
 
 function authHeaders() {
   return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
@@ -281,6 +321,8 @@ async function init() {
   renderDocs();
   renderListings();
   renderApiKeys();
+  renderPlaces();
+  renderSyncReviews();
 }
 
 // ── HERO ──
@@ -547,7 +589,125 @@ function timeAgo(iso) {
   if (diff < 86400) return `${Math.round(diff/3600)}h fa`;
   return `${Math.round(diff/86400)}g fa`;
 }
-  
+
+// ── SEDI & SYNC ──
+function syncBadgeLabel(status) {
+  if (status === 'active') return { cls: 'active', text: '✓ Sync attivo' };
+  if (status === 'past_due') return { cls: 'past_due', text: '⚠ Pagamento in ritardo' };
+  if (status === 'canceled') return { cls: 'canceled', text: 'Annullato' };
+  return { cls: 'inactive', text: 'Non attivo' };
+}
+
+async function renderPlaces() {
+  const body = document.getElementById('places-body');
+  try {
+    const r = await fetch(`${API}/auth/my-places`, { headers: authHeaders() });
+    if (!r.ok) throw new Error();
+    placesData = await r.json();
+    if (!placesData.length) { body.innerHTML = `<div class="empty">Nessuna sede ancora.</div>`; return; }
+    body.innerHTML = placesData.map(p => renderPlaceRow(p)).join('');
+  } catch { body.innerHTML = `<div class="empty">Errore caricamento sedi.</div>`; }
+}
+
+function renderPlaceRow(p) {
+  const badge = syncBadgeLabel(p.sync_status);
+  const expiresInfo = p.sync_active && p.current_period_end
+    ? `<div class="place-meta">Rinnovo: ${new Date(p.current_period_end).toLocaleDateString('it-IT')}</div>`
+    : '';
+  const actionHtml = p.sync_active ? '' : renderSyncActivation(p.id);
+  return `<div class="place-row" id="place-row-${p.id}">
+    <div class="place-row-top">
+      <div>
+        <div class="place-address">${esc(p.address_formatted || p.address_city || 'Sede')}</div>
+        <div class="place-meta">${p.entity_count} annunci attivi</div>
+        ${expiresInfo}
+      </div>
+      <span class="sync-badge ${badge.cls}">${badge.text}</span>
+    </div>
+    ${actionHtml}
+  </div>`;
+}
+
+function renderSyncActivation(placeId) {
+  const isOpen = pickerOpenFor === placeId;
+  if (!isOpen) {
+    return `<button class="secondary-btn" onclick="openSyncPicker('${placeId}')" style="align-self:flex-start">Attiva sync automatico</button>`;
+  }
+  const sel = billingSelection[placeId] || 'monthly';
+  return `
+    <div class="billing-picker">
+      <button type="button" class="billing-btn ${sel === 'monthly' ? 'selected' : ''}" onclick="selectBilling('${placeId}','monthly')">Mensile<br>19,99€/mese</button>
+      <button type="button" class="billing-btn ${sel === 'yearly' ? 'selected' : ''}" onclick="selectBilling('${placeId}','yearly')">Annuale<br>199€/anno</button>
+    </div>
+    <button class="primary-btn" onclick="confirmSyncActivation('${placeId}')">Attiva e vai al pagamento →</button>`;
+}
+
+function openSyncPicker(placeId) {
+  pickerOpenFor = placeId;
+  if (!billingSelection[placeId]) billingSelection[placeId] = 'monthly';
+  refreshPlaceRow(placeId);
+}
+function selectBilling(placeId, period) {
+  billingSelection[placeId] = period;
+  refreshPlaceRow(placeId);
+}
+function refreshPlaceRow(placeId) {
+  const p = placesData.find(pl => pl.id === placeId);
+  const el = document.getElementById(`place-row-${placeId}`);
+  if (p && el) el.outerHTML = renderPlaceRow(p);
+}
+
+async function confirmSyncActivation(placeId) {
+  const period = billingSelection[placeId] || 'monthly';
+  try {
+    const r = await fetch(`${API}/sync/checkout`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ place_id: placeId, billing_period: period })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+    window.location.href = d.url;
+  } catch(e) { alert(`Errore: ${e.message}`); }
+}
+
+// ── REVISIONI SYNC ──
+async function renderSyncReviews() {
+  try {
+    const r = await fetch(`${API}/auth/sync-reviews`, { headers: authHeaders() });
+    if (!r.ok) return;
+    syncReviewsData = await r.json();
+    const card = document.getElementById('sync-reviews-card');
+    const body = document.getElementById('sync-reviews-body');
+    if (!syncReviewsData.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    body.innerHTML = syncReviewsData.map(rv => renderReviewRow(rv)).join('');
+  } catch {}
+}
+
+function renderReviewRow(rv) {
+  return `<div class="review-row" id="review-row-${rv.id}">
+    <div class="place-address">${esc(rv.entity_title || 'Annuncio')}</div>
+    <div class="review-diff">Campo <strong>${esc(rv.field)}</strong>: "${esc(rv.old_value)}" → "${esc(rv.new_value)}"</div>
+    <div class="review-actions">
+      <button class="review-btn confirm" onclick="resolveSyncReview('${rv.id}','confirm')">Applica nuovo valore</button>
+      <button class="review-btn reject" onclick="resolveSyncReview('${rv.id}','reject')">Mantieni il mio</button>
+    </div>
+  </div>`;
+}
+
+async function resolveSyncReview(reviewId, action) {
+  try {
+    const r = await fetch(`${API}/sync-reviews/${reviewId}/resolve`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ action })
+    });
+    if (!r.ok) throw new Error();
+    document.getElementById(`review-row-${reviewId}`)?.remove();
+    syncReviewsData = syncReviewsData.filter(rv => rv.id !== reviewId);
+    if (!syncReviewsData.length) document.getElementById('sync-reviews-card').style.display = 'none';
+  } catch { alert('Errore nella risoluzione della revisione.'); }
+}
+
 init();
 </script>
 </body>
