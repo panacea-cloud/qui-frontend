@@ -409,6 +409,10 @@ function buildListingState(job) {
       photos: new Set(),
       published: false,
       entityId: null,
+      dedupCandidates: null,   // null = non ancora cercato
+      dedupChecked: false,     // true dopo la ricerca (anche se zero risultati)
+      confirmedPlaceId: null,  // set se l'utente conferma un place esistente
+      dedupChoice: null,       // 'existing' | 'new'
     };
   });
 }
@@ -555,6 +559,7 @@ function renderListingCard(lst, i) {
         <div class="subsection">
           <div class="subsection-label">Posizione (GPS live obbligatorio)</div>
           ${locationHtml}
+          ${st.locationConfirmed ? renderDedupSection(i, st) : ''}
         </div>
 
         <div class="subsection">
@@ -606,6 +611,35 @@ function confirmContact(i) {
 }
 function confirmSavedLocation(i) {
   listingState[i].locationConfirmed = true;
+  checkPlaceDedup(i);
+}
+
+async function checkPlaceDedup(i) {
+  const st = listingState[i];
+  st.dedupCandidates = null;
+  st.dedupChecked = false;
+  st.confirmedPlaceId = null;
+  st.dedupChoice = null;
+  refreshListingCard(i);
+  try {
+    const r = await fetch(`${API}/places/nearby?lat=${st.lat}&lng=${st.lng}`, { headers: authHeaders() });
+    const candidates = r.ok ? await r.json() : [];
+    st.dedupCandidates = candidates;
+  } catch {
+    st.dedupCandidates = [];
+  }
+  st.dedupChecked = true;
+  refreshListingCard(i);
+}
+
+function chooseDedupPlace(i, placeId) {
+  listingState[i].confirmedPlaceId = placeId;
+  listingState[i].dedupChoice = 'existing';
+  refreshListingCard(i);
+}
+function chooseNewPlace(i) {
+  listingState[i].confirmedPlaceId = null;
+  listingState[i].dedupChoice = 'new';
   refreshListingCard(i);
 }
 let addressResults = {}; // { listingIndex: [ {display_name, lat, lng}, ... ] }
@@ -661,7 +695,7 @@ function confirmGeocodedAddress(i, ri) {
   listingState[i].lng = res.lng;
   listingState[i].locationLabel = res.display_name;
   listingState[i].locationConfirmed = true;
-  refreshListingCard(i);
+  checkPlaceDedup(i);
 }
 
 function captureGps(i) {
@@ -673,7 +707,7 @@ function captureGps(i) {
       listingState[i].lng = pos.coords.longitude;
       listingState[i].locationSource = 'gps_device_required';
       listingState[i].locationConfirmed = true;
-      refreshListingCard(i);
+      checkPlaceDedup(i);
     },
     (err) => {
       alert(`Impossibile ottenere la posizione: ${err.message}. Assicurati di aver dato il permesso GPS al browser.`);
@@ -682,6 +716,30 @@ function captureGps(i) {
     { enableHighAccuracy: true, timeout: 15000 }
   );
 }
+function renderDedupSection(i, st) {
+  if (!st.dedupChecked) {
+    return `<div class="field-hint">Controllo sedi vicine…</div>`;
+  }
+  const candidates = st.dedupCandidates || [];
+  if (!candidates.length) {
+    return `<div class="field-hint">✓ Nessuna sede esistente nelle vicinanze — verrà creata una nuova sede.</div>`;
+  }
+  if (st.dedupChoice) {
+    const label = st.dedupChoice === 'existing'
+      ? `Userò la sede esistente confermata`
+      : `Creerò una nuova sede in questa posizione`;
+    return `<div class="prefill-box"><div class="prefill-value">✓ ${label}</div></div>`;
+  }
+  return `
+    <div class="gap-note">📍 Trovate sedi vicine — conferma quale usare (obbligatorio prima di pubblicare):</div>
+    ${candidates.map(c => `
+      <div class="prefill-box" style="margin-top:6px">
+        <div class="prefill-value">${esc(c.address_formatted || c.address_city)} · ${c.distance_m}m · ${c.entity_count} annunci</div>
+        <button class="confirm-chip" onclick="chooseDedupPlace(${i}, '${c.place_id}')">È questa</button>
+      </div>`).join('')}
+    <button class="secondary-btn" onclick="chooseNewPlace(${i})" style="align-self:flex-start;margin-top:6px">Nessuna di queste — crea nuova sede</button>`;
+}
+
 function togglePhoto(i, photoIndex) {
   const url = jobImageCandidates[photoIndex];
   const set = listingState[i].photos;
@@ -694,8 +752,9 @@ function togglePhoto(i, photoIndex) {
 function isListingReady(i) {
   const st = listingState[i];
   const contactOk = st.contactPrefilled ? st.contactConfirmed : !!st.contact;
+  const dedupOk = st.dedupChecked && (!(st.dedupCandidates || []).length || !!st.dedupChoice);
   return !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null
-    && contactOk && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0);
+    && contactOk && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0 && dedupOk);
 }
 function refreshPublishButton(i) {
   const btn = document.getElementById(`publish-btn-${i}`);
@@ -724,6 +783,7 @@ async function publishListing(i) {
     lng: st.lng,
     photos: Array.from(st.photos),
   };
+  if (st.confirmedPlaceId) body.confirmed_place_id = st.confirmedPlaceId;
 
   try {
     const r = await fetch(`${API}/listings`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
