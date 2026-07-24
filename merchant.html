@@ -590,7 +590,7 @@ function confirmDeleteListing(id, title) {
 }
 async function deleteListing(id) {
   try {
-    const r = await fetch(`${API}/listings/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const r = await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     document.getElementById(`ltile-${id}`)?.remove();
     myListingsCache = myListingsCache.filter(l => String(l.id) !== String(id));
