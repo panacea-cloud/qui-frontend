@@ -1184,7 +1184,7 @@ async function uploadKYB(input) {
 async function deleteListing(id) {
   if (!confirm('Eliminare questo annuncio?')) return;
   try {
-    const r = await fetch(`${API}/listings/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const r = await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     document.getElementById(`plcard-${id}`)?.remove();
     load();
@@ -1193,7 +1193,7 @@ async function deleteListing(id) {
 
 async function republishListing(id) {
   try {
-    const r = await fetch(`${API}/listings/${id}/republish`, {
+    const r = await fetch(`${API}/products/${id}/republish`, {
       method: 'POST', headers: authHeaders()
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -1855,7 +1855,7 @@ async function submitListing() {
         photos: allPhotoUrls
       };
       if (contact) payload.contact = contact;
-      r = await fetch(`${API}/listings/${editingListingId}`, {
+      r = await fetch(`${API}/products/${editingListingId}`, {
         method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload)
       });
     } else {
