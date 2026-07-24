@@ -904,6 +904,23 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
+// Lingua dei contenuti: ?lang= > lingua del browser > it. N lingue.
+const LANG = (new URLSearchParams(location.search).get('lang')
+  || (navigator.language || 'it')).split('-')[0].toLowerCase();
+
+// Slug canonico: stessa regola di slugify() in app.py. L'identità resta l'id in coda.
+function slugify(text) {
+  return (String(text || '')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '')) || 'annuncio';
+}
+function listingUrl(l) {
+  return `https://listing.ilqui.com/l/${slugify(l.title)}-${l.id}`;
+}
+// La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
+function familyOf(l) { return l.family || 'product'; }
+
 // Tassonomia caricata dinamicamente dal DB (fonte unica di verità — niente più codici hardcoded)
 let TAXONOMY = { product: {}, service: {}, experience: {} };
 
@@ -1316,12 +1333,20 @@ async function submitResetPassword() {
 // ── STRIPE RETURN ──
 (async () => {
   const p = new URLSearchParams(window.location.search);
-  const listingId  = p.get('listing');
+  const listingId  = p.get('listing');   // entity_id → modale contatto (D2)
+  const productId  = p.get('product');   // product_id → modale dettaglio
   const session    = p.get('session_id');
   const resetToken = p.get('reset_token');
   if (listingId && session) {
     window.history.replaceState({}, '', '/');
     openContactModal(listingId, session);
+  }
+  if (productId) {
+    window.history.replaceState({}, '', '/');
+    const waitForList = setInterval(() => {
+      if (listingsLoaded) { clearInterval(waitForList); openDetailModal(productId); }
+    }, 200);
+    setTimeout(() => clearInterval(waitForList), 10000);
   }
   if (resetToken) {
     window.history.replaceState({}, '', '/');
@@ -1342,7 +1367,7 @@ function closeContactModal() { document.getElementById('contact-overlay').classL
 function openDetailModal(id) {
   const l = allListings.find(x => String(x.id) === String(id));
   if (!l) return;
-  const type = typeFromEntity(l);
+  const type = familyOf(l);
   const photos = l.photos || [];
   document.getElementById('detail-photos').innerHTML = photos.length
     ? photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')
@@ -1350,20 +1375,22 @@ function openDetailModal(id) {
   const typeEl = document.getElementById('detail-type');
   typeEl.textContent = TYPE_LABEL[type] || type;
   typeEl.className = `detail-type ${type}`;
-  document.getElementById('detail-title').textContent = l.title || l.name_it || '—';
+  document.getElementById('detail-title').textContent =
+    (l.title || '—') + (l.is_available === false ? ' — ESAURITO' : '');
   const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
-  const cat = l.category_label || l.category || l.primary_category || '';
+  const cat = l.category_label || '';
   const city = l.city || '';
   document.getElementById('detail-meta').innerHTML = [
     cat ? `<span>${esc(cat)}</span>` : '',
     city ? `<span>· 📍 ${esc(city)}</span>` : '',
     price ? `<span class="detail-price">${esc(price)}</span>` : ''
   ].filter(Boolean).join(' ');
-  document.getElementById('detail-desc').textContent = l.description || l.description_it || '';
-  document.getElementById('detail-link').href = `https://listing.ilqui.com/l/${l.id}`;
+  document.getElementById('detail-desc').textContent = l.description || '';
+  document.getElementById('detail-link').href = listingUrl(l);
   document.getElementById('detail-stars').innerHTML = l.stars_avg
     ? `★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span>` : '';
-  document.getElementById('detail-unlock-btn').dataset.unlockId = l.id;
+  // Sblocco contatto entity-level (D2)
+  document.getElementById('detail-unlock-btn').dataset.unlockId = l.entity_id;
   document.getElementById('detail-overlay').classList.add('open');
 }
 function closeDetailModal() { document.getElementById('detail-overlay').classList.remove('open'); }
@@ -1424,7 +1451,7 @@ let userLat = null, userLng = null, listingsLoaded = false;
 
 async function load() {
   try {
-    const r = await fetch(`${API}/listings`,
+    const r = await fetch(`${API}/listings?lang=${encodeURIComponent(LANG)}`,
       { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
@@ -1449,14 +1476,7 @@ function render() {
   if (!listingsLoaded) return;
   let list = allListings;
   if (activeFilter !== 'all') {
-    list = allListings.filter(l => {
-      const tags = l.tags || [];
-      const type = l.type || '';
-      return tags.includes(activeFilter) || type === activeFilter ||
-        (activeFilter === 'product' && ['retail','product_digital'].includes(type)) ||
-        (activeFilter === 'service' && type.startsWith('service')) ||
-        (activeFilter === 'experience' && type === 'experience');
-    });
+    list = allListings.filter(l => familyOf(l) === activeFilter);
   }
   if (userLat !== null) {
     list = [...list].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
@@ -1488,22 +1508,10 @@ function renderList(list) {
   });
 }
 
-function typeFromEntity(l) {
-  const tags = l.tags || [];
-  if (tags.includes('product')) return 'product';
-  if (tags.includes('service')) return 'service';
-  if (tags.includes('experience')) return 'experience';
-  const t = l.type || '';
-  if (['retail','product_digital'].includes(t)) return 'product';
-  if (t.startsWith('service')) return 'service';
-  if (t === 'experience') return 'experience';
-  return 'product';
-}
-
 function itemHTML(l) {
-  const type  = typeFromEntity(l);
-  const title = esc(l.title || l.name_it || '—');
-  const cat   = esc(l.category_label || l.category || l.primary_category || type);
+  const type  = familyOf(l);
+  const title = esc(l.title || '—');
+  const cat   = esc(l.category_label || type);
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
   const when  = l.created_at ? timeAgo(l.created_at) : '';
   const exp   = expiresLabel(l.expires_at);
@@ -1521,7 +1529,7 @@ function itemHTML(l) {
   return `<div class="listing-item ${sel}" data-id="${l.id}">
     ${thumb}
     <div class="listing-info">
-      <div class="listing-name">${title}</div>
+      <div class="listing-name">${title}${l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030;background:#fdecec;border-radius:4px;padding:1px 4px">ESAURITO</span>' : ''}</div>
       <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
       <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
       ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
@@ -1537,7 +1545,7 @@ function renderMarkers(list) {
     const lat = l.lat;
     const lng = l.lng;
     if (lat == null || lng == null) return;
-    const type  = typeFromEntity(l);
+    const type  = familyOf(l);
     const color = TYPE_COLOR[type] || '#ccc';
     const size  = selectedId == l.id ? 18 : 14;
     const icon  = L.divIcon({
@@ -1556,22 +1564,22 @@ function renderMarkers(list) {
 }
 
 function popupHTML(l) {
-  const type  = typeFromEntity(l);
+  const type  = familyOf(l);
   const photos = l.photos || [];
   const photosHTML = photos.length > 0 ? `
     <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:10px;border-radius:8px;overflow:hidden">
       ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length===1?'100%':'80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px" alt="foto"/>`).join('')}
     </div>` : '';
   const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
-  const title = esc(l.title || l.name_it || '—');
-  const desc  = esc(l.description || l.description_it || '');
+  const title = esc(l.title || '—') + (l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030">· ESAURITO</span>' : '');
+  const desc  = esc(l.description || '');
   return `<div class="popup-inner">
     ${photosHTML}
     <div class="popup-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
     <div class="popup-title">${title}</div>
     ${desc||price ? `<div class="popup-meta">${[desc,price].filter(Boolean).join(' · ')}</div>` : ''}
-    <a href="https://listing.ilqui.com/l/${l.id}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">Vedi dettagli →</a>
-    <button class="popup-btn" data-unlock-id="${l.id}">🔓 Sblocca contatto — €1</button>
+    <a href="${listingUrl(l)}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">Vedi dettagli →</a>
+    <button class="popup-btn" data-unlock-id="${l.entity_id}">🔓 Sblocca contatto — €1</button>
     ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
     <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
   </div>`;
@@ -1599,7 +1607,7 @@ window.unlock = async function(id) {
   if (!authUser) { requireAuth(() => unlock(id)); return; }
   try {
     const r = await fetch(`${API}/unlock/checkout`, {
-      method: 'POST', headers: authHeaders(), body: JSON.stringify({ listing_id: id })
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ entity_id: id })
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
@@ -1953,7 +1961,7 @@ function renderScopri() {
   const el = document.getElementById('scopri-list');
   if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>'; return; }
   el.innerHTML = list.map(l => {
-    const type = typeFromEntity(l);
+    const type = familyOf(l);
     const photo = (l.photos && l.photos[0])
       ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
       : `<div class="scopri-card-img-placeholder">📦</div>`;
@@ -1963,9 +1971,9 @@ function renderScopri() {
       const d = distKm(userLat, userLng, l.lat, l.lng);
       distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
     }
-    const title = esc(l.title || l.name_it || '—');
-    const desc  = esc(l.description || l.description_it || '');
-    const cat   = esc(l.category_label || l.category || l.primary_category || '');
+    const title = esc(l.title || '—');
+    const desc  = esc(l.description || '');
+    const cat   = esc(l.category_label || '');
     return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
       ${photo}
       <div class="scopri-card-overlay">
@@ -1986,9 +1994,10 @@ document.getElementById('search-input-desktop').addEventListener('input', functi
   const q = this.value.trim().toLowerCase();
   if (!q) { render(); return; }
   const filtered = allListings.filter(l =>
-    (l.title||l.name_it||'').toLowerCase().includes(q) ||
-    (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.title||'').toLowerCase().includes(q) ||
+    (l.description||'').toLowerCase().includes(q) ||
+    (l.category_label||'').toLowerCase().includes(q) ||
+    (l.entity_name||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
@@ -1998,9 +2007,10 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
   const q = this.value.trim().toLowerCase();
   if (!q) { render(); return; }
   const filtered = allListings.filter(l =>
-    (l.title||l.name_it||'').toLowerCase().includes(q) ||
-    (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.title||'').toLowerCase().includes(q) ||
+    (l.description||'').toLowerCase().includes(q) ||
+    (l.category_label||'').toLowerCase().includes(q) ||
+    (l.entity_name||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   renderList(filtered); renderMarkers(filtered);
