@@ -186,7 +186,7 @@ function render(l) {
 
 async function unlock(entityId) {
   if (!authToken) {
-    window.location.href = `https://www.ilqui.com/?listing=${PRODUCT_ID}&auth_required=1`;
+    window.location.href = `https://www.ilqui.com/?product=${PRODUCT_ID}&auth_required=1`;
     return;
   }
   try {
@@ -196,7 +196,7 @@ async function unlock(entityId) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.already_unlocked) {
-      window.location.href = `https://www.ilqui.com/?listing=${PRODUCT_ID}&session_id=${data.session_id}`;
+      window.location.href = `https://www.ilqui.com/?listing=${entityId}&session_id=${data.session_id}`;
       return;
     }
     window.location.href = data.url;
