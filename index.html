@@ -1699,7 +1699,7 @@ function editListing(id) {
   document.querySelector('.modal-title').textContent = 'Modifica annuncio';
   document.getElementById('btn-submit').textContent = 'Salva modifiche →';
 
-  const type = (l.tags || []).find(t => ['product','service','experience'].includes(t)) || typeFromEntity(l);
+  const type = familyOf(l);
   selectType(type);
   document.getElementById('f-title').value = l.title || '';
   document.getElementById('f-desc').value = l.description || '';
@@ -1942,17 +1942,13 @@ function setScopriFilter(btn, type) {
 
 function renderScopri() {
   const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
-  let list = allListings;
-  if (scopriFilter !== 'all') {
-    list = allListings.filter(l => {
-      const tags = l.tags || [];
-      return tags.includes(scopriFilter) || typeFromEntity(l) === scopriFilter;
-    });
+  let list = allListings.filter(l => familyOf(l) === scopriFilter);
   }
   if (q) list = list.filter(l =>
-    (l.title||l.name_it||'').toLowerCase().includes(q) ||
-    (l.description||l.description_it||'').toLowerCase().includes(q) ||
-    (l.category_label||l.category||l.primary_category||'').toLowerCase().includes(q) ||
+    (l.title||'').toLowerCase().includes(q) ||
+    (l.description||'').toLowerCase().includes(q) ||
+    (l.category_label||'').toLowerCase().includes(q) ||
+    (l.entity_name||'').toLowerCase().includes(q) ||
     (l.city||'').toLowerCase().includes(q)
   );
   if (userLat !== null) {
