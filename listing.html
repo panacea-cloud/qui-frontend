@@ -61,6 +61,13 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 .listing-price { font-size: 18px; font-weight: 700; color: #2a2a6e; }
 .listing-desc { font-size: 14px; color: #444; line-height: 1.6; margin: 6px 0; }
 .listing-stars { font-size: 13px; color: #f5a623; }
+.listing-entity { font-size: 13px; color: #666; font-weight: 600; }
+.badge-soldout {
+  display: inline-block; vertical-align: middle; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em; color: #a03030;
+  background: #fdecec; border: 0.5px solid #f5c2c2; border-radius: 6px;
+  padding: 3px 7px; margin-left: 6px;
+}
 
 .unlock-btn {
   width: 100%; background: #2a2a6e; color: #fff; border: none;
@@ -94,7 +101,10 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
-const ENTITY_ID = '{{ENTITY_ID}}';
+const PRODUCT_ID = '{{PRODUCT_ID}}';
+const ENTITY_ID  = '{{ENTITY_ID}}';
+const LANG = (new URLSearchParams(location.search).get('lang')
+  || (navigator.language || 'it')).split('-')[0].toLowerCase();
 
 let authToken = localStorage.getItem('qui_token') || null;
 
@@ -109,23 +119,12 @@ function authHeaders() {
     : { 'Content-Type': 'application/json' };
 }
 
-const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
-
-function typeFromEntity(l) {
-  const tags = l.tags || [];
-  if (tags.includes('product')) return 'product';
-  if (tags.includes('service')) return 'service';
-  if (tags.includes('experience')) return 'experience';
-  const t = l.type || '';
-  if (['retail','product_digital'].includes(t)) return 'product';
-  if (t.startsWith('service')) return 'service';
-  if (t === 'experience') return 'experience';
-  return 'product';
-}
+// La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
+const FAMILY_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
 
 async function loadListing() {
   try {
-    const r = await fetch(`${API}/listings/${ENTITY_ID}`, {
+    const r = await fetch(`${API}/listings/${PRODUCT_ID}?lang=${encodeURIComponent(LANG)}`, {
       headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
     });
     if (!r.ok) throw new Error(r.status === 404 ? 'Annuncio non trovato o non più disponibile.' : `Errore HTTP ${r.status}`);
@@ -138,25 +137,27 @@ async function loadListing() {
 }
 
 function render(l) {
-  const type = typeFromEntity(l);
+  const family = l.family || 'product';
   const photos = l.photos || [];
   const photosHTML = photos.length
     ? `<div class="photos">${photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')}</div>`
     : `<div class="photos-placeholder">📦</div>`;
 
   const price = l.price === 0 ? 'Gratis' : (l.price != null ? `€${l.price}` : '');
-  const cat = l.category_label || l.category || l.primary_category || '';
+  const cat = l.category_label || '';
   const city = l.city || '';
-  const title = esc(l.title || l.name_it || '—');
-  const desc = esc(l.description || l.description_it || '');
+  const title = esc(l.title || '—');
+  const desc = esc(l.description || '');
+  const soldOut = l.is_available === false;
 
-  document.title = `${l.title || l.name_it || 'Annuncio'} — QUI`;
+  document.title = `${l.title || 'Annuncio'} — QUI`;
 
   document.getElementById('page-content').innerHTML = `
     ${photosHTML}
     <div class="body-content">
-      <div class="type-badge ${type}">${esc(TYPE_LABEL[type] || type)}</div>
-      <div class="listing-title">${title}</div>
+      <div class="type-badge ${esc(family)}">${esc(FAMILY_LABEL[family] || family)}</div>
+      <div class="listing-title">${title}${soldOut ? ' <span class="badge-soldout">Esaurito</span>' : ''}</div>
+      ${l.entity_name ? `<div class="listing-entity">${esc(l.entity_name)}</div>` : ''}
       <div class="listing-meta">
         ${cat ? `<span>${esc(cat)}</span>` : ''}
         ${city ? `<span>· 📍 ${esc(city)}</span>` : ''}
@@ -171,7 +172,8 @@ function render(l) {
     </div>
   `;
 
-  document.getElementById('unlock-btn').addEventListener('click', () => unlock(l.id));
+  // Sblocco contatto e recensioni restano entity-level (D2)
+  document.getElementById('unlock-btn').addEventListener('click', () => unlock(l.entity_id));
 
   if (l.lat && l.lng) {
     const m = L.map('map-preview', { zoomControl: false, dragging: false, scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
@@ -179,22 +181,22 @@ function render(l) {
     L.circleMarker([l.lat, l.lng], { radius: 9, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2 }).addTo(m);
   }
 
-  if (authToken) loadReviewSection(l.id);
+  if (authToken) loadReviewSection(l.entity_id);
 }
 
-async function unlock(id) {
+async function unlock(entityId) {
   if (!authToken) {
-    window.location.href = `/?listing=${id}&auth_required=1`;
+    window.location.href = `https://www.ilqui.com/?listing=${PRODUCT_ID}&auth_required=1`;
     return;
   }
   try {
     const r = await fetch(`${API}/unlock/checkout`, {
-      method: 'POST', headers: authHeaders(), body: JSON.stringify({ listing_id: id })
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ entity_id: entityId })
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.already_unlocked) {
-      window.location.href = `/?listing=${id}&session_id=${data.session_id}`;
+      window.location.href = `https://www.ilqui.com/?listing=${PRODUCT_ID}&session_id=${data.session_id}`;
       return;
     }
     window.location.href = data.url;
