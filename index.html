@@ -1943,7 +1943,6 @@ function setScopriFilter(btn, type) {
 function renderScopri() {
   const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
   let list = allListings.filter(l => familyOf(l) === scopriFilter);
-  }
   if (q) list = list.filter(l =>
     (l.title||'').toLowerCase().includes(q) ||
     (l.description||'').toLowerCase().includes(q) ||
