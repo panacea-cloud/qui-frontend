@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUI — Aggiorna da documento</title>
+<link rel="icon" type="image/png" href="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #f5f5f7; min-height: 100%; }
+
+.topbar {
+  height: 44px; background: #fff; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; }
+.topbar-back {
+  font-size: 12px; font-weight: 500; color: #2a2a6e; cursor: pointer;
+  background: none; border: none; font-family: inherit; display: flex; align-items: center; gap: 4px;
+}
+.topbar-back:hover { opacity: 0.7; }
+
+.page { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; display: flex; flex-direction: column; gap: 16px; }
+
+.card { background: #fff; border-radius: 14px; overflow: hidden; border: 0.5px solid #e8e8e8; }
+.card-header {
+  padding: 12px 16px; border-bottom: 0.5px solid #f0f0f0;
+  font-size: 11px; font-weight: 600; color: #2a2a6e; text-transform: uppercase; letter-spacing: .04em;
+}
+.card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+label { font-size: 11px; font-weight: 600; color: #555; display: block; margin-bottom: 4px; }
+select, input[type=file] {
+  width: 100%; padding: 9px 11px; font-size: 13px; font-family: inherit;
+  border: 0.5px solid #d5d5d5; border-radius: 9px; background: #fff;
+}
+
+.btn {
+  padding: 10px 16px; font-size: 13px; font-weight: 600; font-family: inherit;
+  border: none; border-radius: 10px; background: #2a2a6e; color: #fff; cursor: pointer;
+}
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.secondary { background: #ececf3; color: #2a2a6e; }
+
+.hint { font-size: 11px; color: #888; line-height: 1.5; }
+.error { font-size: 12px; color: #a03030; background: #fdecec; border-radius: 8px; padding: 8px 11px; }
+
+.match-row { border: 0.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+.match-head {
+  padding: 10px 14px; background: #fafafb; border-bottom: 0.5px solid #f0f0f0;
+  font-size: 12px; font-weight: 600; color: #333;
+}
+.match-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.match-cols { display: flex; gap: 10px; }
+.match-col { flex: 1; min-width: 0; }
+.match-col h5 { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #999; margin-bottom: 4px; }
+.match-col .val { font-size: 12px; color: #222; word-break: break-word; }
+.match-col .price { font-weight: 600; }
+.diff { background: #fff8e6; }
+
+.decision-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.confirm-chip {
+  padding: 6px 12px; font-size: 12px; font-weight: 600; font-family: inherit;
+  border: 0.5px solid #d5d5d5; border-radius: 20px; background: #fff; color: #333; cursor: pointer;
+}
+.confirm-chip.active { background: #2a7a4a; border-color: #2a7a4a; color: #fff; }
+.confirm-chip.danger.active { background: #a03030; border-color: #a03030; }
+
+.summary-bar {
+  position: sticky; bottom: 0; background: #fff; border-top: 0.5px solid #e0e0e0;
+  padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.summary-txt { font-size: 12px; color: #555; }
+.spinner { font-size: 12px; color: #888; text-align: center; padding: 20px; }
+.badge-soldout { font-size: 10px; font-weight: 700; color: #a03030; background: #fdecec; border-radius: 5px; padding: 2px 6px; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <img class="topbar-logo" src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true" alt="QUI"/>
+  <button class="topbar-back" onclick="window.location.href='/merchant.html'">← Merchant</button>
+</div>
+
+<div class="page">
+
+  <!-- STEP 1: scegli sede + carica documento -->
+  <div class="card" id="step-upload">
+    <div class="card-header">📄 Aggiorna annunci da documento</div>
+    <div class="card-body">
+      <div>
+        <label>Sede</label>
+        <select id="place-select"><option value="">Caricamento sedi…</option></select>
+      </div>
+      <div>
+        <label>Documento aggiornato (Excel, CSV o PDF)</label>
+        <input type="file" id="doc-file" accept=".xlsx,.xls,.csv,.pdf"/>
+      </div>
+      <p class="hint">Il documento viene riletto e confrontato con gli annunci già pubblicati di questa sede. Ogni abbinamento va confermato a mano: nulla viene modificato in automatico.</p>
+      <div id="upload-error"></div>
+      <button class="btn" id="btn-analyze" onclick="analyze()">Analizza documento</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: riconciliazione -->
+  <div id="step-matches" style="display:none; flex-direction:column; gap:12px;"></div>
+
+</div>
+
+<!-- barra riepilogo azioni -->
+<div class="summary-bar" id="summary-bar" style="display:none;">
+  <span class="summary-txt" id="summary-txt"></span>
+  <button class="btn" id="btn-apply" onclick="applyAll()">Applica modifiche</button>
+</div>
+
+<script>
+const API = 'https://qui-backend-production.up.railway.app';
+const LANG = (new URLSearchParams(location.search).get('lang')
+  || (navigator.language || 'it')).split('-')[0].toLowerCase();
+
+function authToken() { return localStorage.getItem('qui_token') || ''; }
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken()}` };
+}
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function priceStr(p) { return p == null ? '—' : (p === 0 ? 'Gratis' : `€${p}`); }
+function normTitle(s) { return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+
+const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
+const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
+
+let PLACE_ID = null;
+let matchModel = [];   // { row, product|null, decision, entity_id }
+
+// ── carica le sedi dell'utente ──
+async function loadPlaces() {
+  try {
+    const r = await fetch(`${API}/auth/my-places`, { headers: authHeaders() });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const places = await r.json();
+    const sel = document.getElementById('place-select');
+    if (!places.length) {
+      sel.innerHTML = '<option value="">Nessuna sede</option>';
+      return;
+    }
+    sel.innerHTML = places.map(p =>
+      `<option value="${p.id}">${esc(p.address_formatted || p.address_city || p.id)} (${p.entity_count} annunci)</option>`
+    ).join('');
+  } catch (e) {
+    document.getElementById('place-select').innerHTML = '<option value="">Errore caricamento</option>';
+  }
+}
+
+async function uploadRaw(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error('Upload documento fallito');
+  const d = await r.json();
+  return d.secure_url;
+}
+
+// ── STEP 1 → 2 ──
+async function analyze() {
+  const errBox = document.getElementById('upload-error');
+  errBox.innerHTML = '';
+  const placeId = document.getElementById('place-select').value;
+  const file = document.getElementById('doc-file').files[0];
+  if (!placeId) { errBox.innerHTML = '<div class="error">Seleziona una sede.</div>'; return; }
+  if (!file)    { errBox.innerHTML = '<div class="error">Carica un documento.</div>'; return; }
+
+  PLACE_ID = placeId;
+  const btn = document.getElementById('btn-analyze');
+  btn.disabled = true; btn.textContent = 'Analisi in corso…';
+
+  try {
+    const docUrl = await uploadRaw(file);
+
+    // righe rilette dal documento (nessuna scrittura DB) + annunci attuali della sede
+    const [reingestResp, productsResp] = await Promise.all([
+      fetch(`${API}/documents/reingest`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ document_url: docUrl, place_id: placeId })
+      }),
+      fetch(`${API}/places/${placeId}/products?lang=${encodeURIComponent(LANG)}`, { headers: authHeaders() })
+    ]);
+    if (!reingestResp.ok) throw new Error('Rilettura documento fallita');
+    if (!productsResp.ok) throw new Error('Caricamento annunci fallito');
+
+    const rows = (await reingestResp.json()).rows || [];
+    const products = await productsResp.json();
+
+    buildMatchModel(rows, products);
+    renderMatches();
+  } catch (e) {
+    errBox.innerHTML = `<div class="error">${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Analizza documento';
+  }
+}
+
+// ── abbinamento client-side: source_ref → titolo normalizzato ──
+// Stessa regola del backend (_apply_diff). Serve solo a proporre: la decisione
+// resta all'utente.
+function buildMatchModel(rows, products) {
+  const byRef = {}, byTitle = {};
+  products.forEach(p => {
+    if (p.source_ref) byRef[p.source_ref] = p;
+    const t = normTitle(p.title);
+    if (!(t in byTitle)) byTitle[t] = p;
+  });
+
+  const matchedProductIds = new Set();
+  matchModel = [];
+
+  // righe del documento
+  rows.forEach(row => {
+    let product = null;
+    if (row.source_ref && byRef[row.source_ref]) product = byRef[row.source_ref];
+    else product = byTitle[normTitle(row.title)] || null;
+
+    const entityId = product ? product.entity_id : (products[0] ? products[0].entity_id : null);
+    if (product) matchedProductIds.add(String(product.id));
+
+    matchModel.push({
+      kind: product ? 'matched' : 'new',
+      row, product, entity_id: entityId,
+      decision: product ? 'update' : 'create'
+    });
+  });
+
+  // annunci non più presenti nel documento → proposta "segna esaurito"
+  products.forEach(p => {
+    if (!matchedProductIds.has(String(p.id)) && p.is_available !== false) {
+      matchModel.push({
+        kind: 'gone', row: null, product: p,
+        entity_id: p.entity_id, decision: 'ignore'
+      });
+    }
+  });
+}
+
+function setDecision(i, decision) {
+  matchModel[i].decision = decision;
+  renderMatches();
+}
+
+function fieldCol(title, docVal, curVal, isPrice) {
+  const changed = docVal != null && String(docVal) !== String(curVal);
+  const fmt = isPrice ? priceStr : (v => esc(v == null ? '—' : v));
+  return `<div class="match-col ${changed ? 'diff' : ''}">
+    <h5>${esc(title)}</h5>
+    <div class="val ${isPrice ? 'price' : ''}">${fmt(docVal != null ? docVal : curVal)}</div>
+  </div>`;
+}
+
+function renderMatches() {
+  const wrap = document.getElementById('step-matches');
+  wrap.style.display = 'flex';
+  document.getElementById('step-upload').style.display = 'none';
+
+  wrap.innerHTML = matchModel.map((m, i) => {
+    if (m.kind === 'gone') {
+      // annuncio sparito dal documento
+      return `<div class="card"><div class="match-row">
+        <div class="match-head">Non più nel documento: ${esc(m.product.title)}
+          ${m.product.is_available === false ? '<span class="badge-soldout">Esaurito</span>' : ''}</div>
+        <div class="match-body">
+          <div class="decision-row">
+            <button class="confirm-chip danger ${m.decision==='sold_out'?'active':''}" onclick="setDecision(${i},'sold_out')">Segna esaurito</button>
+            <button class="confirm-chip ${m.decision==='ignore'?'active':''}" onclick="setDecision(${i},'ignore')">Ignora</button>
+          </div>
+        </div>
+      </div></div>`;
+    }
+
+    const r = m.row, p = m.product;
+    if (m.kind === 'new') {
+      return `<div class="card"><div class="match-row">
+        <div class="match-head">Nuova riga nel documento: ${esc(r.title || '—')}</div>
+        <div class="match-body">
+          <div class="match-cols">
+            ${fieldCol('Titolo', r.title, null, false)}
+            ${fieldCol('Prezzo', r.price, null, true)}
+          </div>
+          <div class="decision-row">
+            <button class="confirm-chip ${m.decision==='create'?'active':''}" onclick="setDecision(${i},'create')">Nuovo annuncio</button>
+            <button class="confirm-chip ${m.decision==='ignore'?'active':''}" onclick="setDecision(${i},'ignore')">Ignora</button>
+          </div>
+        </div>
+      </div></div>`;
+    }
+
+    // matched
+    return `<div class="card"><div class="match-row">
+      <div class="match-head">Abbinato: ${esc(p.title)}${p.source_ref ? ` · rif ${esc(p.source_ref)}` : ''}</div>
+      <div class="match-body">
+        <div class="match-cols">
+          <div class="match-col"><h5>Attuale</h5>
+            <div class="val">${esc(p.title)}</div>
+            <div class="val price">${priceStr(p.price)}</div></div>
+          <div class="match-col"><h5>Dal documento</h5>
+            <div class="val ${normTitle(r.title)!==normTitle(p.title)?'diff':''}">${esc(r.title || '—')}</div>
+            <div class="val price ${r.price!=null && String(r.price)!==String(p.price)?'diff':''}">${priceStr(r.price)}</div></div>
+        </div>
+        <div class="decision-row">
+          <button class="confirm-chip ${m.decision==='update'?'active':''}" onclick="setDecision(${i},'update')">Aggiorna</button>
+          <button class="confirm-chip ${m.decision==='ignore'?'active':''}" onclick="setDecision(${i},'ignore')">Ignora</button>
+        </div>
+      </div>
+    </div></div>`;
+  }).join('');
+
+  const counts = matchModel.reduce((a, m) => { a[m.decision] = (a[m.decision]||0)+1; return a; }, {});
+  document.getElementById('summary-txt').textContent =
+    `${counts.update||0} aggiorna · ${counts.create||0} nuovi · ${counts.sold_out||0} esauriti · ${counts.ignore||0} ignora`;
+  document.getElementById('summary-bar').style.display = 'flex';
+}
+
+// ── STEP 2 → invio ──
+async function applyAll() {
+  const decisions = matchModel
+    .filter(m => m.decision !== 'ignore')
+    .map(m => {
+      if (m.decision === 'sold_out') return { action: 'sold_out', product_id: m.product.id };
+      if (m.decision === 'update')   return { action: 'update', product_id: m.product.id, row: m.row };
+      if (m.decision === 'create')   return { action: 'create', entity_id: m.entity_id, row: m.row };
+      return null;
+    })
+    .filter(Boolean);
+
+  if (!decisions.length) { alert('Nessuna modifica selezionata.'); return; }
+
+  const btn = document.getElementById('btn-apply');
+  btn.disabled = true; btn.textContent = 'Applico…';
+  try {
+    const r = await fetch(`${API}/documents/apply-updates`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ place_id: PLACE_ID, decisions })
+    });
+    if (!r.ok) { const d = await r.json().catch(()=>({})); throw new Error(d.error || `HTTP ${r.status}`); }
+    const res = await r.json();
+    const rep = res.report || {};
+    const reviewNote = (rep.reviews && rep.reviews.length)
+      ? ` · ${rep.reviews.length} in attesa di conferma (campi modificati a mano)` : '';
+    document.getElementById('step-matches').innerHTML =
+      `<div class="card"><div class="card-body">
+        <div style="font-size:14px;font-weight:600;color:#2a7a4a;">✓ Modifiche applicate</div>
+        <p class="hint">${(rep.updated||[]).length} aggiornati · ${(rep.created||[]).length} creati · ${(rep.sold_out||[]).length} esauriti${reviewNote}</p>
+        <button class="btn secondary" onclick="window.location.href='/merchant.html'">Torna al merchant</button>
+      </div></div>`;
+    document.getElementById('summary-bar').style.display = 'none';
+  } catch (e) {
+    alert(`Errore: ${e.message}`);
+    btn.disabled = false; btn.textContent = 'Applica modifiche';
+  }
+}
+
+// ── init ──
+if (!authToken()) window.location.href = '/?auth_required=1';
+else loadPlaces();
+</script>
+</body>
+</html>
