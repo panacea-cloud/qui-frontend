@@ -469,7 +469,16 @@ function renderResults(job) {
 
   listings.forEach((lst, i) => html += renderListingCard(lst, i));
 
+  html += `
+    <div class="card">
+      <div class="card-body">
+        <button class="primary-btn" id="publish-job-btn" disabled onclick="publishJob()">Pubblica attività</button>
+        <div class="publish-status" id="publish-job-status"></div>
+      </div>
+    </div>`;
+
   root.innerHTML = html;
+  refreshJobPublishButton();
 }
 
 function retryFree() {
@@ -569,7 +578,7 @@ function renderListingCard(lst, i) {
 
         ${st.published
           ? `<div class="publish-status">✓ Pubblicato</div>`
-          : `<button class="primary-btn" id="publish-btn-${i}" ${ready ? '' : 'disabled'} onclick="publishListing(${i})">Pubblica annuncio</button>`}
+          : `<div class="publish-status" style="color:${ready ? '#2a7a4a' : '#999'}">${ready ? '✓ Pronto per la pubblicazione' : 'Completa i campi obbligatori'}</div>`}
       </div>
     </div>`;
 }
@@ -603,7 +612,7 @@ function onCategoryChange(i) {
 
 function updateField(i, field, value) {
   listingState[i][field] = value;
-  refreshPublishButton(i);
+  refreshJobPublishButton();
 }
 function confirmContact(i) {
   listingState[i].contactConfirmed = true;
@@ -756,45 +765,65 @@ function isListingReady(i) {
   return !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null
     && contactOk && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0 && dedupOk);
 }
-function refreshPublishButton(i) {
-  const btn = document.getElementById(`publish-btn-${i}`);
-  if (btn) btn.disabled = !isListingReady(i);
+function refreshJobPublishButton() {
+  const btn = document.getElementById('publish-job-btn');
+  if (!btn) return;
+  const n = listingState.filter((st, i) => isListingReady(i) && !st.published).length;
+  btn.disabled = n === 0;
+  btn.textContent = n > 1 ? `Pubblica attività (${n} annunci)` : 'Pubblica attività';
 }
 function refreshListingCard(i) {
   const lst = (jobResult.listings || [])[i];
   const el = document.getElementById(`listing-card-${i}`);
   if (el && lst) el.outerHTML = renderListingCard(lst, i);
+  refreshJobPublishButton();
 }
 
-async function publishListing(i) {
-  const st = listingState[i];
-  const lst = jobResult.listings[i];
-  const btn = document.getElementById(`publish-btn-${i}`);
-  btn.disabled = true; btn.textContent = 'Pubblico…';
+async function publishJob() {
+  const btn = document.getElementById('publish-job-btn');
+  const statusEl = document.getElementById('publish-job-status');
+  const readyIdx = listingState
+    .map((_, i) => i)
+    .filter(i => isListingReady(i) && !listingState[i].published);
+  if (!readyIdx.length) return;
 
+  // Contatto e posizione sono dell'attività (una per job): dalla prima card pronta
+  const head = listingState[readyIdx[0]];
   const body = {
-    title: st.title,
-    description: st.description,
-    type: TYPE_IT_TO_EN[lst.type] || 'product',
-    category: st.categoryCode,
-    price: parseFloat(st.price),
-    contact: st.contact,
-    lat: st.lat,
-    lng: st.lng,
-    photos: Array.from(st.photos),
+    contact: head.contact,
+    listings: readyIdx.map(i => {
+      const st = listingState[i];
+      const lst = jobResult.listings[i] || {};
+      return {
+        title: st.title,
+        description: st.description,
+        type: st.type,                 // IT: il backend legge 'esperienza' per le occorrenze
+        category: st.categoryCode,
+        price: parseFloat(st.price),
+        photos: Array.from(st.photos),
+        occurrences: lst.occurrences || [],
+        title_en: lst.title_en || null,
+        description_en: lst.description_en || null,
+        source_ref: lst.source_ref || null,
+      };
+    }),
   };
-  if (st.confirmedPlaceId) body.confirmed_place_id = st.confirmedPlaceId;
+  if (head.confirmedPlaceId) body.confirmed_place_id = head.confirmedPlaceId;
+  else { body.lat = head.lat; body.lng = head.lng; }
 
+  btn.disabled = true; btn.textContent = 'Pubblico…';
   try {
-    const r = await fetch(`${API}/listings`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    const r = await fetch(`${API}/ingest/jobs/${currentJobId}/publish`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+    });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
-    st.published = true;
-    st.entityId = d.id;
-    refreshListingCard(i);
+    readyIdx.forEach(i => { listingState[i].published = true; refreshListingCard(i); });
+    if (statusEl) statusEl.textContent = `✓ Pubblicato: ${d.product_ids.length} annuncio/i sotto un'unica attività.`;
+    btn.textContent = 'Pubblicato'; btn.disabled = true;
   } catch(e) {
-    alert(`Errore pubblicazione: ${e.message}`);
-    btn.disabled = false; btn.textContent = 'Pubblica annuncio';
+    if (statusEl) statusEl.textContent = `Errore pubblicazione: ${e.message}`;
+    btn.disabled = false; refreshJobPublishButton();
   }
 }
 
