@@ -2012,6 +2012,7 @@ document.getElementById('search-input-mobile').addEventListener('input', functio
 });
 
 // ── INIT ──
+const pendingOpenAdd = new URLSearchParams(location.search).get('add') === '1';
 loadTaxonomyFromAPI();
 loadAuthUser().then(() => { load(); if (pendingOpenAdd) onAddClick(); });
 </script>
