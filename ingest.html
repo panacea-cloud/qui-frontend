@@ -199,6 +199,12 @@ let listingState = []; // per indice: { title, description, categoryCode, price,
 let jobContact = '';
 let jobContactPrefilled = false;
 let jobContactConfirmed = false;
+// Posizione dell'attività (una sede per prodotti/servizi). Le esperienze hanno
+// venue proprio e restano per-card (Fase 2 C-c). Dedup segue la stessa logica.
+let jobLoc = {
+  lat: null, lng: null, source: 'gps_device_required', label: null, confirmed: false,
+  dedupCandidates: null, dedupChecked: false, confirmedPlaceId: null, dedupChoice: null,
+};
 
 async function loadTaxonomy() {
   if (taxonomyRows) return taxonomyRows;
@@ -436,6 +442,24 @@ function buildListingState(job) {
   jobContact = (fc && fc.value) || '';
   jobContactPrefilled = !!(fc && fc.present && fc.source === 'profile_prefill');
   jobContactConfirmed = false;
+
+  // Posizione dell'attività: derivata dalle sole card non-esperienza. Se almeno una
+  // ha una sede salvata (existing_profile_place), il job la usa; altrimenti GPS live.
+  // Le esperienze non concorrono alla sede job — hanno il proprio venue.
+  jobLoc = {
+    lat: null, lng: null, source: 'gps_device_required', label: null, confirmed: false,
+    dedupCandidates: null, dedupChecked: false, confirmedPlaceId: null, dedupChoice: null,
+  };
+  const savedIdx = listings.findIndex((lst, i) => {
+    const f = (fv[i] && fv[i].fields) || {};
+    return lst.type !== 'esperienza' && f.lat && f.lat.source === 'existing_profile_place' && f.lat.value;
+  });
+  if (savedIdx !== -1) {
+    const f = fv[savedIdx].fields;
+    jobLoc.lat = f.lat.value;
+    jobLoc.lng = f.lng.value;
+    jobLoc.source = 'existing_profile_place';
+  }
 }
 
 // ── STEP 3: RISULTATI ──
@@ -489,6 +513,7 @@ function renderResults(job) {
   }
 
   html += renderJobContactCard();
+  html += renderJobLocationCard();
 
   listings.forEach((lst, i) => html += renderListingCard(lst, i));
 
@@ -541,7 +566,7 @@ function renderListingCard(lst, i) {
     ? `<div class="prefill-box"><div class="prefill-value">${esc(st.categoryLabel)}</div></div>`
     : renderCategoryPicker(lst, i);
 
-  const locationHtml = renderLocationSection(i, st);
+  const locationHtml = lst.type === 'esperienza' ? renderLocationSection(i, st) : '';
 
   const photoPicker = jobImageCandidates.length
     ? `<div class="photo-select-grid">
@@ -576,11 +601,12 @@ function renderListingCard(lst, i) {
           <input type="number" step="0.01" value="${esc(st.price)}" placeholder="0.00" oninput="updateField(${i},'price',this.value)"/>
         </div>
 
+        ${lst.type === 'esperienza' ? `
         <div class="subsection">
-          <div class="subsection-label">Posizione (GPS live obbligatorio)</div>
+          <div class="subsection-label">Luogo dell'evento</div>
           ${locationHtml}
           ${st.locationConfirmed ? renderDedupSection(i, st) : ''}
-        </div>
+        </div>` : ''}
 
         <div class="subsection">
           <div class="subsection-label">Foto</div>
@@ -653,6 +679,100 @@ function updateJobContact(value) {
 function confirmJobContact() {
   jobContactConfirmed = true;
   refreshJobContactCard();
+}
+
+function renderJobLocationCard() {
+  let inner;
+  if (jobLoc.confirmed) {
+    const label = jobLoc.label ? `${esc(jobLoc.label)} — ` : '';
+    inner = `<div class="prefill-box"><div class="prefill-value">📍 ${label}${jobLoc.lat.toFixed(5)}, ${jobLoc.lng.toFixed(5)}</div></div>`
+      + renderJobDedupSection();
+  } else if (jobLoc.source === 'existing_profile_place' && jobLoc.lat) {
+    inner = `<div class="prefill-box">
+         <div class="prefill-value">Sede salvata: ${jobLoc.lat.toFixed(5)}, ${jobLoc.lng.toFixed(5)}</div>
+         <button class="confirm-chip" onclick="confirmJobSavedLocation()">Usa questa sede</button>
+       </div>
+       <button class="secondary-btn" onclick="captureJobGps()" style="align-self:flex-start">📍 Usa GPS attuale invece</button>`;
+  } else {
+    inner = `<button class="secondary-btn" onclick="captureJobGps()" style="align-self:flex-start">📍 Cattura posizione GPS (obbligatoria)</button>`;
+  }
+  return `
+    <div class="card" id="job-location-card">
+      <div class="card-header">📍 Posizione dell'attività</div>
+      <div class="card-body">
+        <div class="field-hint">Sede comune a prodotti e servizi — si conferma una volta sola. Gli eventi hanno il proprio luogo, richiesto nella loro scheda.</div>
+        ${inner}
+      </div>
+    </div>`;
+}
+function refreshJobLocationCard() {
+  const el = document.getElementById('job-location-card');
+  if (el) el.outerHTML = renderJobLocationCard();
+  refreshJobPublishButton();
+}
+function confirmJobSavedLocation() {
+  jobLoc.confirmed = true;
+  checkJobPlaceDedup();
+}
+function captureJobGps() {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Acquisizione GPS…';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      jobLoc.lat = pos.coords.latitude;
+      jobLoc.lng = pos.coords.longitude;
+      jobLoc.source = 'gps_device_required';
+      jobLoc.confirmed = true;
+      checkJobPlaceDedup();
+    },
+    (err) => {
+      alert(`Impossibile ottenere la posizione: ${err.message}. Assicurati di aver dato il permesso GPS al browser.`);
+      btn.disabled = false; btn.textContent = '📍 Cattura posizione GPS (obbligatoria)';
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
+}
+async function checkJobPlaceDedup() {
+  jobLoc.dedupCandidates = null;
+  jobLoc.dedupChecked = false;
+  jobLoc.confirmedPlaceId = null;
+  jobLoc.dedupChoice = null;
+  refreshJobLocationCard();
+  try {
+    const r = await fetch(`${API}/places/nearby?lat=${jobLoc.lat}&lng=${jobLoc.lng}`, { headers: authHeaders() });
+    jobLoc.dedupCandidates = r.ok ? await r.json() : [];
+  } catch {
+    jobLoc.dedupCandidates = [];
+  }
+  jobLoc.dedupChecked = true;
+  refreshJobLocationCard();
+}
+function chooseJobDedupPlace(placeId) {
+  jobLoc.confirmedPlaceId = placeId;
+  jobLoc.dedupChoice = 'existing';
+  refreshJobLocationCard();
+}
+function chooseJobNewPlace() {
+  jobLoc.confirmedPlaceId = null;
+  jobLoc.dedupChoice = 'new';
+  refreshJobLocationCard();
+}
+function renderJobDedupSection() {
+  if (!jobLoc.dedupChecked) return `<div class="field-hint">Controllo sedi vicine…</div>`;
+  const candidates = jobLoc.dedupCandidates || [];
+  if (!candidates.length) return `<div class="field-hint">✓ Nessuna sede esistente nelle vicinanze — verrà creata una nuova sede.</div>`;
+  if (jobLoc.dedupChoice) {
+    const label = jobLoc.dedupChoice === 'existing' ? `Userò la sede esistente confermata` : `Creerò una nuova sede in questa posizione`;
+    return `<div class="prefill-box"><div class="prefill-value">✓ ${label}</div></div>`;
+  }
+  return `
+    <div class="gap-note">📍 Trovate sedi vicine — conferma quale usare (obbligatorio prima di pubblicare):</div>
+    ${candidates.map(c => `
+      <div class="prefill-box" style="margin-top:6px">
+        <div class="prefill-value">${esc(c.address_formatted || c.address_city)} · ${c.distance_m}m · ${c.entity_count} annunci</div>
+        <button class="confirm-chip" onclick="chooseJobDedupPlace('${c.place_id}')">È questa</button>
+      </div>`).join('')}
+    <button class="secondary-btn" onclick="chooseJobNewPlace()" style="align-self:flex-start;margin-top:6px">Nessuna di queste — crea nuova sede</button>`;
 }
 function confirmSavedLocation(i) {
   listingState[i].locationConfirmed = true;
@@ -796,18 +916,33 @@ function togglePhoto(i, photoIndex) {
 
 function isListingReady(i) {
   const st = listingState[i];
-  const dedupOk = st.dedupChecked && (!(st.dedupCandidates || []).length || !!st.dedupChoice);
-  return !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null
-    && st.locationConfirmed && st.lat && st.lng && st.photos.size > 0 && dedupOk);
+  const lst = (jobResult.listings || [])[i] || {};
+  const baseOk = !!(st.title && st.description && st.categoryCode && st.price !== '' && st.price != null && st.photos.size > 0);
+  if (lst.type === 'esperienza') {
+    // Evento: posizione + dedup sono per-card (venue proprio).
+    const dedupOk = st.dedupChecked && (!(st.dedupCandidates || []).length || !!st.dedupChoice);
+    return baseOk && !!(st.locationConfirmed && st.lat && st.lng && dedupOk);
+  }
+  // Prodotto/servizio: la sede è job-level (controllata a parte).
+  return baseOk;
 }
 function isJobContactReady() {
   return jobContactPrefilled ? jobContactConfirmed : !!jobContact;
+}
+function jobHasNonExperience() {
+  return (jobResult.listings || []).some(lst => lst && lst.type !== 'esperienza');
+}
+function isJobLocationReady() {
+  // Serve solo se il job contiene prodotti/servizi. Job di sole esperienze: ok.
+  if (!jobHasNonExperience()) return true;
+  const dedupOk = jobLoc.dedupChecked && (!(jobLoc.dedupCandidates || []).length || !!jobLoc.dedupChoice);
+  return !!(jobLoc.confirmed && jobLoc.lat && jobLoc.lng && dedupOk);
 }
 function refreshJobPublishButton() {
   const btn = document.getElementById('publish-job-btn');
   if (!btn) return;
   const n = listingState.filter((st, i) => isListingReady(i) && !st.published).length;
-  btn.disabled = n === 0 || !isJobContactReady();
+  btn.disabled = n === 0 || !isJobContactReady() || !isJobLocationReady();
   btn.textContent = n > 1 ? `Pubblica attività (${n} annunci)` : 'Pubblica attività';
 }
 function refreshListingCard(i) {
