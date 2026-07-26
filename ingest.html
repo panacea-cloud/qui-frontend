@@ -391,6 +391,17 @@ function buildListingState(job) {
   const fv = jobResult.field_validation || [];
   listingState = listings.map((lst, i) => {
     const f = (fv[i] && fv[i].fields) || {};
+    // Preselezione foto da photo_indexes (vision foto-first): l'LLM propone quali
+    // foto ritraggono questa offerta. Indici 0-based su user_photo_urls, che qui
+    // coincidono 1:1 con jobImageCandidates quando ci sono foto utente. Resta una
+    // proposta rivedibile: guardia su indice valido e cap a 4. Se il campo manca
+    // o è vuoto → Set vuoto, l'utente assegna a mano come nel flusso classico.
+    const prePhotos = new Set();
+    (Array.isArray(lst.photo_indexes) ? lst.photo_indexes : []).forEach(pi => {
+      if (Number.isInteger(pi) && pi >= 0 && pi < jobImageCandidates.length && prePhotos.size < 4) {
+        prePhotos.add(jobImageCandidates[pi]);
+      }
+    });
     return {
       title: lst.title || '',
       description: lst.description || '',
@@ -406,7 +417,7 @@ function buildListingState(job) {
       locationSource: (f.lat && f.lat.source) || 'gps_device_required',
       locationLabel: null,
       locationConfirmed: false, // richiede sempre conferma esplicita, anche se prefilled dalla sede enterprise
-      photos: new Set(),
+      photos: prePhotos,
       published: false,
       entityId: null,
       dedupCandidates: null,   // null = non ancora cercato
