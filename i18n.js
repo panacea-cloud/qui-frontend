@@ -20,6 +20,7 @@
       'nav.listings': 'Annunci',
       'nav.map': 'Mappa',
       'nav.apikeys': 'API Keys',
+      'nav.add': '+ Aggiungi',
 
       'search.placeholder': 'Cerca sulla mappa…',
       'search.discover': 'Scopri',
@@ -77,6 +78,7 @@
       'nav.listings': 'Listings',
       'nav.map': 'Map',
       'nav.apikeys': 'API Keys',
+      'nav.add': '+ Add',
 
       'search.placeholder': 'Search the map\u2026',
       'search.discover': 'Discover',
