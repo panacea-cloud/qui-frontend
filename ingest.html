@@ -960,14 +960,13 @@ async function publishJob() {
     .filter(i => isListingReady(i) && !listingState[i].published);
   if (!readyIdx.length) return;
 
-  // Contatto e posizione sono dell'attività (una per job): dalla prima card pronta
-  const head = listingState[readyIdx[0]];
+  // Contatto e sede sono dell'attività (una per job): campi job-level.
   const body = {
     contact: jobContact,
     listings: readyIdx.map(i => {
       const st = listingState[i];
       const lst = jobResult.listings[i] || {};
-      return {
+      const item = {
         title: st.title,
         description: st.description,
         type: st.type,                 // IT: il backend legge 'esperienza' per le occorrenze
@@ -979,10 +978,20 @@ async function publishJob() {
         description_en: lst.description_en || null,
         source_ref: lst.source_ref || null,
       };
+      // Venue proprio dell'evento: solo le esperienze portano posizione per-listing.
+      // Il backend lo scrive su products.place_id; assente → eredita la sede job.
+      if (lst.type === 'esperienza') {
+        if (st.confirmedPlaceId) item.confirmed_place_id = st.confirmedPlaceId;
+        else if (st.lat != null && st.lng != null) { item.lat = st.lat; item.lng = st.lng; }
+      }
+      return item;
     }),
   };
-  if (head.confirmedPlaceId) body.confirmed_place_id = head.confirmedPlaceId;
-  else { body.lat = head.lat; body.lng = head.lng; }
+  // Sede dell'attività (prodotti/servizi). Un job di sole esperienze non ha sede job:
+  // ogni esperienza porta la propria; ma il backend esige comunque una posizione job
+  // a meno di confirmed_place_id. Passiamo la sede job quando presente.
+  if (jobLoc.confirmedPlaceId) body.confirmed_place_id = jobLoc.confirmedPlaceId;
+  else if (jobLoc.lat != null && jobLoc.lng != null) { body.lat = jobLoc.lat; body.lng = jobLoc.lng; }
 
   btn.disabled = true; btn.textContent = 'Pubblico…';
   try {
