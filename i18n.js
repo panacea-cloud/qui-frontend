@@ -32,6 +32,9 @@
       'family.product': 'Prodotto',
       'family.service': 'Servizio',
       'family.experience': 'Esperienza',
+      'family.products': 'Prodotti',
+      'family.services': 'Servizi',
+      'family.experiences': 'Esperienze',
 
       'auth.title': 'Accedi a QUI',
       'auth.tab.login': 'Accedi',
@@ -90,6 +93,9 @@
       'family.product': 'Product',
       'family.service': 'Service',
       'family.experience': 'Experience',
+      'family.products': 'Products',
+      'family.services': 'Services',
+      'family.experiences': 'Experiences',
 
       'auth.title': 'Sign in to QUI',
       'auth.tab.login': 'Sign in',
