@@ -907,9 +907,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <script>
 const API = 'https://qui-backend-production.up.railway.app';
 
-// Lingua dei contenuti: ?lang= > lingua del browser > it. N lingue.
-const LANG = (new URLSearchParams(location.search).get('lang')
-  || (navigator.language || 'it')).split('-')[0].toLowerCase();
+// Lingua dei contenuti: delegata a I18N, unica fonte di verità.
+// Era una const calcolata al caricamento e non seguiva il selettore lingua.
+function currentLang() { return I18N.getLang(); }
 
 // Slug canonico: stessa regola di slugify() in app.py. L'identità resta l'id in coda.
 function slugify(text) {
@@ -929,7 +929,7 @@ let TAXONOMY = { product: {}, service: {}, experience: {} };
 
 async function loadTaxonomyFromAPI() {
   try {
-    const r = await fetch(`${API}/taxonomy?family=product,service,experience`);
+    const r = await fetch(`${API}/taxonomy?family=product,service,experience&lang=${encodeURIComponent(currentLang())}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const rows = await r.json();
     const tree = { product: {}, service: {}, experience: {} };
@@ -1011,6 +1011,9 @@ window.addEventListener('qui:langchange', function () {
   renderAuthUI();
   const si = document.getElementById('search-input-desktop');
   if (si) si.setAttribute('placeholder', I18N.t('search.placeholder'));
+  // I contenuti dal backend sono nella lingua precedente: vanno rifatti.
+  if (typeof loadTaxonomy === 'function') loadTaxonomy();
+  if (typeof loadListings === 'function') loadListings();
 });
 
 document.addEventListener('DOMContentLoaded', initLangSelect);
@@ -1473,7 +1476,7 @@ let userLat = null, userLng = null, listingsLoaded = false;
 
 async function load() {
   try {
-    const r = await fetch(`${API}/listings?lang=${encodeURIComponent(LANG)}`,
+    const r = await fetch(`${API}/listings?lang=${encodeURIComponent(currentLang())}`,
       { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
