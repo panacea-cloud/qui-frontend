@@ -988,10 +988,21 @@ async function publishJob() {
     }),
   };
   // Sede dell'attività (prodotti/servizi). Un job di sole esperienze non ha sede job:
-  // ogni esperienza porta la propria; ma il backend esige comunque una posizione job
-  // a meno di confirmed_place_id. Passiamo la sede job quando presente.
-  if (jobLoc.confirmedPlaceId) body.confirmed_place_id = jobLoc.confirmedPlaceId;
-  else if (jobLoc.lat != null && jobLoc.lng != null) { body.lat = jobLoc.lat; body.lng = jobLoc.lng; }
+  // il backend esige comunque una sede per l'entity → promuoviamo il venue della prima
+  // esperienza pronta a sede job (opzione A). L'esperienza mantiene comunque il proprio
+  // place via products.place_id: coerente, nessuna sede inventata.
+  if (jobLoc.confirmedPlaceId) {
+    body.confirmed_place_id = jobLoc.confirmedPlaceId;
+  } else if (jobLoc.lat != null && jobLoc.lng != null) {
+    body.lat = jobLoc.lat; body.lng = jobLoc.lng;
+  } else {
+    const firstExpIdx = readyIdx.find(i => (jobResult.listings[i] || {}).type === 'esperienza');
+    if (firstExpIdx != null) {
+      const fe = listingState[firstExpIdx];
+      if (fe.confirmedPlaceId) body.confirmed_place_id = fe.confirmedPlaceId;
+      else if (fe.lat != null && fe.lng != null) { body.lat = fe.lat; body.lng = fe.lng; }
+    }
+  }
 
   btn.disabled = true; btn.textContent = 'Pubblico…';
   try {
