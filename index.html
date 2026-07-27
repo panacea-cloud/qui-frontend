@@ -587,6 +587,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .leaflet-control-zoom { display: none !important; }
 </style>
+<script src="/i18n.js"></script>
 </head>
 <body>
 <div class="app">
@@ -606,6 +607,8 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input id="search-input-desktop" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
     </div>
+    <select id="lang-select" onchange="I18N.setLang(this.value)" title="Lingua"
+            style="border:1px solid #e0e0e8;border-radius:8px;background:#fff;color:#2a2a6e;font-family:inherit;font-size:11px;font-weight:600;padding:5px 6px;cursor:pointer;outline:none"></select>
     <div id="topbar-auth"></div>
   </div>
 
@@ -992,6 +995,25 @@ function logout() {
   localStorage.removeItem('qui_token');
   renderAuthUI();
 }
+
+// ── I18N ──
+function initLangSelect() {
+  const sel = document.getElementById('lang-select');
+  if (!sel) return;
+  sel.innerHTML = I18N.available()
+    .map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+  sel.value = I18N.getLang();
+}
+
+// Il testo generato da JS non ha attributi data-i18n: va rigenerato a mano
+// al cambio lingua, altrimenti resterebbe nella lingua precedente.
+window.addEventListener('qui:langchange', function () {
+  renderAuthUI();
+  const si = document.getElementById('search-input-desktop');
+  if (si) si.setAttribute('placeholder', I18N.t('search.placeholder'));
+});
+
+document.addEventListener('DOMContentLoaded', initLangSelect);
 
 // ── PROFILE MODAL ──
 function openProfileModal() {
