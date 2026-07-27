@@ -285,6 +285,13 @@ button { font-family: inherit; }
         <div class="divider-label">Documenti legali</div>
         <div class="divider-hint" id="docs-hint" style="display:none"></div>
         <div id="docs-body"><div class="spinner"></div></div>
+
+        <div class="divider-label">Sicurezza</div>
+        <div class="divider-hint">Cambiando password verrai disconnesso da tutti gli altri dispositivi.</div>
+        <div class="field"><label>Password attuale</label><input type="password" id="pw-current" autocomplete="current-password" placeholder="La password che usi ora"/></div>
+        <div class="field"><label>Nuova password</label><input type="password" id="pw-new" autocomplete="new-password" placeholder="Minimo 6 caratteri"/></div>
+        <div class="field"><label>Conferma nuova password</label><input type="password" id="pw-confirm" autocomplete="new-password" placeholder="Ripeti la nuova password"/></div>
+        <button class="save-btn" id="pw-btn" onclick="changePassword()">Cambia password</button>
       </div>
     </div>
   </div>
@@ -459,6 +466,38 @@ async function saveProfile() {
   } catch(e) {
     alert('Errore: ' + e.message);
     btn.disabled = false; btn.textContent = 'Salva';
+  }
+}
+
+async function changePassword() {
+  const btn = document.getElementById('pw-btn');
+  const cur = document.getElementById('pw-current').value;
+  const nw  = document.getElementById('pw-new').value;
+  const cf  = document.getElementById('pw-confirm').value;
+
+  if (!cur || !nw) { alert('Compila password attuale e nuova password.'); return; }
+  if (nw.length < 6) { alert('La nuova password deve avere almeno 6 caratteri.'); return; }
+  // Conferma verificata solo lato client: il backend non la riceve, serve a
+  // evitare che un refuso blocchi fuori l'utente dal proprio account.
+  if (nw !== cf) { alert('La nuova password e la conferma non coincidono.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Aggiornamento…';
+  try {
+    const r = await fetch(`${API}/auth/change-password`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ current_password: cur, new_password: nw })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Errore durante il cambio password');
+
+    document.getElementById('pw-current').value = '';
+    document.getElementById('pw-new').value = '';
+    document.getElementById('pw-confirm').value = '';
+    btn.textContent = '✓ Password aggiornata';
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Cambia password'; }, 2200);
+  } catch(e) {
+    alert('Errore: ' + e.message);
+    btn.disabled = false; btn.textContent = 'Cambia password';
   }
 }
 
