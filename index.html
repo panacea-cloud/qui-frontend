@@ -1012,8 +1012,8 @@ window.addEventListener('qui:langchange', function () {
   const si = document.getElementById('search-input-desktop');
   if (si) si.setAttribute('placeholder', I18N.t('search.placeholder'));
   // I contenuti dal backend sono nella lingua precedente: vanno rifatti.
-  if (typeof loadTaxonomy === 'function') loadTaxonomy();
-  if (typeof loadListings === 'function') loadListings();
+  if (typeof loadTaxonomyFromAPI === 'function') loadTaxonomyFromAPI();
+  if (typeof load === 'function') load();
 });
 
 document.addEventListener('DOMContentLoaded', initLangSelect);
