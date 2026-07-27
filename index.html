@@ -670,14 +670,14 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <div class="auth-overlay" id="forgot-overlay">
   <div class="auth-modal">
     <div class="auth-header">
-      <div class="auth-header-title">Password dimenticata</div>
+      <div class="auth-header-title" data-i18n="auth.forgot.title">Password dimenticata</div>
       <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeForgotModal()">✕</button>
     </div>
     <div class="auth-body">
       <div id="forgot-error" style="display:none" class="auth-error"></div>
       <div id="forgot-success" style="display:none;background:#ddf3ea;color:#2a7a4a" class="auth-error"></div>
-      <div class="auth-field"><label>EMAIL</label><input type="email" id="forgot-email" placeholder="tuaemail@esempio.it"/></div>
-      <button class="auth-submit" id="forgot-submit-btn" onclick="submitForgotPassword()">Invia link di reset</button>
+      <div class="auth-field"><label data-i18n="auth.email">EMAIL</label><input type="email" id="forgot-email" placeholder="tuaemail@esempio.it" data-i18n-placeholder="auth.email.placeholder"/></div>
+      <button class="auth-submit" id="forgot-submit-btn" onclick="submitForgotPassword()" data-i18n="auth.forgot.submit">Invia link di reset</button>
       <div class="auth-info">Ti invieremo un link per reimpostare la password.</div>
     </div>
   </div>
@@ -692,7 +692,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
     <div class="auth-body">
       <div id="reset-error" style="display:none" class="auth-error"></div>
-      <div class="auth-field"><label>NUOVA PASSWORD</label><input type="password" id="reset-password" placeholder="Minimo 6 caratteri"/></div>
+      <div class="auth-field"><label data-i18n="auth.reset.newpassword">NUOVA PASSWORD</label><input type="password" id="reset-password" placeholder="Minimo 6 caratteri" data-i18n-placeholder="auth.password.placeholder"/></div>
       <button class="auth-submit" id="reset-submit-btn" onclick="submitResetPassword()">Reimposta password</button>
     </div>
   </div>
