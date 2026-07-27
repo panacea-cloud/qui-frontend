@@ -655,12 +655,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <button class="auth-tab" id="tab-register" onclick="switchTab('register')" data-i18n="auth.tab.register">Registrati</button>
       </div>
       <div id="auth-error" style="display:none" class="auth-error"></div>
-      <div class="auth-field"><label>EMAIL</label><input type="email" id="auth-email" placeholder="tuaemail@esempio.it"/></div>
-      <div class="auth-field"><label>PASSWORD</label><input type="password" id="auth-password" placeholder="Minimo 6 caratteri"/></div>
-      <button class="auth-submit" id="auth-submit-btn" onclick="submitAuth()">Accedi</button>
-      <div class="auth-info" id="auth-info">Registrandoti puoi pubblicare annunci e sbloccare contatti.</div>
+      <div class="auth-field"><label data-i18n="auth.email">EMAIL</label><input type="email" id="auth-email" placeholder="tuaemail@esempio.it" data-i18n-placeholder="auth.email.placeholder"/></div>
+      <div class="auth-field"><label data-i18n="auth.password">PASSWORD</label><input type="password" id="auth-password" placeholder="Minimo 6 caratteri" data-i18n-placeholder="auth.password.placeholder"/></div>
+      <button class="auth-submit" id="auth-submit-btn" onclick="submitAuth()" data-i18n="auth.submit.login">Accedi</button>
+      <div class="auth-info" id="auth-info" data-i18n="auth.info.register">Registrandoti puoi pubblicare annunci e sbloccare contatti.</div>
       <div style="text-align:center">
-        <button onclick="openForgotModal()" style="background:none;border:none;color:#2a2a6e;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline">Password dimenticata?</button>
+        <button onclick="openForgotModal()" data-i18n="auth.forgot" style="background:none;border:none;color:#2a2a6e;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline">Password dimenticata?</button>
       </div>
     </div>
   </div>
@@ -1242,10 +1242,10 @@ function switchTab(mode) {
   authMode = mode;
   document.getElementById('tab-login').classList.toggle('active', mode === 'login');
   document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Accedi' : 'Registrati';
-  document.getElementById('auth-info').textContent = mode === 'register'
-    ? 'Registrandoti puoi pubblicare annunci e sbloccare contatti.'
-    : 'Accedi per pubblicare annunci e sbloccare contatti.';
+  document.getElementById('auth-submit-btn').textContent =
+    I18N.t(mode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
+  document.getElementById('auth-info').textContent =
+    I18N.t(mode === 'register' ? 'auth.info.register' : 'auth.info.login');
   document.getElementById('auth-error').style.display = 'none';
 }
 
