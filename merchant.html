@@ -105,6 +105,10 @@ button { font-family: inherit; }
 .doc-label { font-size: 12px; color: #555; font-weight: 500; flex: 1; }
 .doc-status { font-size: 11px; color: #aaa; }
 .doc-status.uploaded { color: #2a7a4a; font-weight: 600; }
+.rejected-badge { display:inline-block; background:#fdecea; color:#a3281f; border:1px solid #f3c4bf;
+  padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; }
+.rejected-reason { margin-top:8px; font-size:12px; color:#555; line-height:1.5;
+  background:#faf7f7; border-left:3px solid #a3281f; padding:8px 12px; border-radius:4px; }
 .doc-btn {
   font-size: 11px; background: #f0f0fa; color: #2a2a6e; border: 0.5px solid #c0c0e0;
   border-radius: 6px; padding: 5px 10px; cursor: pointer; font-weight: 500; white-space: nowrap;
@@ -523,6 +527,15 @@ function renderDocs() {
   } else if (u.kyb_status === 'pending') {
     html += `<div class="pending-badge">Documento inviato — verifica in corso (entro 48h).</div>`;
     hint.style.display = 'none';
+  } else if (u.kyb_status === 'rejected') {
+    // Il motivo va mostrato: senza, il merchant rivede il pulsante "Carica"
+    // senza sapere cosa correggere, e ripresenta lo stesso documento.
+    html += `<div class="rejected-badge">Richiesta non approvata</div>`;
+    if (u.kyb_rejection_reason) {
+      html += `<div class="rejected-reason"><strong>Motivo:</strong> ${esc(u.kyb_rejection_reason)}</div>`;
+    }
+    hint.textContent = 'Correggi quanto indicato e carica un nuovo documento.';
+    hint.style.display = 'block';
   } else if (isEnterprise) {
     html += `<div style="font-size:12px;color:#888;line-height:1.5">Nessun documento KYB registrato.</div>`;
     hint.style.display = 'none';
