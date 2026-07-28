@@ -1456,6 +1456,19 @@ document.getElementById('detail-claim-btn').addEventListener('click', function (
   claimEntity(id, this);
 });
 
+// Esito della verifica email: il backend rimanda qui con ?verified=...
+(function mostraEsitoVerifica() {
+  const esito = new URLSearchParams(location.search).get('verified');
+  if (!esito) return;
+  const messaggi = {
+    ok: 'Email verificata. Benvenuta su IL QUI.',
+    expired: 'Il link di verifica è scaduto. Richiedine uno nuovo dal tuo profilo.',
+    invalid: 'Link di verifica non valido.'
+  };
+  if (messaggi[esito]) alert(messaggi[esito]);
+  history.replaceState({}, '', location.pathname);
+})();
+
 function closeDetailModal() { document.getElementById('detail-overlay').classList.remove('open'); }
 
 async function fetchContact(listingId, sessionId) {
