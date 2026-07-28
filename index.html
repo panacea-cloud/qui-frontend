@@ -1153,6 +1153,32 @@ async function renderAdminSection() {
   return html;
 }
 
+// Il documento non è un indirizzo pubblico: `kyb_document_ref` è un
+// riferimento interno. L'indirizzo firmato lo genera il backend al momento
+// della consultazione e non viene mai memorizzato.
+async function apriDocumentoKyb(userId) {
+  try {
+    const r = await fetch(`${API}/admin/kyb-document/${userId}`, { headers: authHeaders() });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
+    window.open(j.url, '_blank', 'noopener');
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function rejectUser(userId) {
+  const motivo = prompt('Motivo del rifiuto (verrà inviato al merchant):');
+  if (!motivo || !motivo.trim()) return;
+  try {
+    const r = await fetch(`${API}/admin/kyb-reject`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ user_id: userId, reason: motivo.trim() })
+    });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || 'Errore nel rifiuto'); return; }
+    document.getElementById(`admin-row-${userId}`)?.remove();
+  } catch (e) { alert('Errore di rete'); }
+}
+
 async function promoteUser(userId) {
   if (!confirm('Promuovere questo utente a Merchant?')) return;
   try {
