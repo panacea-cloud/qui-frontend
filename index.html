@@ -1453,7 +1453,7 @@ async function claimEntity(entityId, btn) {
     if (r.ok) {
       alert("Attività rivendicata. Ora la trovi nella tua area riservata e puoi modificarla.");
       closeDetailModal();
-      loadListings();
+      load();
       return;
     }
     if (r.status === 403 && j.action === 'kyb_required') {
