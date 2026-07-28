@@ -557,22 +557,56 @@ function renderDocs() {
   body.innerHTML = html;
 }
 
+// Il documento KYB NON usa uploadToCloudinary(): quella funzione carica sul
+// preset pubblico non firmato, dove chiunque abbia l'URL scarica il file.
+// Un documento societario passa da un upload firmato dal backend e diventa
+// un asset "authenticated", leggibile solo con firma.
 async function uploadKybDoc(input) {
   const file = input.files[0];
   if (!file) return;
   const statusEl = document.getElementById('doc-kyb-status');
-  if (statusEl) { statusEl.textContent = 'Caricamento…'; statusEl.className = 'doc-status'; }
+  const setStatus = (t) => { if (statusEl) { statusEl.textContent = t; statusEl.className = 'doc-status'; } };
+  setStatus('Caricamento…');
   try {
-    const url = await uploadToCloudinary(file);
-    // Corretto: /auth/kyb-request (non /auth/profile) — imposta anche kyb_status='pending'
-    // così la richiesta compare nella coda di moderazione admin.
-    const r = await fetch(`${API}/auth/kyb-request`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ kyb_document_ref: url }) });
-    if (!r.ok) throw new Error('Errore invio richiesta');
+    // 1) firma dal backend: è il server a decidere dove finisce il file
+    const sr = await fetch(`${API}/auth/kyb-upload-signature`, { method: 'POST', headers: authHeaders() });
+    if (!sr.ok) {
+      const err = await sr.json().catch(() => ({}));
+      throw new Error(err.error || 'Firma non disponibile');
+    }
+    const sig = await sr.json();
+
+    // 2) upload diretto a Cloudinary con la firma ricevuta
+    const fd = new FormData();
+    fd.append('file', file);
+    Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+    fd.append('api_key', sig.api_key);
+    fd.append('signature', sig.signature);
+
+    const cr = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
+                           { method: 'POST', body: fd });
+    if (!cr.ok) throw new Error('Errore caricamento documento');
+    const asset = await cr.json();
+
+    // Cloudinary appende l'estensione al public_id: va restituito quello
+    // reale, non quello firmato.
+    const ref = asset.public_id;
+    if (!ref || !ref.startsWith(sig.expected_prefix)) throw new Error('Riferimento documento inatteso');
+
+    // 3) registrazione della richiesta
+    const r = await fetch(`${API}/auth/kyb-request`, {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ kyb_document_ref: ref })
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || 'Errore invio richiesta');
+    }
     authUser = await r.json();
     renderDocs();
   } catch(e) {
     alert('Errore upload: ' + e.message);
-    if (statusEl) { statusEl.textContent = 'Errore'; statusEl.className = 'doc-status'; }
+    setStatus('Errore');
   }
 }
 
