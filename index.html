@@ -1144,8 +1144,9 @@ async function renderAdminSection() {
       <div style="border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px" id="admin-row-${u.id}">
         <div style="font-size:12px;font-weight:600;color:#111">${esc(u.email)}</div>
         <div style="font-size:11px;color:#888">${esc(u.company_name || '')} ${u.vat_number ? '· ' + u.vat_number : ''}</div>
-        ${u.kyb_document_ref ? `<a href="${esc(u.kyb_document_ref)}" target="_blank" style="font-size:11px;color:#2a2a6e">📄 Documento KYB</a>` : ''}
+        ${u.kyb_document_ref ? `<button onclick="apriDocumentoKyb('${u.id}')" style="background:none;border:0;padding:0;text-align:left;font-size:11px;color:#2a2a6e;cursor:pointer">📄 Apri documento KYB</button>` : ''}
         <button class="merchant-save-btn" onclick="promoteUser('${u.id}')">⭐ Promuovi a Enterprise</button>
+        <button onclick="rejectUser('${u.id}')" style="width:100%;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-size:12px;font-weight:600;cursor:pointer">✕ Rifiuta</button>
       </div>`).join('');
   }
 
@@ -1206,19 +1207,43 @@ async function uploadBusinessPhoto(input) {
   } catch(e) { alert('Errore upload: ' + e.message); }
 }
 
+// Il documento KYB non può passare dal preset pubblico: deve nascere
+// `authenticated` e dentro la cartella intestata all'utente, altrimenti il
+// backend lo rifiuta (`kyb_owns`) e comunque il documento resterebbe
+// leggibile da chiunque ne conoscesse l'indirizzo.
 async function uploadKYB(input) {
   const file = input.files[0];
   if (!file) return;
   const statusEl = document.getElementById('doc-kyb-status');
   if (statusEl) { statusEl.textContent = 'Caricamento…'; statusEl.className = 'doc-status'; }
   try {
-    const url = await uploadToCloudinary(file);
+    const sr = await fetch(`${API}/auth/kyb-upload-signature`, {
+      method: 'POST', headers: authHeaders()
+    });
+    const sig = await sr.json();
+    if (!sr.ok) throw new Error(sig.error || 'Firma non disponibile');
+
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('api_key', sig.api_key);
+    fd.append('signature', sig.signature);
+    Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+
+    const up = await fetch(
+      `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
+      { method: 'POST', body: fd });
+    const uj = await up.json();
+    // Cloudinary appende l'estensione: il ref da salvare è quello che
+    // Cloudinary ha davvero assegnato, non quello firmato.
+    if (!up.ok || !uj.public_id) throw new Error('Caricamento non riuscito');
+
     const r = await fetch(`${API}/auth/kyb-request`, {
       method: 'PUT', headers: authHeaders(),
-      body: JSON.stringify({ kyb_document_ref: url })
+      body: JSON.stringify({ kyb_document_ref: uj.public_id })
     });
-    if (!r.ok) throw new Error('Errore invio richiesta');
-    authUser = await r.json();
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Errore invio richiesta');
+    authUser = j;
     renderProfileBody();
   } catch(e) {
     alert('Errore: ' + e.message);
