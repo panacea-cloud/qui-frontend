@@ -1164,27 +1164,6 @@ async function promoteUser(userId) {
     document.getElementById(`admin-row-${userId}`)?.remove();
   } catch(e) { alert('Errore: ' + e.message); }
 }
-  
-async function saveMerchantProfile() {
-  const btn = document.getElementById('mp-save-btn');
-  btn.disabled = true; btn.textContent = 'Salvataggio…';
-  try {
-    const r = await fetch(`${API}/auth/profile`, {
-      method: 'PUT', headers: authHeaders(),
-      body: JSON.stringify({
-        display_name: document.getElementById('mp-business-name').value.trim(),
-        vat_number: document.getElementById('mp-vat').value.trim(),
-      })
-    });
-    if (!r.ok) throw new Error('Errore salvataggio');
-    authUser = await r.json();
-    btn.textContent = '✓ Salvato';
-    setTimeout(() => { btn.disabled = false; btn.textContent = 'Salva profilo'; }, 1800);
-  } catch(e) {
-    alert('Errore: ' + e.message);
-    btn.disabled = false; btn.textContent = 'Salva profilo';
-  }
-}
 
 async function uploadBusinessPhoto(input) {
   const file = input.files[0];
