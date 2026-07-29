@@ -664,15 +664,30 @@ async function renderAdminKyb() {
     </div>`).join('');
 }
 
-// Il documento non è un indirizzo pubblico: l'URL firmato lo genera il
-// backend al momento della consultazione e non viene mai memorizzato.
-async function apriDocumentoKyb(userId) {
+// Il documento arriva in streaming dal backend, mai come indirizzo
+// Cloudinary: gli indirizzi firmati non scadono, e uno consegnato al browser
+// resterebbe valido per sempre. Qui si apre un blob locale, che vive nella
+// scheda e sparisce con essa.
+async function apriDocumentoProtetto(url) {
   try {
-    const r = await fetch(`${API}/admin/kyb-document/${userId}`, { headers: authHeaders() });
-    const j = await r.json();
-    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
-    window.open(j.url, '_blank', 'noopener');
+    const r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) {
+      let msg = 'Documento non consultabile';
+      try { msg = (await r.json()).error || msg; } catch {}
+      alert(msg);
+      return;
+    }
+    const blob = await r.blob();
+    const objUrl = URL.createObjectURL(blob);
+    window.open(objUrl, '_blank', 'noopener');
+    // Il riferimento si libera dopo l'apertura: senza, il file resta in
+    // memoria per tutta la durata della sessione.
+    setTimeout(() => URL.revokeObjectURL(objUrl), 60000);
   } catch { alert('Errore di rete'); }
+}
+
+async function apriDocumentoKyb(userId) {
+  apriDocumentoProtetto(`${API}/admin/kyb-document/${userId}`);
 }
 
 async function kybDecide(userId, azione) {
@@ -736,12 +751,7 @@ async function renderAdminClaims() {
 }
 
 async function apriDocumentoClaim(claimId) {
-  try {
-    const r = await fetch(`${API}/admin/claims/${claimId}/document`, { headers: authHeaders() });
-    const j = await r.json();
-    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
-    window.open(j.url, '_blank', 'noopener');
-  } catch { alert('Errore di rete'); }
+  apriDocumentoProtetto(`${API}/admin/claims/${claimId}/document`);
 }
 
 async function claimDecide(claimId, azione) {
