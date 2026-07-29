@@ -1495,7 +1495,26 @@ function claimModal(titolo, corpo) {
 function closeClaimModal() { document.getElementById('claim-modal')?.remove(); }
 
 async function claimEntity(entityId, btn) {
-  claimModal("Rivendica questa attività", `
+  // Una pratica aperta si riprende, non si ripresenta: senza questo
+  // controllo il merchant riscrive la dichiarazione per poi sbattere su un
+  // rifiuto, e la prova che gli manca resta comunque non depositata.
+  try {
+    const rm = await fetch(`${API}/claims/mine`, { headers: authHeaders() });
+    if (rm.ok) {
+      const aperte = (await rm.json()).filter(c =>
+        c.entity_id === entityId &&
+        ['pending', 'verifying', 'awaiting_review'].includes(c.status));
+      if (aperte.length) {
+        const c = aperte[0];
+        if (c.status === 'awaiting_review') { claimDone(); return; }
+        claimNextStep({ claim_id: c.claim_id, channel: c.channel,
+                        challenge_target_mask: c.challenge_target_mask });
+        return;
+      }
+    }
+  } catch {}
+
+  claimModal("Rivendica questa attività", ` `
     <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
       Spiega qual è il tuo ruolo in questa attività. Serve a chi valuta la
       richiesta: le schede non contengono dati aziendali, quindi la tua
