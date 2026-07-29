@@ -1470,34 +1470,167 @@ function openDetailModal(id) {
   document.getElementById('detail-claim-btn').dataset.claimId = l.entity_id;
   document.getElementById('detail-overlay').classList.add('open');
 }
+
+// ── RIVENDICAZIONE ──
+// Non è più un click che assegna: apre una pratica, che l'amministrazione
+// approva solo dopo una prova di controllo. Il codice, quando previsto, va
+// al recapito GIÀ presente sulla scheda — mai a uno indicato qui.
+
+function claimModal(titolo, corpo) {
+  const vecchio = document.getElementById('claim-modal');
+  if (vecchio) vecchio.remove();
+  const el = document.createElement('div');
+  el.id = 'claim-modal';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = `
+    <div style="background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;font-family:inherit;max-height:90vh;overflow:auto">
+      <div style="font-size:17px;font-weight:700;margin-bottom:12px">${titolo}</div>
+      ${corpo}
+    </div>`;
+  el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+  document.body.appendChild(el);
+  return el;
+}
+
+function closeClaimModal() { document.getElementById('claim-modal')?.remove(); }
+
 async function claimEntity(entityId, btn) {
-  btn.disabled = true;
-  const originale = btn.textContent;
-  btn.textContent = 'Invio in corso…';
-  try {
-    const r = await fetch(`${API}/entities/${entityId}/claim`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
-    });
-    const j = await r.json().catch(() => ({}));
-    if (r.ok) {
-      alert("Attività rivendicata. Ora la trovi nella tua area riservata e puoi modificarla.");
-      closeDetailModal();
-      load();
-      return;
+  claimModal("Rivendica questa attività", `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+      Spiega qual è il tuo ruolo in questa attività. Serve a chi valuta la
+      richiesta: le schede non contengono dati aziendali, quindi la tua
+      descrizione è l'unico elemento di contesto.
+    </div>
+    <textarea id="claim-statement" rows="5" placeholder="Es. Sono il titolare, gestisco il locale da…" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+    <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">Annulla</button>
+      <button id="claim-send" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Invia richiesta</button>
+    </div>`);
+
+  document.getElementById('claim-send').onclick = async function () {
+    const statement = document.getElementById('claim-statement').value.trim();
+    const err = document.getElementById('claim-err');
+    if (statement.length < 30) { err.textContent = 'Servono almeno 30 caratteri.'; return; }
+    this.disabled = true; this.textContent = 'Invio…'; err.textContent = '';
+    try {
+      const r = await fetch(`${API}/entities/${entityId}/claim`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ statement })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 403 && j.action === 'kyb_required') {
+        closeClaimModal();
+        alert("Per rivendicare un'attività serve prima la verifica dell'identità aziendale.\n\nTi porto alla pagina dove caricare i documenti.");
+        window.location.href = 'merchant.html#kyb';
+        return;
+      }
+      if (!r.ok) { err.textContent = j.error || 'Richiesta non riuscita.'; this.disabled = false; this.textContent = 'Invia richiesta'; return; }
+      claimNextStep(j);
+    } catch {
+      err.textContent = 'Errore di rete. Riprova.';
+      this.disabled = false; this.textContent = 'Invia richiesta';
     }
-    if (r.status === 403 && j.action === 'kyb_required') {
-      alert("Per rivendicare un'attività serve la verifica dell'identità aziendale.\n\nTi porto alla pagina dove caricare i documenti.");
-      window.location.href = 'merchant.html#kyb';
-      return;
-    }
-    alert(j.error || 'Non è stato possibile completare la rivendicazione.');
-  } catch (e) {
-    alert('Errore di rete. Riprova.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originale;
+  };
+}
+
+function claimNextStep(j) {
+  if (j.channel === 'contact' || j.channel === 'domain') {
+    claimModal("Conferma il recapito", `
+      <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+        Abbiamo inviato un codice a <strong>${esc(j.challenge_target_mask || 'il recapito dell\'attività')}</strong>,
+        il recapito già presente su questa scheda. Se lo controlli, inserisci qui il codice.
+      </div>
+      <input id="claim-code" inputmode="numeric" maxlength="8" placeholder="00000000" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:20px;letter-spacing:5px;text-align:center;font-family:inherit"/>
+      <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">Più tardi</button>
+        <button id="claim-verify" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Conferma</button>
+      </div>`);
+    document.getElementById('claim-verify').onclick = async function () {
+      const code = document.getElementById('claim-code').value.trim();
+      const err = document.getElementById('claim-err');
+      if (!code) { err.textContent = 'Inserisci il codice.'; return; }
+      this.disabled = true; this.textContent = 'Verifica…';
+      try {
+        const r = await fetch(`${API}/claims/${j.claim_id}/verify`, {
+          method: 'POST', headers: authHeaders(), body: JSON.stringify({ code })
+        });
+        const v = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          err.textContent = (v.error || 'Codice non valido') +
+            (v.attempts_left !== undefined ? ` (tentativi rimasti: ${v.attempts_left})` : '');
+          this.disabled = false; this.textContent = 'Conferma'; return;
+        }
+        claimDone();
+      } catch {
+        err.textContent = 'Errore di rete.';
+        this.disabled = false; this.textContent = 'Conferma';
+      }
+    };
+    return;
   }
+
+  // Canale documentale: la scheda non ha né email né sito, quindi non
+  // esiste un recapito a cui inviare una prova automatica.
+  claimModal("Carica una prova", `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+      Questa scheda non ha un recapito a cui inviare un codice. Carica un
+      documento che colleghi la tua azienda a questa sede: visura con sede
+      corrispondente, una bolletta, un contratto d'affitto.
+    </div>
+    <button id="claim-doc-btn" style="width:100%;padding:12px;border:1px dashed #bbb;border-radius:9px;background:#fafafa;font-weight:600;cursor:pointer">📄 Scegli il documento</button>
+    <input type="file" id="claim-doc-input" accept="image/*,application/pdf" style="display:none"/>
+    <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+    <button onclick="closeClaimModal()" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer;margin-top:6px">Più tardi</button>`);
+
+  const input = document.getElementById('claim-doc-input');
+  document.getElementById('claim-doc-btn').onclick = () => input.click();
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const err = document.getElementById('claim-err');
+    const b = document.getElementById('claim-doc-btn');
+    b.disabled = true; b.textContent = 'Caricamento…';
+    try {
+      const sr = await fetch(`${API}/claims/${j.claim_id}/upload-signature`, {
+        method: 'POST', headers: authHeaders()
+      });
+      const sig = await sr.json();
+      if (!sr.ok) throw new Error(sig.error || 'Firma non disponibile');
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('api_key', sig.api_key);
+      fd.append('signature', sig.signature);
+      Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+
+      const up = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
+                             { method: 'POST', body: fd });
+      const uj = await up.json();
+      if (!up.ok || !uj.public_id) throw new Error('Caricamento non riuscito');
+
+      const r = await fetch(`${API}/claims/${j.claim_id}/document`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ document_ref: uj.public_id })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'Registrazione non riuscita');
+      claimDone();
+    } catch (e) {
+      err.textContent = e.message;
+      b.disabled = false; b.textContent = '📄 Scegli il documento';
+    }
+  };
+}
+
+function claimDone() {
+  claimModal("Richiesta inviata", `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">
+      La richiesta è in revisione. L'attività <strong>non è ancora tua</strong>:
+      riceverai un'email appena sarà decisa.
+    </div>
+    <button onclick="closeClaimModal();location.reload()" style="width:100%;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Ho capito</button>`);
 }
 
 document.getElementById('detail-claim-btn').addEventListener('click', function () {
