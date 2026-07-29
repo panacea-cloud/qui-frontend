@@ -254,6 +254,10 @@ button { font-family: inherit; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5L19 4l3 3-4 3.5"/></svg>
         API Keys
       </button>
+      <button class="avatar-menu-item" data-target="sec-admin" id="menu-admin" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Amministrazione
+      </button>
       <div class="avatar-menu-divider"></div>
       <button class="avatar-menu-item danger" onclick="doLogout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
@@ -314,6 +318,21 @@ button { font-family: inherit; }
     <div class="section-title">API Keys</div>
     <div class="card">
       <div class="card-body" id="apikeys-body"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-admin">
+    <div class="section-title">Amministrazione</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="divider-label">Verifiche identità aziendale</div>
+        <div class="divider-hint" style="margin-top:0">Controlla il documento prima di decidere.</div>
+        <div id="admin-kyb-body"><div class="spinner"></div></div>
+
+        <div class="divider-label">Richieste di rivendicazione</div>
+        <div class="divider-hint" style="margin-top:0">Approva solo con una prova di controllo superata. Il KYB dimostra che il richiedente è un'azienda, non che sia <em>questa</em> azienda.</div>
+        <div id="admin-claims-body"><div class="spinner"></div></div>
+      </div>
     </div>
   </div>
 
@@ -413,11 +432,19 @@ async function init() {
     document.getElementById('menu-apikeys').style.display = 'none';
   }
 
+  // La sezione admin vive qui e non in index.html: un account admin è
+  // enterprise, quindi viene sempre reindirizzato su questa pagina. Tenerla
+  // altrove significava averla scritta dove nessun admin la vede.
+  if (authUser.is_admin) {
+    document.getElementById('menu-admin').style.display = '';
+  }
+
   renderAvatar();
   renderProfileFields();
   renderDocs();
   renderListings();
   if (isEnterprise) renderApiKeys();
+  if (authUser.is_admin) renderAdmin();
 }
 
 function renderAvatar() {
@@ -608,6 +635,132 @@ async function uploadKybDoc(input) {
     alert('Errore upload: ' + e.message);
     setStatus('Errore');
   }
+}
+
+// ── AMMINISTRAZIONE ──
+
+function renderAdmin() {
+  renderAdminKyb();
+  renderAdminClaims();
+}
+
+async function renderAdminKyb() {
+  const box = document.getElementById('admin-kyb-body');
+  let rows = [];
+  try {
+    const r = await fetch(`${API}/admin/pending`, { headers: authHeaders() });
+    if (r.ok) rows = await r.json();
+  } catch {}
+  if (!rows.length) { box.innerHTML = `<div class="divider-hint">Nessuna richiesta in attesa.</div>`; return; }
+  box.innerHTML = rows.map(u => `
+    <div style="border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px" id="kyb-row-${u.id}">
+      <div style="font-size:13px;font-weight:600">${esc(u.email)}</div>
+      <div style="font-size:11px;color:#888">${esc(u.company_name || '—')}${u.vat_number ? ' · ' + esc(u.vat_number) : ''}</div>
+      ${u.kyb_document_ref ? `<button onclick="apriDocumentoKyb('${u.id}')" style="background:none;border:0;padding:0;text-align:left;font-size:12px;color:#2a2a6e;cursor:pointer">📄 Apri documento</button>` : `<div style="font-size:11px;color:#c00">Nessun documento</div>`}
+      <div style="display:flex;gap:8px">
+        <button class="save-btn" style="flex:1" onclick="kybDecide('${u.id}','approve')">Approva</button>
+        <button style="flex:1;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-weight:600;cursor:pointer" onclick="kybDecide('${u.id}','reject')">Rifiuta</button>
+      </div>
+    </div>`).join('');
+}
+
+// Il documento non è un indirizzo pubblico: l'URL firmato lo genera il
+// backend al momento della consultazione e non viene mai memorizzato.
+async function apriDocumentoKyb(userId) {
+  try {
+    const r = await fetch(`${API}/admin/kyb-document/${userId}`, { headers: authHeaders() });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
+    window.open(j.url, '_blank', 'noopener');
+  } catch { alert('Errore di rete'); }
+}
+
+async function kybDecide(userId, azione) {
+  let body = { user_id: userId };
+  let url = `${API}/admin/promote-jwt`;
+  if (azione === 'reject') {
+    const motivo = prompt('Motivo del rifiuto (verrà inviato al merchant):');
+    if (!motivo || !motivo.trim()) return;
+    body.reason = motivo.trim();
+    url = `${API}/admin/kyb-reject`;
+  }
+  try {
+    const r = await fetch(url, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { alert(j.error || 'Operazione non riuscita'); return; }
+    renderAdminKyb();
+  } catch { alert('Errore di rete'); }
+}
+
+const CLAIM_STATO = {
+  pending: 'In attesa di documento',
+  verifying: 'In attesa del codice',
+  awaiting_review: 'Pronta per la revisione'
+};
+
+async function renderAdminClaims() {
+  const box = document.getElementById('admin-claims-body');
+  let rows = [];
+  try {
+    const r = await fetch(`${API}/admin/claims`, { headers: authHeaders() });
+    if (r.ok) rows = await r.json();
+  } catch {}
+  if (!rows.length) { box.innerHTML = `<div class="divider-hint">Nessuna richiesta aperta.</div>`; return; }
+
+  box.innerHTML = rows.map(c => {
+    // Approvabile solo con una prova: il pulsante non deve nemmeno esistere
+    // quando la prova manca, altrimenti invita a un gesto che il backend
+    // rifiuterebbe comunque.
+    const provata = c.challenge_verified || c.has_document;
+    const prova = c.challenge_verified
+      ? `✅ Codice confermato${c.challenge_target_mask ? ' — ' + esc(c.challenge_target_mask) : ''}`
+      : (c.has_document ? '📄 Documento depositato' : '⏳ Nessuna prova');
+    return `
+    <div style="border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px" id="claim-row-${c.claim_id}">
+      <div style="font-size:13px;font-weight:600">${esc(c.entity_name || '(senza nome)')}</div>
+      <div style="font-size:11px;color:#888">${esc(CLAIM_STATO[c.status] || c.status)} · canale ${esc(c.channel || '—')}</div>
+      <div style="font-size:12px;color:${provata ? '#2a7a4a' : '#a06000'};font-weight:600">${prova}</div>
+      <div style="font-size:11px;color:#555;line-height:1.5">
+        <strong>Richiedente:</strong> ${esc(c.claimant_email)}<br>
+        ${esc(c.company_name || '—')}${c.vat_number ? ' · ' + esc(c.vat_number) : ''} · KYB ${esc(c.kyb_status || '—')}
+        ${c.source_url ? `<br><strong>Fonte:</strong> ${esc(c.source_url)}` : ''}
+      </div>
+      <div style="font-size:12px;color:#333;background:#f7f7f7;border-radius:8px;padding:8px;line-height:1.5">${esc(c.statement || '')}</div>
+      ${c.has_document ? `<button onclick="apriDocumentoClaim('${c.claim_id}')" style="background:none;border:0;padding:0;text-align:left;font-size:12px;color:#2a2a6e;cursor:pointer">📄 Apri documento della pratica</button>` : ''}
+      <div style="display:flex;gap:8px">
+        ${provata ? `<button class="save-btn" style="flex:1" onclick="claimDecide('${c.claim_id}','approve')">Approva</button>` : ''}
+        <button style="flex:1;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-weight:600;cursor:pointer" onclick="claimDecide('${c.claim_id}','reject')">Rifiuta</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function apriDocumentoClaim(claimId) {
+  try {
+    const r = await fetch(`${API}/admin/claims/${claimId}/document`, { headers: authHeaders() });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
+    window.open(j.url, '_blank', 'noopener');
+  } catch { alert('Errore di rete'); }
+}
+
+async function claimDecide(claimId, azione) {
+  let body = {};
+  if (azione === 'reject') {
+    const motivo = prompt('Motivo del rifiuto (verrà inviato al richiedente):');
+    if (!motivo || !motivo.trim()) return;
+    body.reason = motivo.trim();
+  } else if (!confirm('Assegnare definitivamente questa attività al richiedente?')) {
+    return;
+  }
+  try {
+    const r = await fetch(`${API}/admin/claims/${claimId}/${azione}`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { alert(j.error || 'Operazione non riuscita'); return; }
+    renderAdminClaims();
+  } catch { alert('Errore di rete'); }
 }
 
 function listingTileHTML(l) {
