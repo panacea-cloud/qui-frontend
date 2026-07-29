@@ -743,7 +743,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         </div>
         <button id="detail-claim-btn">Sono il titolare — rivendica</button>
       </div>
-      <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+      <div class="disclaimer-box" id="detail-disclaimer">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
     </div>
   </div>
 </div>
@@ -1467,6 +1467,10 @@ function openDetailModal(id) {
   unlockBtn.dataset.unlockId = l.entity_id;
   unlockBtn.style.display = claimed ? '' : 'none';
   claimBox.classList.toggle('show', !claimed);
+  // L'avviso riguarda l'acquisto del contatto. Su una scheda non rivendicata
+  // quell'acquisto non esiste, quindi l'avviso descriverebbe un servizio che
+  // non viene offerto: informazione falsa, non cautela in più.
+  document.getElementById('detail-disclaimer').style.display = claimed ? '' : 'none';
   document.getElementById('detail-claim-btn').dataset.claimId = l.entity_id;
   document.getElementById('detail-overlay').classList.add('open');
 }
