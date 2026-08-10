@@ -499,6 +499,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .scopri-filter-btn.active { background: #2a2a6e; color: #fff; border-color: #2a2a6e; }
 .scopri-list { flex: 1; overflow-y: auto; padding: 0 16px 80px; display: flex; flex-direction: column; gap: 14px; }
+.scopri-section {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: #888; padding: 6px 2px 0; flex-shrink: 0;
+}
+.scopri-section.empty { color: #c4c4c4; }
 .scopri-card {
   position: relative; border-radius: 16px; overflow: hidden;
   cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.12);
@@ -2223,49 +2228,96 @@ function setScopriFilter(btn, type) {
   renderScopri();
 }
 
+// Le famiglie non si mescolano mai: con «Tutti» si vedono tre sezioni distinte,
+// nell'ordine dei bottoni. Etichette al plurale, come i bottoni stessi.
+const SCOPRI_SECTION = { product: 'Prodotti', service: 'Servizi', experience: 'Esperienze' };
+const SCOPRI_FAMS = ['product', 'service', 'experience'];
+
+function scopriCardHTML(l) {
+  const type = familyOf(l);
+  const photo = (l.photos && l.photos[0])
+    ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
+    : `<div class="scopri-card-img-placeholder">📦</div>`;
+  const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+  let distLabel = '';
+  if (userLat !== null && l.lat && l.lng) {
+    const d = distKm(userLat, userLng, l.lat, l.lng);
+    distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+  }
+  const title = esc(l.title || '—');
+  const desc  = esc(l.description || '');
+  const cat   = esc(l.category_label || '');
+  return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
+    ${photo}
+    <div class="scopri-card-overlay">
+      <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
+      <div class="scopri-card-title">${title}</div>
+      ${desc ? `<div class="scopri-card-desc">${desc}</div>` : ''}
+      ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
+      <div class="scopri-card-meta">${cat}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
+    </div>
+  </div>`;
+}
+
 function renderScopri() {
   const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
-  let list = allListings.filter(l => familyOf(l) === scopriFilter);
-  if (q) list = list.filter(l =>
-    (l.title||'').toLowerCase().includes(q) ||
-    (l.description||'').toLowerCase().includes(q) ||
-    (l.category_label||'').toLowerCase().includes(q) ||
-    (l.entity_name||'').toLowerCase().includes(q) ||
-    (l.city||'').toLowerCase().includes(q)
-  );
-  if (userLat !== null) {
-    list = [...list].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
-  }
   const el = document.getElementById('scopri-list');
-  if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>'; return; }
-  el.innerHTML = list.map(l => {
-    const type = familyOf(l);
-    const photo = (l.photos && l.photos[0])
-      ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
-      : `<div class="scopri-card-img-placeholder">📦</div>`;
-    const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
-    let distLabel = '';
-    if (userLat !== null && l.lat && l.lng) {
-      const d = distKm(userLat, userLng, l.lat, l.lng);
-      distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+
+  function pick(fam) {
+    let l = allListings.filter(x => familyOf(x) === fam);
+    // Il testo dell'annuncio si confronta qui; le keywords e gli alias li ha
+    // già risolti /search/resolve e stanno in scopriCodes.
+    if (q) l = l.filter(x => matchesText(x, q) || scopriCodes.has(x.category));
+    if (userLat !== null) {
+      l = [...l].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
     }
-    const title = esc(l.title || '—');
-    const desc  = esc(l.description || '');
-    const cat   = esc(l.category_label || '');
-    return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
-      ${photo}
-      <div class="scopri-card-overlay">
-        <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
-        <div class="scopri-card-title">${title}</div>
-        ${desc ? `<div class="scopri-card-desc">${desc}</div>` : ''}
-        ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
-        <div class="scopri-card-meta">${cat}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
-      </div>
-    </div>`;
+    return l;
+  }
+
+  const fams = scopriFilter === 'all' ? SCOPRI_FAMS : [scopriFilter];
+  const groups = fams.map(f => ({ fam: f, list: pick(f) }));
+  const total = groups.reduce((n, g) => n + g.list.length, 0);
+
+  if (!total) {
+    el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>';
+    return;
+  }
+
+  el.innerHTML = groups.map(g => {
+    // Con una famiglia sola l'intestazione la dice già il bottone attivo.
+    if (fams.length === 1) return g.list.map(scopriCardHTML).join('');
+    // Una sezione vuota si mostra comunque: «Servizi — 0» è un'informazione,
+    // il silenzio no.
+    const head = `<div class="scopri-section${g.list.length ? '' : ' empty'}">`
+               + `${esc(SCOPRI_SECTION[g.fam] || g.fam)} — ${g.list.length}</div>`;
+    return head + g.list.map(scopriCardHTML).join('');
   }).join('');
 }
 
-document.getElementById('scopri-input').addEventListener('input', renderScopri);
+document.getElementById('scopri-input').addEventListener('input', function() {
+  const v = this.value;
+  clearTimeout(scopriTimer);
+  clearTimeout(scopriLogTimer);
+  scopriCodes = new Set();   // la parola è cambiata: i codici vecchi non valgono più
+  renderScopri();            // il testo si mostra subito, la rete allarga dopo
+  const q = (v || '').trim().toLowerCase();
+  if (q.length < 2) return;
+
+  const seq = ++scopriSeq;
+  scopriTimer = setTimeout(async () => {
+    const codes = await resolveCodes(q);
+    if (seq !== scopriSeq) return;   // è arrivata una parola più recente
+    scopriCodes = new Set(codes);
+    renderScopri();
+  }, 160);
+
+  // La ricerca si considera posta quando chi scrive si ferma.
+  scopriLogTimer = setTimeout(() => {
+    if (q.length < 3) return;
+    fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}&log=1`)
+      .catch(() => {});
+  }, 1400);
+});
 
 // ── SEARCH ──
 // Il testo dell'annuncio si confronta qui; il DIZIONARIO no. Keywords e alias
