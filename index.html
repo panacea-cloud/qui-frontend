@@ -2268,30 +2268,64 @@ function renderScopri() {
 document.getElementById('scopri-input').addEventListener('input', renderScopri);
 
 // ── SEARCH ──
-document.getElementById('search-input-desktop').addEventListener('input', function() {
-  const q = this.value.trim().toLowerCase();
-  if (!q) { render(); return; }
-  const filtered = allListings.filter(l =>
-    (l.title||'').toLowerCase().includes(q) ||
-    (l.description||'').toLowerCase().includes(q) ||
-    (l.category_label||'').toLowerCase().includes(q) ||
-    (l.entity_name||'').toLowerCase().includes(q) ||
-    (l.city||'').toLowerCase().includes(q)
-  );
-  renderList(filtered); renderMarkers(filtered);
-});
+// Il testo dell'annuncio si confronta qui; il DIZIONARIO no. Keywords e alias
+// vivono in database e li risolve /search/resolve, punto unico: il browser
+// chiede una parola e riceve codici di foglia. Senza questo passaggio gli 89
+// alias restano inerti — cercare «macelleria» non trovava nulla (debito 139).
 
-document.getElementById('search-input-mobile').addEventListener('input', function() {
-  const q = this.value.trim().toLowerCase();
+function matchesText(l, q) {
+  return (l.title||'').toLowerCase().includes(q)
+      || (l.description||'').toLowerCase().includes(q)
+      || (l.category_label||'').toLowerCase().includes(q)
+      || (l.entity_name||'').toLowerCase().includes(q)
+      || (l.city||'').toLowerCase().includes(q);
+}
+
+// Le risposte possono tornare in ordine diverso da quello in cui sono partite:
+// senza questo contatore una richiesta lenta su una parola vecchia
+// sovrascriverebbe il risultato di quella nuova.
+let searchSeq = 0;
+let searchTimer = null;
+
+async function resolveCodes(q) {
+  try {
+    const r = await fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}`);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return (d.matches || []).map(m => m.code);
+  } catch (e) {
+    // Il dizionario non risponde: si resta sul testo, mai sullo schermo vuoto.
+    console.error('Risoluzione lessicale non riuscita:', e);
+    return [];
+  }
+}
+
+async function applySearch(raw) {
+  const q = (raw || '').trim().toLowerCase();
   if (!q) { render(); return; }
-  const filtered = allListings.filter(l =>
-    (l.title||'').toLowerCase().includes(q) ||
-    (l.description||'').toLowerCase().includes(q) ||
-    (l.category_label||'').toLowerCase().includes(q) ||
-    (l.entity_name||'').toLowerCase().includes(q) ||
-    (l.city||'').toLowerCase().includes(q)
-  );
-  renderList(filtered); renderMarkers(filtered);
+
+  // Il testo si mostra subito: la rete non deve far aspettare chi digita.
+  const seq = ++searchSeq;
+  const byText = allListings.filter(l => matchesText(l, q));
+  renderList(byText); renderMarkers(byText);
+
+  if (q.length < 2) return;
+  const codes = await resolveCodes(q);
+  if (seq !== searchSeq) return;   // è arrivata una parola più recente
+
+  const wanted = new Set(codes);
+  const merged = allListings.filter(l => matchesText(l, q) || wanted.has(l.category));
+  renderList(merged); renderMarkers(merged);
+}
+
+['search-input-desktop', 'search-input-mobile'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    const v = this.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => applySearch(v), 160);
+  });
 });
 
 // ── INIT ──
