@@ -2286,6 +2286,7 @@ function matchesText(l, q) {
 // sovrascriverebbe il risultato di quella nuova.
 let searchSeq = 0;
 let searchTimer = null;
+let searchLogTimer = null;
 
 async function resolveCodes(q) {
   try {
@@ -2324,7 +2325,17 @@ async function applySearch(raw) {
   el.addEventListener('input', function() {
     const v = this.value;
     clearTimeout(searchTimer);
+    clearTimeout(searchLogTimer);
     searchTimer = setTimeout(() => applySearch(v), 160);
+    // La ricerca si considera POSTA quando chi scrive si ferma. Prima di
+    // allora sono tasti premuti, e registrarli riempirebbe il log di
+    // frammenti che non sono domande.
+    searchLogTimer = setTimeout(() => {
+      const q = (v || '').trim().toLowerCase();
+      if (q.length < 3) return;
+      fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}&log=1`)
+        .catch(() => {});
+    }, 1400);
   });
 });
 
