@@ -2214,6 +2214,11 @@ document.getElementById('reset-overlay').addEventListener('click', function(e) {
 
 // ── SCOPRI ──
 let scopriFilter = 'all';
+// Codici di foglia risolti dall'ultima parola cercata qui. renderScopri resta
+// sincrona — la chiamano openScopri e setScopriFilter — e legge questo insieme
+// così com'è: la rete lo riempie quando arriva, senza far aspettare nessuno.
+let scopriCodes = new Set();
+let scopriTimer = null, scopriLogTimer = null, scopriSeq = 0;
 
 function openScopri() {
   document.getElementById('scopri-overlay').classList.add('open');
