@@ -212,11 +212,41 @@ async function loadTaxonomy() {
   taxonomyRows = r.ok ? await r.json() : [];
   return taxonomyRows;
 }
+// L'albero ha profondità libera con tetto a tre piani (D106). Una voce
+// selezionabile è una PUNTA, cioè un nodo SENZA FIGLI (D105): un nodo di mezzo
+// è un contenitore e appenderci un annuncio lo scriverebbe su un nodo che la
+// guardia dei legami considera illegale. L'etichetta porta il percorso sotto la
+// macro — «Pelle › Conceria» — così la profondità si legge senza cablarla:
+// stessa regola di index.html, stesso risultato a qualunque annidamento futuro.
 function macrosForFamily(family) {
   return (taxonomyRows || []).filter(r => r.family === family && !r.parent_code);
 }
+// Restituisce { code, label } e NON più la riga grezza: chi la usa legge .label.
 function categoriesForMacro(macroCode) {
-  return (taxonomyRows || []).filter(r => r.parent_code === macroCode);
+  const rows = taxonomyRows || [];
+  const byCode = new Map(rows.map(r => [r.code, r]));
+  const conFigli = new Set(rows.filter(r => r.parent_code).map(r => r.parent_code));
+  const punte = [];
+  const orfani = [];
+  rows.forEach(r => {
+    if (!r.parent_code) return;        // macro
+    if (conFigli.has(r.code)) return;  // nodo di mezzo: non selezionabile
+    // Risalgo la catena dei padri fino alla macro, raccogliendo le etichette.
+    const rami = [r.label_it];
+    let padre = byCode.get(r.parent_code);
+    while (padre && padre.parent_code) {
+      rami.unshift(padre.label_it);
+      padre = byCode.get(padre.parent_code);
+    }
+    // Padre mancante: la punta NON viene ingoiata in silenzio, viene contata.
+    if (!padre) { orfani.push(r.code); return; }
+    if (padre.code !== macroCode) return;
+    punte.push({ code: r.code, label: rami.join(' › ') });
+  });
+  if (orfani.length) console.warn('Tassonomia: punte senza macro raggiungibile, escluse dal menù:', orfani);
+  // Ordine per lingua, non per codici dei caratteri (lezione della Sessione 3).
+  // Ordinare sull'etichetta col percorso tiene i fratelli adiacenti.
+  return punte.sort((a, b) => a.label.localeCompare(b.label, 'it'));
 }
 
 // ── INIT ──
@@ -636,7 +666,7 @@ function onMacroChange(i) {
   const macroCode = document.getElementById(`macro-select-${i}`).value;
   const catSelect = document.getElementById(`category-select-${i}`);
   const cats = macroCode ? categoriesForMacro(macroCode) : [];
-  catSelect.innerHTML = `<option value="">— Seleziona categoria —</option>` + cats.map(c => `<option value="${esc(c.code)}">${esc(c.label_it)}</option>`).join('');
+  catSelect.innerHTML = `<option value="">— Seleziona categoria —</option>` + cats.map(c => `<option value="${esc(c.code)}">${esc(c.label)}</option>`).join('');
   catSelect.disabled = !macroCode;
 }
 function onCategoryChange(i) {
