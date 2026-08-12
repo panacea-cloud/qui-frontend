@@ -944,7 +944,15 @@ function listingUrl(l) {
 // La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
 function familyOf(l) { return l.family || 'product'; }
 
-// Tassonomia caricata dinamicamente dal DB (fonte unica di verità — niente più codici hardcoded)
+// Tassonomia caricata dinamicamente dal DB (fonte unica di verità — niente più codici hardcoded).
+// L'albero ha profondità libera con tetto a tre piani (D106): il menù non può
+// assumerne due. Una voce selezionabile è una PUNTA, cioè un nodo SENZA FIGLI
+// (D105): un nodo di mezzo è un contenitore, e appenderci un annuncio significa
+// scriverlo su un nodo che la guardia dei legami considera illegale.
+// L'etichetta porta il percorso sotto la macro — «Pelle › Conceria» — così la
+// profondità si legge senza cablarla da nessuna parte: regge a tre piani oggi e
+// a quattro se il tetto si alzasse, senza toccare questo codice.
+// La forma di TAXONOMY non cambia: selectType() legge le stesse chiavi di prima.
 let TAXONOMY = { product: {}, service: {}, experience: {} };
 
 async function loadTaxonomyFromAPI() {
@@ -952,17 +960,43 @@ async function loadTaxonomyFromAPI() {
     const r = await fetch(`${API}/taxonomy?family=product,service,experience&lang=${encodeURIComponent(currentLang())}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const rows = await r.json();
+    const byCode = new Map(rows.map(row => [row.code, row]));
+    const conFigli = new Set(rows.filter(row => row.parent_code).map(row => row.parent_code));
     const tree = { product: {}, service: {}, experience: {} };
+    const orfani = [];
+
+    // Le macro sono i cassetti del menù, non voci scegliibili.
     rows.forEach(row => {
-      if (!row.parent_code) {
+      if (!row.parent_code && tree[row.family]) {
         tree[row.family][row.code] = { label: row.label_it, categories: [] };
       }
     });
+
     rows.forEach(row => {
-      if (row.parent_code && tree[row.family][row.parent_code]) {
-        tree[row.family][row.parent_code].categories.push({ code: row.code, label: row.label_it });
+      if (!row.parent_code) return;          // macro
+      if (conFigli.has(row.code)) return;    // nodo di mezzo: non selezionabile
+      // Risalgo la catena dei padri fino alla macro, raccogliendo le etichette.
+      const rami = [row.label_it];
+      let padre = byCode.get(row.parent_code);
+      while (padre && padre.parent_code) {
+        rami.unshift(padre.label_it);
+        padre = byCode.get(padre.parent_code);
       }
+      // Padre mancante: la punta NON viene ingoiata in silenzio, viene contata.
+      if (!padre || !tree[padre.family] || !tree[padre.family][padre.code]) {
+        orfani.push(row.code);
+        return;
+      }
+      tree[padre.family][padre.code].categories.push({ code: row.code, label: rami.join(' › ') });
     });
+
+    // Ordine per lingua, non per codici dei caratteri (lezione della Sessione 3).
+    // Ordinare sull'etichetta col percorso tiene i fratelli adiacenti: senza,
+    // «Pelle › Conceria» e «Pelle › Pelletteria» si disperdono per sort_order.
+    Object.values(tree).forEach(macros => Object.values(macros).forEach(m =>
+      m.categories.sort((a, b) => a.label.localeCompare(b.label, currentLang()))));
+
+    if (orfani.length) console.warn('Tassonomia: punte senza macro raggiungibile, escluse dal menù:', orfani);
     TAXONOMY = tree;
   } catch (e) {
     console.error('Errore caricamento tassonomia:', e);
