@@ -968,7 +968,7 @@ async function loadTaxonomyFromAPI() {
     // Le macro sono i cassetti del menù, non voci scegliibili.
     rows.forEach(row => {
       if (!row.parent_code && tree[row.family]) {
-        tree[row.family][row.code] = { label: row.label_it, categories: [] };
+        tree[row.family][row.code] = { label: row.label || row.label_it, categories: [] };
       }
     });
 
@@ -976,10 +976,10 @@ async function loadTaxonomyFromAPI() {
       if (!row.parent_code) return;          // macro
       if (conFigli.has(row.code)) return;    // nodo di mezzo: non selezionabile
       // Risalgo la catena dei padri fino alla macro, raccogliendo le etichette.
-      const rami = [row.label_it];
+      const rami = [row.label || row.label_it];
       let padre = byCode.get(row.parent_code);
       while (padre && padre.parent_code) {
-        rami.unshift(padre.label_it);
+        rami.unshift(padre.label || padre.label_it);
         padre = byCode.get(padre.parent_code);
       }
       // Padre mancante: la punta NON viene ingoiata in silenzio, viene contata.
