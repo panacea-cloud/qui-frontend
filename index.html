@@ -527,14 +527,17 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   .scopri-overlay { top: 44px; bottom: 28px; }
   body.discover-open .site-footer { z-index: 1600; background: #fff; }
   .scopri-foot { display: none; }
-  .scopri-header { padding: 8px 14px; border-bottom: 0.5px solid #e0e0e0; }
-  .scopri-title { font-size: 12px; color: #2a2a6e; }
-  .scopri-close { width: 24px; height: 24px; font-size: 11px; }
-  .scopri-search { margin: 8px 14px; height: 28px; border-radius: 14px; padding: 0 10px; gap: 6px; max-width: 360px; }
-  .scopri-search input { font-size: 12px; }
-  .scopri-filters { padding: 0 14px 8px; gap: 4px; border-bottom: 0.5px solid #e0e0e0; }
+  /* una sola riga: titolo a sinistra, filtri al centro (sotto la ricerca), chiudi a destra.
+     La ricerca è quella della barra in alto: niente seconda casella. */
+  .scopri-overlay.open { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .scopri-header { display: contents; }
+  .scopri-title { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; padding: 8px 14px; font-size: 12px; color: #2a2a6e; }
+  .scopri-filters { grid-column: 2; grid-row: 1; align-self: center; padding: 8px 0; gap: 4px; }
+  .scopri-close { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; margin-right: 14px; width: 24px; height: 24px; font-size: 11px; }
+  .scopri-search { display: none; }
   .scopri-filter-btn { padding: 4px 10px; }
-  .scopri-list { flex-direction: row; flex-wrap: wrap; padding: 12px 14px 40px; gap: 12px; align-content: flex-start; }
+  .scopri-list { grid-column: 1 / -1; grid-row: 2; border-top: 0.5px solid #e0e0e0;
+    flex-direction: row; flex-wrap: wrap; padding: 12px 14px 40px; gap: 12px; align-content: flex-start; }
   #scopri-overlay .scopri-section { width: 100%; font-size: 10px; padding: 4px 0 0; }
   #scopri-overlay .scopri-card { height: 240px; width: 200px; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.10); }
   #scopri-overlay .scopri-card-img-placeholder { font-size: 32px; }
@@ -2278,7 +2281,16 @@ const DISCOVER_PATH = '/discover';
 function showScopri(on) {
   document.getElementById('scopri-overlay').classList.toggle('open', on);
   document.body.classList.toggle('discover-open', on);
-  if (on) renderScopri();
+  if (!on) return;
+  // Su computer Discover usa la ricerca della barra in alto: il testo già scritto vale anche qui.
+  const top = document.getElementById('search-input-desktop');
+  const si = document.getElementById('scopri-input');
+  if (window.matchMedia('(min-width: 681px)').matches && top && si.value !== top.value) {
+    si.value = top.value;
+    si.dispatchEvent(new Event('input'));
+  } else {
+    renderScopri();
+  }
 }
 function scopriIsOpen() { return document.getElementById('scopri-overlay').classList.contains('open'); }
 function openScopri() {
@@ -2449,6 +2461,12 @@ async function applySearch(raw) {
   if (!el) return;
   el.addEventListener('input', function() {
     const v = this.value;
+    // Con Discover aperto la stessa ricerca filtra anche le schede di Discover.
+    if (scopriIsOpen()) {
+      const si = document.getElementById('scopri-input');
+      si.value = v;
+      si.dispatchEvent(new Event('input'));
+    }
     clearTimeout(searchTimer);
     clearTimeout(searchLogTimer);
     searchTimer = setTimeout(() => applySearch(v), 160);
@@ -2458,6 +2476,7 @@ async function applySearch(raw) {
     searchLogTimer = setTimeout(() => {
       const q = (v || '').trim().toLowerCase();
       if (q.length < 3) return;
+      if (scopriIsOpen()) return;   // con Discover aperto la registra già Discover: una volta sola
       fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}&log=1`)
         .catch(() => {});
     }, 1400);
