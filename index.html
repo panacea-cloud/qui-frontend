@@ -1764,7 +1764,7 @@ const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Espe
 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
 L.control.zoom({ position: 'topleft' }).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', {
   attribution: '© OpenStreetMap © CARTO', maxZoom: 19
 }).addTo(map);
 
@@ -2000,7 +2000,7 @@ function openModal() {
   if (!modalMap) {
     const center = map.getCenter();
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([center.lat, center.lng], 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(modalMap);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', { maxZoom: 19 }).addTo(modalMap);
     if (isAdmin) modalMap.on('click', e => setPickedLocation(e.latlng.lat, e.latlng.lng));
   } else {
     modalMap.setView(map.getCenter(), 15);
@@ -2044,7 +2044,7 @@ function editListing(id) {
 
   if (!modalMap) {
     modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([l.lat, l.lng], 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(modalMap);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965' { maxZoom: 19 }).addTo(modalMap);
   } else {
     modalMap.setView([l.lat, l.lng], 15);
   }
