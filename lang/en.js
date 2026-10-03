@@ -99,6 +99,7 @@ I18N.register('en', {
   'listing.notfound': 'Listing not found or no longer available.',
   'listing.backtomap': '← Back to map',
   'listing.title.fallback': 'Listing',
+  'listing.zone': 'Approximate area · exact location after unlocking',
   'listing.delete.confirm': 'Delete this listing?',
   'list.empty': 'No listings found.',
   'price.free': 'Free',

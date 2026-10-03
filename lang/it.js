@@ -99,6 +99,7 @@ I18N.register('it', {
   'listing.notfound': 'Annuncio non trovato o non più disponibile.',
   'listing.backtomap': '← Torna alla mappa',
   'listing.title.fallback': 'Annuncio',
+  'listing.zone': 'Zona indicativa · posizione esatta dopo lo sblocco',
   'listing.delete.confirm': 'Eliminare questo annuncio?',
   'list.empty': 'Nessun annuncio trovato.',
   'price.free': 'Gratis',
