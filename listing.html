@@ -101,7 +101,9 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script>
-const API = 'https://qui-backend-production.up.railway.app';
+// Questa pagina la serve qui-backend stesso (listing.ilqui.com): i dati si chiedono
+// allo stesso indirizzo, così il browser non blocca la richiesta (CORS).
+const API = location.origin;
 const PRODUCT_ID = '{{PRODUCT_ID}}';
 const ENTITY_ID  = '{{ENTITY_ID}}';
 
