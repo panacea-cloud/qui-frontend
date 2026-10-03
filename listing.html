@@ -19,27 +19,114 @@
 <meta name="twitter:description" content="{{META_DESCRIPTION}}"/>
 <meta name="twitter:image" content="{{OG_IMAGE}}"/>
 
-<script src="/i18n.js?v=5"></script>
+<script src="/i18n.js?v=6"></script>
 <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; background: #f5f5f7; min-height: 100%; }
 
-.topbar {
-  height: 48px; background: #fff; border-bottom: 0.5px solid #e0e0e0;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; position: sticky; top: 0; z-index: 100;
+/* ── La mappa è lo sfondo della pagina: occupa tutto lo schermo e resta ferma,
+   la scheda dell'annuncio scorre sopra. La zona indicativa sta nello spazio libero in alto. */
+.bg-map { position: fixed; top: 44px; left: 0; right: 0; bottom: 0; z-index: 0; background: #f5f5f7; }
+@media (max-width: 680px) { .bg-map { top: 0; } }
+.zone-label {
+  white-space: nowrap; font-size: 11px; font-weight: 600; color: #2a2a6e; background: #fff;
+  padding: 4px 9px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.12);
+  transform: translate(-50%, 8px); display: inline-block;
 }
-.topbar-logo { width: 28px; height: 28px; object-fit: contain; }
-.topbar-back {
-  font-size: 12px; font-weight: 600; color: #2a2a6e; cursor: pointer;
-  background: none; border: none; font-family: inherit; display: flex; align-items: center; gap: 4px;
-  text-decoration: none;
-}
-.topbar-back:hover { opacity: 0.7; }
+.leaflet-control-zoom { display: none !important; }   /* come nella mappa principale */
+@media (max-width: 680px) { .bg-map .leaflet-top { top: 64px; } }   /* sotto la ricerca */
 
-.page { max-width: 640px; margin: 0 auto; padding: 0 0 60px; }
+/* ── Struttura identica alla pagina principale ──────────────────────────────
+   Computer: barra in alto (logo · ricerca · accesso) e piè di pagina in fondo.
+   Telefono: ricerca in alto e barra di navigazione in basso.
+   I pulsanti portano alla pagina principale, che apre ciò che serve. */
+.topbar {
+  height: 44px; border-bottom: 0.5px solid #e0e0e0;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; padding: 0 14px;
+  background: #fff; position: sticky; top: 0; z-index: 100;
+}
+#topbar-auth { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.topbar-logo-link { display: flex; width: 28px; height: 28px; }
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+.topbar-logo-fallback {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: 1.5px solid #2a2a6e; border-radius: 50%;
+  align-items: center; justify-content: center;
+}
+.search-bar {
+  flex: 0 1 180px; height: 28px; background: #f5f5f5; border-radius: 14px;
+  border: 0.5px solid #e0e0e0; display: flex; align-items: center;
+  padding: 0 10px; gap: 6px; font-size: 12px; color: #888;
+}
+.add-btn {
+  background: #2a2a6e; color: #fff; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: none; font-family: inherit; text-decoration: none;
+}
+.add-btn:hover { opacity: 0.88; }
+.auth-btn {
+  background: transparent; color: #2a2a6e; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: 1px solid #2a2a6e; font-family: inherit; text-decoration: none;
+}
+.auth-btn:hover { background: #f0f0fa; }
+.profile-btn { display: flex; align-items: center; padding: 4px; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 4px; align-self: flex-start;
+  font-size: 12px; font-weight: 600; color: #2a2a6e; text-decoration: none;
+}
+.back-link:hover { opacity: 0.7; }
+
+.mobile-search, .mobile-navbar { display: none; }
+@media (max-width: 680px) {
+  .topbar { display: none; }
+  .mobile-search {
+    position: fixed; top: 14px; left: 14px; right: 14px; height: 44px;
+    background: #fff; border-radius: 22px; border: 0.5px solid #e0e0e0;
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    font-size: 13px; color: #888; z-index: 1100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.10);
+  }
+  .mobile-navbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+    height: 60px; background: #fff; border-top: 0.5px solid #e8e8e8;
+    align-items: center; justify-content: space-around; z-index: 900;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 500; color: #2a2a6e; cursor: pointer; flex: 1;
+    padding: 8px 0; border: none; background: none; font-family: inherit; text-decoration: none;
+  }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item-center {
+    width: 48px; height: 48px; border-radius: 50%; background: #fff;
+    border: 1.5px solid #e0e0e0; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .nav-item-center img { width: 32px; height: 32px; object-fit: contain; }
+  .nav-item-center-fallback {
+    width: 28px; height: 28px; border: 1.5px solid #2a2a6e; border-radius: 50%;
+    align-items: center; justify-content: center;
+  }
+}
+
+/* La scheda parte a metà schermo e scorre sopra la mappa. La colonna della pagina
+   lascia passare i gesti verso la mappa: solo la scheda li trattiene. */
+.page {
+  position: relative; z-index: 1; pointer-events: none;
+  max-width: 640px; margin: 0 auto; padding: 40vh 16px 64px;
+}
+.card {
+  pointer-events: auto;
+  background: #fff; border: 0.5px solid #e4e4ea; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 2px 6px rgba(17, 17, 40, 0.06), 0 12px 32px rgba(17, 17, 40, 0.12);
+}
+@media (max-width: 680px) { .page { padding: 40vh 0 72px; } .card { border-radius: 16px 16px 0 0; } }
 
 .state-box { padding: 60px 20px; text-align: center; color: #aaa; font-size: 13px; }
 .spinner { width: 22px; height: 22px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
@@ -47,9 +134,9 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 
 .photos { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; background: #0a0a1a; }
 .photos img { width: 100%; flex-shrink: 0; scroll-snap-align: start; height: 320px; object-fit: contain; background: #0a0a1a; }
-.photos-placeholder {
-  width: 100%; height: 320px; background: #0a0a1a;
-  display: flex; align-items: center; justify-content: center; color: #555; font-size: 56px;
+.photos-placeholder {   /* rete di sicurezza: un annuncio pubblicato ha sempre una foto */
+  width: 100%; height: 140px; background: #eef0f5;
+  display: flex; align-items: center; justify-content: center; color: #b4b8c8;
 }
 
 .body-content { background: #fff; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -81,32 +168,74 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
   padding: 10px 12px; font-size: 12px; color: #795548; line-height: 1.5; margin-top: 4px;
 }
 
-.map-preview { height: 200px; border-radius: 10px; overflow: hidden; border: 0.5px solid #e0e0e0; margin-top: 8px; }
 
 .review-section { border-top: 0.5px solid #f0f0f0; padding-top: 14px; margin-top: 6px; }
+.review-section:empty { display: none; }   /* senza recensioni non resta una riga vuota */
 
-/* Piè di pagina: stessi elementi e stesso stile della pagina principale, ma nel flusso
-   della pagina (non fisso) e visibile anche sul telefono. */
+/* Piè di pagina come nella pagina principale: fisso in fondo, sul telefono non c'è. */
 .site-footer {
-  max-width: 640px; margin: 0 auto; padding: 14px 16px 24px;
-  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-  font-size: 10px; color: #2a2a6e; gap: 12px;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 28px; background: rgba(245, 245, 247, 0.94);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #2a2a6e; z-index: 50; gap: 12px;
 }
 .site-footer a { color: #2a2a6e; text-decoration: none; }
 .site-footer a:hover { color: #555; }
+@media (max-width: 680px) { .site-footer { display: none; } }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <a class="topbar-back" href="/"><span>← <span data-i18n="nav.map">Mappa</span></span></a>
-  <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png" class="topbar-logo" alt="QUI"/>
-  <div style="width:60px"></div>
+  <a class="topbar-logo-link" href="/?add=1" title="Pubblica un annuncio" data-i18n-title="listing.publish">
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png" class="topbar-logo" alt="QUI"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <span class="topbar-logo-fallback" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+        <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+      </svg>
+    </span>
+  </a>
+  <form class="search-bar" action="/" method="get" role="search">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input name="q" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
+  </form>
+  <div id="topbar-auth"></div>
 </div>
 
-<div class="page" id="page-content">
-  <div class="state-box"><div class="spinner"></div><span data-i18n="common.loading">Caricamento…</span></div>
+<form class="mobile-search" action="/" method="get" role="search">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <input name="q" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
+</form>
+
+<div id="bg-map" class="bg-map"></div>
+
+<div class="page">
+  <div id="page-content">
+    <div class="card"><div class="state-box"><div class="spinner"></div><span data-i18n="common.loading">Caricamento…</span></div></div>
+  </div>
 </div>
+
+<nav class="mobile-navbar">
+  <a class="nav-item" href="/?login=1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span id="nav-profile-label" data-i18n="nav.login">Accedi</span>
+  </a>
+  <a class="nav-item-center" href="/?add=1" aria-label="Pubblica annuncio" data-i18n-aria-label="nav.publish">
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png" alt="QUI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <span class="nav-item-center-fallback" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+        <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+      </svg>
+    </span>
+  </a>
+  <a class="nav-item" href="/discover">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span data-i18n="search.discover">Scopri</span>
+  </a>
+</nav>
 
 <footer class="site-footer">
   <span>© 2026 QUI</span>
@@ -150,7 +279,7 @@ async function loadListing() {
     render(l);
   } catch (e) {
     document.getElementById('page-content').innerHTML =
-      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="/" style="justify-content:center">${esc(I18N.t('listing.backtomap'))}</a></div>`;
+      `<div class="card"><div class="body-content">${backLink()}<div class="state-box">⚠️ ${esc(e.message)}</div></div></div>`;
   }
 }
 
@@ -159,7 +288,7 @@ function render(l) {
   const photos = l.photos || [];
   const photosHTML = photos.length
     ? `<div class="photos">${photos.map(url => `<img src="${esc(url)}" alt="${esc(I18N.t('common.photo'))}"/>`).join('')}</div>`
-    : `<div class="photos-placeholder">📦</div>`;
+    : `<div class="photos-placeholder"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg></div>`;
 
   const price = l.price === 0 ? I18N.t('price.free') : (l.price != null ? `€${l.price}` : '');
   const cat = l.category_label || '';
@@ -171,8 +300,10 @@ function render(l) {
   document.title = `${l.title || I18N.t('listing.title.fallback')} — QUI`;
 
   document.getElementById('page-content').innerHTML = `
+    <div class="card">
     ${photosHTML}
     <div class="body-content">
+      ${backLink()}
       <div class="type-badge ${esc(family)}">${esc(FAMILIES.includes(family) ? I18N.t('family.' + family) : family)}</div>
       <div class="listing-title">${title}${soldOut ? ` <span class="badge-soldout">${esc(I18N.t('listing.soldout'))}</span>` : ''}</div>
       ${l.entity_name ? `<div class="listing-entity">${esc(l.entity_name)}</div>` : ''}
@@ -185,19 +316,15 @@ function render(l) {
       ${l.stars_avg ? `<div class="listing-stars">★ ${l.stars_avg} <span style="color:#aaa">(${esc(I18N.tn('reviews.count', l.stars_count || 0))})</span></div>` : ''}
       <button class="unlock-btn" id="unlock-btn">${esc(I18N.t('unlock.btn'))}</button>
       <div class="disclaimer-box">${esc(I18N.t('disclaimer.contact'))}</div>
-      ${(l.lat && l.lng) ? `<div class="map-preview" id="map-preview"></div>` : ''}
       <div class="review-section" id="review-section"></div>
+    </div>
     </div>
   `;
 
   // Sblocco contatto e recensioni restano entity-level (D2)
   document.getElementById('unlock-btn').addEventListener('click', () => unlock(l.entity_id));
 
-  if (l.lat && l.lng) {
-    const m = L.map('map-preview', { zoomControl: false, dragging: false, scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', { maxZoom: 19 }).addTo(m);
-    L.circleMarker([l.lat, l.lng], { radius: 9, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2 }).addTo(m);
-  }
+  showZone(l);
 
   if (authToken) loadReviewSection(l.entity_id);
 }
@@ -261,6 +388,83 @@ async function submitReview(listingId, stars) {
   } catch (e) { alert(I18N.t('common.error') + ': ' + e.message); }
 }
 
+function backLink() {
+  return `<a class="back-link" href="/">← ${esc(I18N.t('nav.map'))}</a>`;
+}
+
+// ── Mappa di sfondo con la zona indicativa ──
+// La posizione esatta si vede solo dopo l'acquisto del contatto: qui c'è solo una zona
+// di 500 m di raggio. Il centro lo calcola il server (sfocatura); la pagina disegna la zona
+// attorno al punto che riceve e non mostra mai un punto preciso.
+const ZONE_RADIUS_M = 500;
+let bgMap = null, zoneLayer = null;
+
+function zoneTargetY(h) {
+  // Altezza a cui sta il centro della zona: in mezzo allo spazio libero sopra la scheda.
+  const free = window.innerHeight * 0.40;
+  if (window.matchMedia('(max-width: 680px)').matches) return (58 + free) / 2;   // sotto la ricerca
+  return free / 2;   // la mappa parte già sotto la barra in alto
+}
+
+function showZone(l) {
+  if (!(l.lat && l.lng && window.L)) return;   // senza posizione o senza libreria: solo la scheda
+  const center = [l.lat, l.lng];
+  if (!bgMap) {
+    bgMap = L.map('bg-map', {
+      zoomControl: false, scrollWheelZoom: false,   // la rotella scorre la pagina, non la mappa
+      attributionControl: false
+    });
+    // Crediti della mappa in alto a destra: in basso li coprirebbero la scheda e il piè di pagina.
+    L.control.attribution({ position: 'topright', prefix: '<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>' }).addTo(bgMap);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', {
+      attribution: '© OpenStreetMap contributors, © CARTO', maxZoom: 19
+    }).addTo(bgMap);
+  }
+  bgMap.setView(center, 14, { animate: false });
+  const h = bgMap.getSize().y;
+  bgMap.panBy([0, h / 2 - zoneTargetY(h)], { animate: false });
+
+  if (zoneLayer) zoneLayer.remove();
+  const south = [l.lat - ZONE_RADIUS_M / 111320, l.lng];
+  zoneLayer = L.layerGroup([
+    L.circle(center, {
+      radius: ZONE_RADIUS_M, interactive: false,
+      color: '#2a2a6e', weight: 1.5, opacity: 0.55, dashArray: '5 5',
+      fillColor: '#2a2a6e', fillOpacity: 0.10
+    }),
+    L.marker(south, {
+      interactive: false, keyboard: false,
+      icon: L.divIcon({ className: '', iconSize: null, html: `<span class="zone-label">${esc(I18N.t('listing.zone'))}</span>` })
+    })
+  ]).addTo(bgMap);
+}
+
+// ── Accesso: stesso sito della mappa, quindi stesso login ──
+let authUser;   // undefined = non ancora chiesto · null = non collegato · oggetto = collegato
+async function loadAuthUser() {
+  authUser = null;
+  if (!authToken) return;
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+    if (r.ok) authUser = await r.json();
+  } catch {}
+}
+function renderAuthUI() {
+  const el = document.getElementById('topbar-auth');
+  const label = document.getElementById('nav-profile-label');
+  if (authUser) {
+    el.innerHTML = `
+      <a class="add-btn" href="/?add=1">${esc(I18N.t('nav.add'))}</a>
+      <a class="profile-btn" href="/?login=1" title="${esc(I18N.t('nav.profile'))}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>`;
+    if (label) { label.removeAttribute('data-i18n'); label.textContent = (authUser.email || '').split('@')[0]; }
+  } else {
+    el.innerHTML = `<a class="auth-btn" href="/?login=1">${esc(I18N.t('nav.login'))}</a>`;
+    if (label) I18N.set(label, 'nav.login');
+  }
+}
+
 // ── Lingua ──
 function initLangSelect() {
   const sel = document.getElementById('lang-select');
@@ -277,10 +481,13 @@ window.addEventListener('qui:langchange', function () {
   url.searchParams.set('lang', I18N.getLang());
   history.replaceState(null, '', url);
   initLangSelect();
+  renderAuthUI();
   loadListing();
 });
 
 initLangSelect();
+renderAuthUI();
+loadAuthUser().then(renderAuthUI);
 loadListing();
 </script>
 </body>

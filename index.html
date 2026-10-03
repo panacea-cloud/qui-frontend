@@ -630,7 +630,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .leaflet-control-zoom { display: none !important; }
 </style>
-<script src="/i18n.js?v=5"></script>
+<script src="/i18n.js?v=6"></script>
 </head>
 <body>
 <div class="app">
@@ -2496,7 +2496,35 @@ const pendingOpenAdd = new URLSearchParams(location.search).get('add') === '1';
   showScopri(true);
 })();
 loadTaxonomyFromAPI();
-loadAuthUser().then(() => { load(); if (pendingOpenAdd) onAddClick(); });
+// Le altre pagine (es. la pagina dell'annuncio) portano qui con ?login=1 o ?q=<testo>:
+// si apre l'accesso o il profilo, oppure si cerca il testo sulla mappa.
+const startParams = new URLSearchParams(location.search);
+const pendingLogin = startParams.get('login') === '1';
+const pendingQuery = (startParams.get('q') || '').trim();
+if (pendingLogin || pendingQuery) {
+  startParams.delete('login'); startParams.delete('q');
+  const rest = startParams.toString();
+  history.replaceState(history.state, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+}
+loadAuthUser().then(() => {
+  load();
+  if (pendingOpenAdd) onAddClick();
+  if (pendingLogin) showMobileAuth();
+  if (pendingQuery) {
+    const waitForList = setInterval(() => {
+      if (!listingsLoaded) return;
+      clearInterval(waitForList);
+      const desktop = window.matchMedia('(min-width: 681px)').matches;
+      ['search-input-desktop', 'search-input-mobile'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = pendingQuery;
+      });
+      document.getElementById(desktop ? 'search-input-desktop' : 'search-input-mobile')
+        .dispatchEvent(new Event('input'));
+    }, 200);
+    setTimeout(() => clearInterval(waitForList), 10000);
+  }
+});
 </script>
 </body>
 </html>
