@@ -1763,9 +1763,9 @@ const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8e
 const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
-L.control.zoom({ position: 'topleft' }).addTo(map);
+L.control.zoom({ position: 'topleft' }).addTo(map); map.attributionControl.setPosition('bottomleft');
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', {
-  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+  attribution: '© OpenStreetMap contributors, © CARTO' maxZoom: 19
 }).addTo(map);
 
 let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
