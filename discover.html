@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUI</title>
+<meta name="robots" content="noindex"/>
+<script>
+/* ilqui.com/discover: Discover vive in index.html. Questa pagina riporta lì
+   con ?view=discover, e index.html rimette nella barra l'indirizzo /discover. */
+(function () {
+  var q = location.search ? '&' + location.search.slice(1) : '';
+  location.replace('/?view=discover' + q + location.hash);
+})();
+</script>
+</head>
+<body></body>
+</html>

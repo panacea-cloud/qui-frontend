@@ -75,6 +75,14 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .filter-btn.active { background: #2a2a6e; border-color: #2a2a6e; color: #fff; }
 .filter-btn:hover:not(.active) { background: #f5f5f5; }
+/* nome della famiglia al passaggio del mouse */
+.sidebar-filters .filter-btn { position: relative; }
+.sidebar-filters .filter-btn[aria-label]:hover::after {
+  content: attr(aria-label); position: absolute; top: calc(100% + 5px); left: 50%;
+  transform: translateX(-50%); background: #2a2a6e; color: #fff;
+  font-size: 10px; font-weight: 500; line-height: 1; white-space: nowrap;
+  padding: 5px 7px; border-radius: 5px; pointer-events: none; z-index: 10;
+}
 .scopri-sidebar-btn {
   width: 100%; padding: 7px 10px; border: none; background: none;
   font-family: inherit; font-size: 11px; font-weight: 600; color: #2a2a6e;
@@ -513,10 +521,30 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   .scopri-card { height: 85dvh; }
   .scopri-list { padding-bottom: 80px; }
 }
-/* desktop: card più basse, griglia */
+/* desktop: Discover sta sotto la stessa barra in alto della pagina principale,
+   con le stesse misure dei testi, e lascia vedere il piè di pagina */
 @media (min-width: 681px) {
-  .scopri-list { flex-direction: row; flex-wrap: wrap; padding: 16px; gap: 16px; align-content: flex-start; }
-  .scopri-card { height: 340px; width: calc(50% - 8px); }
+  .scopri-overlay { top: 44px; bottom: 28px; }
+  body.discover-open .site-footer { z-index: 1600; background: #fff; }
+  .scopri-foot { display: none; }
+  .scopri-header { padding: 8px 14px; border-bottom: 0.5px solid #e0e0e0; }
+  .scopri-title { font-size: 12px; color: #2a2a6e; }
+  .scopri-close { width: 24px; height: 24px; font-size: 11px; }
+  .scopri-search { margin: 8px 14px; height: 28px; border-radius: 14px; padding: 0 10px; gap: 6px; max-width: 360px; }
+  .scopri-search input { font-size: 12px; }
+  .scopri-filters { padding: 0 14px 8px; gap: 4px; border-bottom: 0.5px solid #e0e0e0; }
+  .scopri-filter-btn { padding: 4px 10px; }
+  .scopri-list { flex-direction: row; flex-wrap: wrap; padding: 12px 14px 40px; gap: 12px; align-content: flex-start; }
+  #scopri-overlay .scopri-section { width: 100%; font-size: 10px; padding: 4px 0 0; }
+  #scopri-overlay .scopri-card { height: 240px; width: 200px; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.10); }
+  #scopri-overlay .scopri-card-img-placeholder { font-size: 32px; }
+  #scopri-overlay .scopri-card-overlay { padding: 16px 10px 10px; }
+  #scopri-overlay .scopri-card-type { font-size: 9px; margin-bottom: 3px; }
+  #scopri-overlay .scopri-card-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  #scopri-overlay .scopri-card-desc { font-size: 11px; line-height: 1.4; margin-bottom: 4px; }
+  #scopri-overlay .scopri-card-price { font-size: 12px; margin-bottom: 2px; }
+  #scopri-overlay .scopri-card-meta { font-size: 10px; }
+  .scopri-empty { width: 100%; }
 }
 .scopri-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .scopri-card-img-placeholder {
@@ -626,12 +654,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <div class="body">
     <div class="sidebar">
       <div class="sidebar-filters" id="filters-desktop">
-        <div class="filter-btn active" data-type="all" title="Tutti" data-i18n-title="filter.all">
+        <div class="filter-btn active" data-type="all" aria-label="Tutti" data-i18n-aria-label="filter.all">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         </div>
-        <div class="filter-btn" data-type="product" title="Prodotti" data-i18n-title="family.products"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
-        <div class="filter-btn" data-type="service" title="Servizi" data-i18n-title="family.services"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
-        <div class="filter-btn" data-type="experience" title="Esperienze" data-i18n-title="family.experiences"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
+        <div class="filter-btn" data-type="product" aria-label="Prodotti" data-i18n-aria-label="family.products"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
+        <div class="filter-btn" data-type="service" aria-label="Servizi" data-i18n-aria-label="family.services"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
+        <div class="filter-btn" data-type="experience" aria-label="Esperienze" data-i18n-aria-label="family.experiences"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
       </div>
       <button class="scopri-sidebar-btn" onclick="openScopri()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -844,7 +872,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   </div>
   <div class="scopri-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="scopri-input" type="text" autocomplete="off" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder" style="font-size:16px"/>
+    <input id="scopri-input" type="text" autocomplete="off" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder"/>
   </div>
   <div class="scopri-filters">
     <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')" data-i18n="filter.all">Tutti</button>
@@ -853,7 +881,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span><span data-i18n="family.experiences">Esperienze</span></button>
   </div>
   <div class="scopri-list" id="scopri-list"></div>
-<div style="text-align:center;font-size:11px;color:#888;padding:16px 0 80px">
+<div class="scopri-foot" style="text-align:center;font-size:11px;color:#888;padding:16px 0 80px">
   <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" style="color:#888;text-decoration:none" data-i18n="footer.privacy">Privacy Policy</a>
   <span style="margin:0 8px">·</span>
   <span>© 2026 QUI</span>
@@ -1768,6 +1796,7 @@ async function load() {
     allListings = Array.isArray(d) ? d : (d.listings || []);
     listingsLoaded = true;
     render();
+    if (scopriIsOpen()) renderScopri();
   } catch(e) {
     const html = `<div class="state-box">⚠️ ${esc(e.message)}</div>`;
     document.getElementById('list-desktop').innerHTML = html;
@@ -2242,11 +2271,28 @@ let scopriFilter = 'all';
 let scopriCodes = new Set();
 let scopriTimer = null, scopriLogTimer = null, scopriSeq = 0;
 
-function openScopri() {
-  document.getElementById('scopri-overlay').classList.add('open');
-  renderScopri();
+// Discover ha un indirizzo suo, /discover: si può condividere, ricaricare e
+// chiudere col tasto «indietro». Il file discover.html riporta qui con
+// ?view=discover, perché il server non serve index.html per indirizzi diversi.
+const DISCOVER_PATH = '/discover';
+function showScopri(on) {
+  document.getElementById('scopri-overlay').classList.toggle('open', on);
+  document.body.classList.toggle('discover-open', on);
+  if (on) renderScopri();
 }
-function closeScopri() { document.getElementById('scopri-overlay').classList.remove('open'); }
+function scopriIsOpen() { return document.getElementById('scopri-overlay').classList.contains('open'); }
+function openScopri() {
+  showScopri(true);
+  if (location.pathname !== DISCOVER_PATH) history.pushState({ quiView: 'discover' }, '', DISCOVER_PATH);
+}
+function closeScopri() {
+  showScopri(false);
+  if (location.pathname === DISCOVER_PATH) {
+    if (history.state && history.state.quiView === 'discover') history.back();
+    else history.replaceState(null, '', '/');
+  }
+}
+window.addEventListener('popstate', () => showScopri(location.pathname === DISCOVER_PATH));
 
 function setScopriFilter(btn, type) {
   scopriFilter = type;
@@ -2306,7 +2352,7 @@ function renderScopri() {
   const total = groups.reduce((n, g) => n + g.list.length, 0);
 
   if (!total) {
-    el.innerHTML = `<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">${I18N.html('scopri.noresults')}</div>`;
+    el.innerHTML = `<div class="state-box scopri-empty">${I18N.html('scopri.noresults')}</div>`;
     return;
   }
 
@@ -2420,6 +2466,14 @@ async function applySearch(raw) {
 
 // ── INIT ──
 const pendingOpenAdd = new URLSearchParams(location.search).get('add') === '1';
+(function apriDiscoverDaIndirizzo() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('view') !== 'discover' && location.pathname !== DISCOVER_PATH) return;
+  p.delete('view');
+  const q = p.toString();
+  history.replaceState(null, '', DISCOVER_PATH + (q ? '?' + q : '') + location.hash);
+  showScopri(true);
+})();
 loadTaxonomyFromAPI();
 loadAuthUser().then(() => { load(); if (pendingOpenAdd) onAddClick(); });
 </script>
