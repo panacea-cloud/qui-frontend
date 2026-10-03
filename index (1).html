@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QUI</title>
+<meta name="google-site-verification" content="e3chVR3y22jXpc5dvh7PrwKo2o23rkmk0RkG8dzUrlA" />
+<meta name="description" content="QUI è la piattaforma geospaziale per connettere il mondo. Scopri e aggiungi prodotti, servizi ed esperienze, vicini e lontani da te."/>
+<meta property="og:title" content="QUI"/>
+<meta property="og:description" content="QUI — la piattaforma geospaziale per connettere il mondo. Scopri cosa c'è vicino e lontano da te. Aggiungi il tuo."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.ilqui.com"/>
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"/>
+<link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon-16.png"/>
+<link rel="icon" type="image/png" sizes="32x32" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon-192.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/apple-touch-icon-180.png"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; color: #111; background: #fff; }
+.app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+
+/* topbar */
+.topbar {
+  height: 44px; border-bottom: 0.5px solid #e0e0e0;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; padding: 0 14px;
+  flex-shrink: 0; background: #fff; z-index: 100;
+}
+#topbar-auth { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.topbar-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+.topbar-logo-fallback {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: 1.5px solid #2a2a6e; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.search-bar {
+  flex: 0 1 180px; height: 28px; background: #f5f5f5; border-radius: 14px;
+  border: 0.5px solid #e0e0e0; display: flex; align-items: center;
+  padding: 0 10px; gap: 6px; font-size: 12px; color: #888;
+}
+.add-btn {
+  background: #2a2a6e; color: #fff; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: none; font-family: inherit;
+}
+.add-btn:hover { opacity: 0.88; }
+.auth-btn {
+  background: transparent; color: #2a2a6e; font-size: 11px; font-weight: 600;
+  padding: 5px 11px; border-radius: 6px; white-space: nowrap;
+  cursor: pointer; border: 1px solid #2a2a6e; font-family: inherit;
+}
+.auth-btn:hover { background: #f0f0fa; }
+
+/* body */
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* sidebar */
+.sidebar {
+  width: 205px; min-width: 205px; border-right: 0.5px solid #e0e0e0;
+  display: flex; flex-direction: column; overflow: hidden; background: #fff;
+}
+.sidebar-filters {
+  padding: 8px 10px; border-bottom: 0.5px solid #e0e0e0;
+  display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0;
+}
+.filter-btn {
+  width: 26px; height: 26px; border-radius: 6px; border: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; background: #fff; transition: all 0.1s;
+}
+.filter-btn.active { background: #2a2a6e; border-color: #2a2a6e; color: #fff; }
+.filter-btn:hover:not(.active) { background: #f5f5f5; }
+/* nome della famiglia al passaggio del mouse */
+.sidebar-filters .filter-btn { position: relative; }
+.sidebar-filters .filter-btn[aria-label]:hover::after {
+  content: attr(aria-label); position: absolute; top: calc(100% + 5px); left: 50%;
+  transform: translateX(-50%); background: #2a2a6e; color: #fff;
+  font-size: 10px; font-weight: 500; line-height: 1; white-space: nowrap;
+  padding: 5px 7px; border-radius: 5px; pointer-events: none; z-index: 10;
+}
+.scopri-sidebar-btn {
+  width: 100%; padding: 7px 10px; border: none; background: none;
+  font-family: inherit; font-size: 11px; font-weight: 600; color: #2a2a6e;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  border-bottom: 0.5px solid #e0e0e0; flex-shrink: 0;
+}
+.scopri-sidebar-btn:hover { background: #f5f5fa; }
+.sort-row {
+  padding: 6px 10px; font-size: 11px; color: #888;
+  border-bottom: 0.5px solid #e0e0e0; display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+}
+.listing-scroll { flex: 1; overflow-y: auto; }
+.listing-item {
+  display: flex; gap: 8px; padding: 8px 10px;
+  border-bottom: 0.5px solid #f0f0f0; cursor: pointer; transition: background 0.1s;
+}
+.listing-item:hover, .listing-item.selected { background: #f8f8f8; }
+.listing-item.selected { border-left: 2.5px solid #2a2a6e; padding-left: 7.5px; }
+.listing-dot {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
+}
+.dot-inner { width: 10px; height: 10px; border-radius: 50%; }
+.listing-info { flex: 1; min-width: 0; }
+.listing-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111; }
+.listing-meta { font-size: 10px; color: #888; margin-top: 1px; display: flex; gap: 4px; }
+.listing-price { font-size: 12px; font-weight: 500; color: #111; margin-top: 2px; }
+.listing-sub { font-size: 10px; color: #888; font-weight: 400; }
+.listing-expires { font-size: 9px; color: #e07030; font-weight: 500; margin-top: 1px; }
+
+.state-box { padding: 24px 10px; text-align: center; color: #aaa; font-size: 11px; line-height: 1.6; }
+.spinner { width: 20px; height: 20px; border: 2px solid #eee; border-top-color: #2a2a6e; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#map { flex: 1; z-index: 1; }
+
+.leaflet-popup-content-wrapper { border-radius: 10px !important; box-shadow: 0 3px 16px rgba(0,0,0,0.13) !important; padding: 0 !important; }
+.leaflet-popup-content { margin: 0 !important; min-width: 200px; }
+.popup-inner { padding: 12px 14px; }
+.popup-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+.popup-type.product    { color: #2a6aad; }
+.popup-type.service    { color: #2a7a4a; }
+.popup-type.experience { color: #a03060; }
+.popup-title { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 3px; }
+.popup-meta  { font-size: 11px; color: #888; margin-bottom: 10px; }
+.popup-btn {
+  width: 100%; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 7px; padding: 8px; font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.popup-btn:hover { opacity: .88; }
+.disclaimer-box {
+  background: #fff8e1; border: 0.5px solid #ffe082; border-radius: 8px;
+  padding: 8px 10px; font-size: 11px; color: #795548; line-height: 1.5; margin-top: 8px;
+}
+
+.map-legend {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(255,255,255,0.93); border-radius: 8px; padding: 8px 10px;
+  font-size: 10px; display: flex; flex-direction: column; gap: 5px;
+  border: 0.5px solid #e0e0e0; z-index: 500; box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+.legend-row { display: flex; align-items: center; gap: 6px; color: #333; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.map-pin { border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.15); transition: transform .15s; cursor: pointer; }
+.map-pin:hover { transform: scale(1.35); }
+.map-pin.selected { transform: scale(1.5); box-shadow: 0 0 0 3px rgba(42,42,110,.25); }
+
+/* ── AUTH MODAL ── */
+.auth-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 4000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.auth-overlay.open { display: flex; }
+.auth-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 380px;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.auth-header {
+  background: #2a2a6e; padding: 20px; display: flex;
+  align-items: center; justify-content: space-between;
+}
+.auth-header-title { font-size: 15px; font-weight: 600; color: #fff; }
+.auth-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.auth-tabs { display: flex; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+.auth-tab {
+  flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: #888; background: #fff; border: none; font-family: inherit;
+}
+.auth-tab.active { background: #2a2a6e; color: #fff; }
+.auth-field { display: flex; flex-direction: column; gap: 5px; }
+.auth-field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
+.auth-field input {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 13px; font-family: inherit; color: #111; outline: none;
+  transition: border-color .15s; background: #fafafa;
+}
+.auth-field input:focus { border-color: #2a2a6e; background: #fff; }
+.auth-submit {
+  width: 100%; padding: 11px; border: none; border-radius: 8px;
+  background: #2a2a6e; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; margin-top: 4px;
+}
+.auth-submit:hover { opacity: .88; }
+.auth-submit:disabled { opacity: .45; cursor: not-allowed; }
+.auth-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; }
+.auth-info { font-size: 11px; color: #888; line-height: 1.5; text-align: center; }
+
+/* ── CONTACT MODAL ── */
+.contact-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 3000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.contact-overlay.open { display: flex; }
+.contact-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 400px;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.contact-header {
+  background: #2a2a6e; padding: 20px 20px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.contact-header-top { display: flex; align-items: center; justify-content: space-between; }
+.contact-check { font-size: 22px; }
+.contact-header-title { font-size: 14px; font-weight: 600; color: #fff; }
+.contact-header-sub { font-size: 11px; color: rgba(255,255,255,0.65); }
+.contact-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.contact-row { display: flex; flex-direction: column; gap: 4px; }
+.contact-label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
+.contact-value {
+  font-size: 13px; font-weight: 500; color: #2a2a6e; word-break: break-all;
+  padding: 8px 11px; background: #f0f0fa; border-radius: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.copy-btn {
+  font-size: 10px; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 5px; padding: 3px 8px; cursor: pointer;
+  font-family: inherit; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+}
+.copy-btn:hover { opacity: .85; }
+.contact-footer { padding: 0 20px 18px; }
+.contact-close-btn {
+  width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: #555;
+}
+.contact-close-btn:hover { background: #f5f5f5; }
+.contact-loading {
+  padding: 32px 20px; text-align: center; color: #888; font-size: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+
+/* ── DETAIL MODAL ── */
+.detail-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.5); z-index: 2500;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.detail-overlay.open { display: flex; }
+.detail-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 460px;
+  max-height: 90dvh; overflow-y: auto; position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.detail-photos { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; }
+.detail-photos img { width: 100%; flex-shrink: 0; scroll-snap-align: start; height: 220px; object-fit: contain; background: #0a0a1a; }
+.detail-photos-placeholder {
+  width: 100%; height: 220px; background: #1a1a2e;
+  display: flex; align-items: center; justify-content: center; color: #555; font-size: 48px;
+}
+#detail-close-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.85); }
+.detail-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+.detail-type { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.detail-type.product    { color: #2a6aad; }
+.detail-type.service    { color: #2a7a4a; }
+.detail-type.experience { color: #a03060; }
+.detail-title { font-size: 18px; font-weight: 700; color: #111; line-height: 1.3; }
+.detail-meta { font-size: 12px; color: #888; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.detail-price { font-size: 16px; font-weight: 700; color: #2a2a6e; }
+.detail-desc { font-size: 13px; color: #555; line-height: 1.6; margin: 4px 0; }
+.detail-stars { font-size: 12px; color: #f5a623; }
+.claim-box { display: none; background: #fff8e6; border: 1px solid #f0d9a0; border-radius: 10px; padding: 12px; margin: 4px 0; }
+.claim-box.show { display: block; }
+.claim-box .claim-title { font-size: 13px; font-weight: 700; color: #8a6d1f; margin-bottom: 4px; }
+.claim-box .claim-text { font-size: 12px; color: #7a6535; line-height: 1.5; }
+.claim-box button { margin-top: 8px; width: 100%; padding: 9px; border: 0; border-radius: 8px;
+  background: #2a2a6e; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.claim-box button:disabled { opacity: .55; cursor: default; }
+
+/* ── MERCHANT MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 520px;
+  max-height: 90dvh; display: flex; flex-direction: column;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 0.5px solid #e0e0e0; flex-shrink: 0;
+}
+.modal-title { font-size: 14px; font-weight: 600; color: #111; }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 50%; border: none; background: #f0f0f0;
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #555;
+}
+.modal-close:hover { background: #e0e0e0; }
+.modal-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+.type-selector { display: flex; gap: 8px; }
+.type-opt {
+  flex: 1; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 10px 6px;
+  text-align: center; cursor: pointer; transition: all .15s;
+  font-size: 11px; color: #555; font-weight: 500;
+}
+.type-opt .type-dot { width: 12px; height: 12px; border-radius: 50%; margin: 0 auto 5px; }
+.type-opt.selected.product    { border-color: #a8c8f0; background: #ddeefa; color: #2a6aad; }
+.type-opt.selected.service    { border-color: #a8dfc0; background: #ddf3ea; color: #2a7a4a; }
+.type-opt.selected.experience { border-color: #f5b8c8; background: #fde8ef; color: #a03060; }
+.type-opt:hover:not(.selected) { background: #fafafa; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; font-weight: 600; color: #555; letter-spacing: .02em; }
+.field input, .field textarea, .field select {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 11px;
+  font-size: 12px; font-family: inherit; color: #111; outline: none;
+  transition: border-color .15s; background: #fafafa; width: 100%;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: #2a2a6e; background: #fff; }
+.field textarea { resize: vertical; min-height: 72px; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; }
+
+#modal-map { height: 160px; border-radius: 10px; border: 1px solid #e0e0e0; overflow: hidden; flex-shrink: 0; }
+.map-hint { font-size: 10px; color: #888; margin-top: 3px; }
+.loc-display {
+  font-size: 11px; background: #f5f5f5; border-radius: 7px; padding: 7px 10px;
+  color: #555; display: flex; align-items: center; gap: 6px;
+}
+.loc-dot { width: 8px; height: 8px; border-radius: 50%; background: #a8dfc0; flex-shrink: 0; }
+.loc-gps-btn {
+  margin-left: auto; font-size: 10px; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit; font-weight: 500;
+}
+
+.photo-upload-area {
+  border: 1.5px dashed #d0d0d0; border-radius: 10px; padding: 16px;
+  text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fafafa;
+}
+.photo-upload-area:hover { border-color: #2a2a6e; background: #f0f2ff; }
+.photo-upload-area input { display: none; }
+.photo-preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.photo-thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 0.5px solid #e0e0e0; }
+.photo-thumb-wrap { position: relative; display: inline-block; }
+.photo-remove {
+  position: absolute; top: -6px; right: -6px; width: 18px; height: 18px;
+  border-radius: 50%; background: #e53935; color: #fff; border: none;
+  font-size: 11px; cursor: pointer; line-height: 18px; text-align: center; padding: 0;
+}
+
+.modal-footer {
+  padding: 14px 18px; border-top: 0.5px solid #e0e0e0;
+  flex-shrink: 0; display: flex; gap: 8px;
+}
+.btn-cancel {
+  flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: #555;
+}
+.btn-cancel:hover { background: #f5f5f5; }
+.btn-submit {
+  flex: 2; padding: 10px; border: none; border-radius: 8px; background: #2a2a6e;
+  color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; letter-spacing: .01em;
+}
+.btn-submit:hover { opacity: .88; }
+.btn-submit:disabled { opacity: .45; cursor: not-allowed; }
+
+.modal-success {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; text-align: center; gap: 10px;
+}
+.modal-success.show { display: flex; }
+.success-icon { font-size: 36px; }
+.success-title { font-size: 15px; font-weight: 600; color: #111; }
+.success-sub { font-size: 12px; color: #888; line-height: 1.5; }
+
+/* ── PROFILE MODAL ── */
+.profile-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,10,30,0.45); z-index: 3500;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.profile-overlay.open { display: flex; }
+.profile-modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 460px;
+  max-height: 90dvh; display: flex; flex-direction: column;
+  overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.profile-header {
+  background: #2a2a6e; padding: 20px;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.profile-header-info { display: flex; flex-direction: column; gap: 3px; }
+.profile-header-email { font-size: 13px; font-weight: 600; color: #fff; }
+.profile-header-tier { font-size: 11px; color: rgba(255,255,255,0.65); }
+.profile-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.profile-section-title {
+  font-size: 11px; font-weight: 600; color: #888; letter-spacing: .04em;
+  text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.profile-listing-card {
+  border: 0.5px solid #e0e0e0; border-radius: 10px; padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.profile-listing-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.profile-listing-title { font-size: 13px; font-weight: 500; color: #111; }
+.profile-listing-meta { font-size: 11px; color: #888; }
+.profile-listing-expires { font-size: 10px; color: #e07030; font-weight: 500; }
+.profile-delete-btn {
+  font-size: 10px; color: #c0392b; background: #fdf0f0; border: 0.5px solid #f5c0b8;
+  border-radius: 5px; padding: 3px 8px; cursor: pointer; font-family: inherit;
+  font-weight: 500; white-space: nowrap; flex-shrink: 0;
+}
+.profile-delete-btn:hover { background: #fbe0e0; }
+.profile-empty { font-size: 12px; color: #aaa; text-align: center; padding: 16px 0; }
+
+/* merchant profile fields */
+.merchant-section {
+  border: 0.5px solid #e0e0e0; border-radius: 12px; overflow: hidden;
+}
+.merchant-section-header {
+  background: #f8f8fc; padding: 10px 14px;
+  font-size: 11px; font-weight: 600; color: #2a2a6e;
+  border-bottom: 0.5px solid #e0e0e0; display: flex; align-items: center; gap: 6px;
+}
+.merchant-section-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.merchant-field { display: flex; flex-direction: column; gap: 4px; }
+.merchant-field label { font-size: 10px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
+.merchant-field input, .merchant-field textarea {
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 10px;
+  font-size: 12px; font-family: inherit; color: #111; outline: none;
+  background: #fafafa; width: 100%;
+}
+.merchant-field input:focus, .merchant-field textarea:focus { border-color: #2a2a6e; background: #fff; }
+.merchant-field textarea { resize: vertical; min-height: 60px; }
+.merchant-save-btn {
+  padding: 8px 14px; background: #2a2a6e; color: #fff; border: none;
+  border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer;
+  font-family: inherit; align-self: flex-end;
+}
+.merchant-save-btn:hover { opacity: .88; }
+.merchant-save-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* doc upload */
+.doc-upload-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border: 0.5px solid #e0e0e0; border-radius: 8px; gap: 8px;
+}
+.doc-upload-label { font-size: 11px; color: #555; font-weight: 500; flex: 1; }
+.doc-status { font-size: 10px; color: #aaa; }
+.doc-status.uploaded { color: #2a7a4a; font-weight: 600; }
+.doc-upload-btn {
+  font-size: 10px; background: #f0f0fa; color: #2a2a6e; border: 0.5px solid #c0c0e0;
+  border-radius: 5px; padding: 4px 9px; cursor: pointer; font-family: inherit;
+  font-weight: 500; white-space: nowrap; flex-shrink: 0;
+}
+.doc-upload-btn:hover { background: #e0e0f5; }
+.docs-verified-badge {
+  display: flex; align-items: center; gap: 6px; padding: 8px 10px;
+  background: #ddf3ea; border-radius: 8px; font-size: 11px; color: #2a7a4a; font-weight: 600;
+}
+
+.profile-footer { padding: 14px 16px; border-top: 0.5px solid #e0e0e0; flex-shrink: 0; }
+.profile-logout-btn {
+  width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; color: #c0392b;
+}
+.profile-logout-btn:hover { background: #fdf0f0; }
+
+/* ── SCOPRI OVERLAY ── */
+.scopri-overlay {
+  display: none; position: fixed; inset: 0;
+  background: #fff; z-index: 1500;
+  flex-direction: column; overflow: hidden;
+}
+.scopri-overlay.open { display: flex; }
+.scopri-header {
+  padding: 14px 16px 10px; border-bottom: 0.5px solid #e8e8e8;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.scopri-title { font-size: 15px; font-weight: 600; color: #111; }
+.scopri-close {
+  width: 30px; height: 30px; border-radius: 50%; border: none;
+  background: #f0f0f0; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.scopri-search {
+  margin: 10px 16px; height: 38px; background: #f5f5f5;
+  border-radius: 19px; border: 0.5px solid #e0e0e0;
+  display: flex; align-items: center; padding: 0 12px; gap: 8px;
+}
+.scopri-search input {
+  border: none; background: none; outline: none;
+  font-family: inherit; font-size: 16px; color: #111; width: 100%;
+}
+.scopri-filters {
+  display: flex; gap: 6px; padding: 0 16px 10px; overflow-x: auto; flex-shrink: 0;
+}
+.scopri-filters::-webkit-scrollbar { display: none; }
+.scopri-filter-btn {
+  border: 0.5px solid #e0e0e0; border-radius: 20px; padding: 5px 12px;
+  font-size: 11px; font-weight: 500; cursor: pointer; background: #fff;
+  white-space: nowrap; font-family: inherit;
+}
+.scopri-filter-btn.active { background: #2a2a6e; color: #fff; border-color: #2a2a6e; }
+.scopri-list { flex: 1; overflow-y: auto; padding: 0 16px 80px; display: flex; flex-direction: column; gap: 14px; }
+.scopri-section {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: #888; padding: 6px 2px 0; flex-shrink: 0;
+}
+.scopri-section.empty { color: #c4c4c4; }
+.scopri-card {
+  position: relative; border-radius: 16px; overflow: hidden;
+  cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+/* mobile: card alte quasi full screen */
+@media (max-width: 680px) {
+  .scopri-card { height: 85dvh; }
+  .scopri-list { padding-bottom: 80px; }
+}
+/* desktop: Discover sta sotto la stessa barra in alto della pagina principale,
+   con le stesse misure dei testi, e lascia vedere il piè di pagina */
+@media (min-width: 681px) {
+  .scopri-overlay { top: 44px; bottom: 28px; }
+  body.discover-open .site-footer { z-index: 1600; background: #fff; }
+  .scopri-foot { display: none; }
+  /* una sola riga: titolo a sinistra, filtri al centro (sotto la ricerca), chiudi a destra.
+     La ricerca è quella della barra in alto: niente seconda casella. */
+  .scopri-overlay.open { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .scopri-header { display: contents; }
+  .scopri-title { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; padding: 8px 14px; font-size: 12px; color: #2a2a6e; }
+  .scopri-filters { grid-column: 2; grid-row: 1; align-self: center; padding: 8px 0; gap: 4px; }
+  .scopri-close { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; margin-right: 14px; width: 24px; height: 24px; font-size: 11px; }
+  .scopri-search { display: none; }
+  .scopri-filter-btn { padding: 4px 10px; }
+  .scopri-list { grid-column: 1 / -1; grid-row: 2; border-top: 0.5px solid #e0e0e0;
+    flex-direction: row; flex-wrap: wrap; padding: 12px 14px 40px; gap: 12px; align-content: flex-start; }
+  #scopri-overlay .scopri-section { width: 100%; font-size: 10px; padding: 4px 0 0; }
+  #scopri-overlay .scopri-card { height: 240px; width: 200px; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.10); }
+  #scopri-overlay .scopri-card-img-placeholder { font-size: 32px; }
+  #scopri-overlay .scopri-card-overlay { padding: 16px 10px 10px; }
+  #scopri-overlay .scopri-card-type { font-size: 9px; margin-bottom: 3px; }
+  #scopri-overlay .scopri-card-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  #scopri-overlay .scopri-card-desc { font-size: 11px; line-height: 1.4; margin-bottom: 4px; }
+  #scopri-overlay .scopri-card-price { font-size: 12px; margin-bottom: 2px; }
+  #scopri-overlay .scopri-card-meta { font-size: 10px; }
+  .scopri-empty { width: 100%; }
+}
+.scopri-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scopri-card-img-placeholder {
+  width: 100%; height: 100%; background: #1a1a2e;
+  display: flex; align-items: center; justify-content: center; color: #555; font-size: 48px;
+}
+.scopri-card-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+  padding: 24px 16px 20px;
+}
+.scopri-card-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.scopri-card-type.product    { color: #a8c8f0; }
+.scopri-card-type.service    { color: #a8dfc0; }
+.scopri-card-type.experience { color: #f5b8c8; }
+.scopri-card-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.3; }
+.scopri-card-desc  { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; margin-bottom: 8px; }
+.scopri-card-meta  { font-size: 12px; color: rgba(255,255,255,0.65); }
+.scopri-card-price { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+
+/* ── mobile navbar ── */
+.mobile-navbar { display: none; }
+@media (max-width: 680px) {
+  .mobile-navbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+    height: 60px; background: #fff; border-top: 0.5px solid #e8e8e8;
+    align-items: center; justify-content: space-around; z-index: 900;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 500; color: #2a2a6e; cursor: pointer; flex: 1;
+    padding: 8px 0; border: none; background: none; font-family: inherit;
+  }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item-center {
+    width: 48px; height: 48px; border-radius: 50%; background: #fff;
+    border: 1.5px solid #e0e0e0; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .nav-item-center img { width: 32px; height: 32px; object-fit: contain; }
+  .nav-item-center-fallback {
+    width: 28px; height: 28px; border: 1.5px solid #2a2a6e; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+}
+
+/* ── mobile ── */
+@media (max-width: 680px) {
+  .topbar { display: none; }
+  .sidebar { display: none; }
+  .mobile-search {
+    position: fixed; top: 14px; left: 14px; right: 14px; height: 44px;
+    background: #fff; border-radius: 22px; border: 0.5px solid #e0e0e0;
+    display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    font-size: 13px; color: #888; z-index: 1100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.10);
+  }
+  .mobile-sheet {
+    position: fixed; bottom: 60px; left: 0; right: 0; background: #fff;
+    border-radius: 14px 14px 0 0; box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+    z-index: 800; display: flex; flex-direction: column; height: auto;
+  }
+  .mobile-filter-row {
+    display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; flex-shrink: 0;
+  }
+  .mobile-filter-row::-webkit-scrollbar { display: none; }
+  .mobile-list { display: none; }
+  .leaflet-popup { z-index: 1200 !important; }
+  .leaflet-popup-pane { z-index: 1200 !important; }
+  .map-legend { bottom: auto; top: 70px; right: 10px; }
+}
+@media (max-width: 680px) {
+  .leaflet-popup-pane { z-index: 1200 !important; }
+  .leaflet-popup { margin-bottom: 10px; }
+}
+@media (min-width: 681px) {
+  .mobile-sheet { display: none; }
+  .mobile-search { display: none; }
+}
+.leaflet-control-zoom { display: none !important; }
+</style>
+<script src="/i18n.js?v=4"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"
+      class="topbar-logo" alt="QUI" style="cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="topbar-logo-fallback" style="display:none;cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+        <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+      </svg>
+    </div>
+    <div class="search-bar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="search-input-desktop" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
+    </div>
+    <div id="topbar-auth"></div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+    <div class="sidebar">
+      <div class="sidebar-filters" id="filters-desktop">
+        <div class="filter-btn active" data-type="all" aria-label="Tutti" data-i18n-aria-label="filter.all">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="filter-btn" data-type="product" aria-label="Prodotti" data-i18n-aria-label="family.products"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
+        <div class="filter-btn" data-type="service" aria-label="Servizi" data-i18n-aria-label="family.services"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
+        <div class="filter-btn" data-type="experience" aria-label="Esperienze" data-i18n-aria-label="family.experiences"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
+      </div>
+      <button class="scopri-sidebar-btn" onclick="openScopri()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span data-i18n="search.discover">Scopri</span>
+      </button>
+      <div class="sort-row"><span data-i18n="search.sort">Ordina</span> <strong style="margin-left:3px" data-i18n="search.sort.nearest">Più vicino</strong></div>
+      <div class="listing-scroll" id="list-desktop">
+        <div class="state-box"><div class="spinner"></div><span data-i18n="common.loading">Caricamento…</span></div>
+      </div>
+    </div>
+
+    <div style="flex:1;position:relative;">
+      <div id="map" style="width:100%;height:100%"></div>
+      <div class="map-legend">
+        <div class="legend-row"><div class="legend-dot" style="background:#a8c8f0"></div><span data-i18n="family.product">Prodotto</span></div>
+        <div class="legend-row"><div class="legend-dot" style="background:#a8dfc0"></div><span data-i18n="family.service">Servizio</span></div>
+        <div class="legend-row"><div class="legend-dot" style="background:#f5b8c8"></div><span data-i18n="family.experience">Esperienza</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-header-title" data-i18n="auth.title">Accedi a QUI</div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" data-i18n="auth.tab.login">Accedi</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')" data-i18n="auth.tab.register">Registrati</button>
+      </div>
+      <div id="auth-error" style="display:none" class="auth-error"></div>
+      <div class="auth-field"><label data-i18n="auth.email">EMAIL</label><input type="email" id="auth-email" placeholder="tuaemail@esempio.it" data-i18n-placeholder="auth.email.placeholder"/></div>
+      <div class="auth-field"><label data-i18n="auth.password">PASSWORD</label><input type="password" id="auth-password" placeholder="Minimo 6 caratteri" data-i18n-placeholder="auth.password.placeholder"/></div>
+      <button class="auth-submit" id="auth-submit-btn" onclick="submitAuth()" data-i18n="auth.submit.login">Accedi</button>
+      <div class="auth-info" id="auth-info" data-i18n="auth.info.register">Registrandoti puoi pubblicare annunci e sbloccare contatti.</div>
+      <div style="text-align:center">
+        <button onclick="openForgotModal()" data-i18n="auth.forgot" style="background:none;border:none;color:#2a2a6e;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline">Password dimenticata?</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="auth-overlay" id="forgot-overlay">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-header-title" data-i18n="auth.forgot.title">Password dimenticata</div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeForgotModal()">✕</button>
+    </div>
+    <div class="auth-body">
+      <div id="forgot-error" style="display:none" class="auth-error"></div>
+      <div id="forgot-success" style="display:none;background:#ddf3ea;color:#2a7a4a" class="auth-error"></div>
+      <div class="auth-field"><label data-i18n="auth.email">EMAIL</label><input type="email" id="forgot-email" placeholder="tuaemail@esempio.it" data-i18n-placeholder="auth.email.placeholder"/></div>
+      <button class="auth-submit" id="forgot-submit-btn" onclick="submitForgotPassword()" data-i18n="auth.forgot.submit">Invia link di reset</button>
+      <div class="auth-info" data-i18n="auth.forgot.info">Ti invieremo un link per reimpostare la password.</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="auth-overlay" id="reset-overlay">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-header-title" data-i18n="auth.reset.title">Reimposta password</div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeResetModal()">✕</button>
+    </div>
+    <div class="auth-body">
+      <div id="reset-error" style="display:none" class="auth-error"></div>
+      <div class="auth-field"><label data-i18n="auth.reset.newpassword">NUOVA PASSWORD</label><input type="password" id="reset-password" placeholder="Minimo 6 caratteri" data-i18n-placeholder="auth.password.placeholder"/></div>
+      <button class="auth-submit" id="reset-submit-btn" onclick="submitResetPassword()" data-i18n="auth.reset.submit">Reimposta password</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="contact-overlay" id="contact-overlay">
+  <div class="contact-modal">
+    <div class="contact-header">
+      <div class="contact-header-top">
+        <span class="contact-check">✅</span>
+        <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeContactModal()">✕</button>
+      </div>
+      <div class="contact-header-title" data-i18n="contact.unlocked">Contatto sbloccato</div>
+      <div class="contact-header-sub" data-i18n="contact.paid">Pagamento €1 completato</div>
+    </div>
+    <div id="contact-body">
+      <div class="contact-loading"><div class="spinner"></div><span data-i18n="contact.loading">Recupero contatto…</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL (scheda completa annuncio) -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-modal">
+    <div class="detail-photos" id="detail-photos"></div>
+    <button class="modal-close" id="detail-close-btn" onclick="closeDetailModal()">✕</button>
+    <div class="detail-body">
+      <div class="detail-type" id="detail-type"></div>
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-meta" id="detail-meta"></div>
+      <div class="detail-desc" id="detail-desc"></div>
+      <div class="detail-stars" id="detail-stars"></div>
+      <a id="detail-link" href="#" target="_blank" rel="noopener" style="font-size:12px;color:#2a2a6e;font-weight:600;text-decoration:none" data-i18n="detail.fullpage">Vedi pagina completa →</a>
+      <button class="popup-btn" id="detail-unlock-btn" data-i18n="unlock.btn">🔓 Sblocca contatto — €1</button>
+      <div class="claim-box" id="detail-claim-box">
+        <div class="claim-title" data-i18n="claim.box.title">Attività non ancora rivendicata</div>
+        <div class="claim-text" data-i18n="claim.box.text">
+          Questa scheda è stata compilata da IL QUI a partire da informazioni pubbliche.
+          Il titolare non l'ha ancora confermata, quindi i contatti non sono acquistabili.
+        </div>
+        <button id="detail-claim-btn" data-i18n="claim.box.btn">Sono il titolare — rivendica</button>
+      </div>
+      <div class="disclaimer-box" id="detail-disclaimer" data-i18n="disclaimer.contact">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MERCHANT MODAL (pubblica annuncio) -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" data-i18n="listing.publish">Pubblica un annuncio</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-form-body">
+      <div class="field">
+        <label data-i18n="form.type">TIPO</label>
+        <div class="type-selector">
+          <div class="type-opt selected product" data-type="product" onclick="selectType('product')">
+            <div class="type-dot" style="background:#a8c8f0"></div><span data-i18n="family.product">Prodotto</span>
+          </div>
+          <div class="type-opt service" data-type="service" onclick="selectType('service')">
+            <div class="type-dot" style="background:#a8dfc0"></div><span data-i18n="family.service">Servizio</span>
+          </div>
+          <div class="type-opt experience" data-type="experience" onclick="selectType('experience')">
+            <div class="type-dot" style="background:#f5b8c8"></div><span data-i18n="family.experience">Esperienza</span>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label data-i18n="form.title">TITOLO</label><input type="text" id="f-title" placeholder="Titolo breve e chiaro (max 80 caratteri)" data-i18n-placeholder="form.title.ph" maxlength="80"/></div>
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="form.category">CATEGORIA</label>
+          <select id="f-category"><option value="" data-i18n="form.category.ph">Seleziona categoria…</option></select>
+        </div>
+        <div class="field"><label data-i18n="form.price">PREZZO (€)</label><input type="number" id="f-price" placeholder="0 = gratis" data-i18n-placeholder="form.price.ph" min="0" step="0.01"/></div>
+      </div>
+      <div class="field"><label data-i18n="form.desc">DESCRIZIONE</label><textarea id="f-desc" placeholder="Breve descrizione — max 300 caratteri" data-i18n-placeholder="form.desc.ph" maxlength="300"></textarea></div>
+      <div class="field"><label data-i18n="form.contact">CONTATTO (visibile dopo sblocco)</label><input type="text" id="f-contact" placeholder="Telefono, email o link" data-i18n-placeholder="form.contact.ph"/></div>
+      <div class="field">
+        <label data-i18n="form.position">POSIZIONE</label>
+        <div id="modal-map"></div>
+        <div class="map-hint" id="map-hint" data-i18n="form.maphint">📍 Usa il pulsante GPS per rilevare la tua posizione</div>
+        <div class="loc-display">
+          <div class="loc-dot"></div>
+          <span id="loc-text" data-i18n="form.loc.none">Nessuna posizione selezionata</span>
+          <button class="loc-gps-btn" id="loc-gps-btn" onclick="useGPS()" data-i18n="form.loc.gps">📍 Usa la mia posizione</button>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="form.photos">FOTO (obbligatoria, max 4)</label>
+        <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" style="margin-bottom:4px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <div style="font-size:12px;color:#999" data-i18n="form.photos.add">Tocca per aggiungere foto</div>
+          <input type="file" id="f-photos" accept="image/*" multiple onchange="handlePhotos(this)"/>
+        </div>
+        <div class="photo-preview-grid" id="photo-preview"></div>
+      </div>
+    </div>
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✅</div>
+      <div class="success-title" data-i18n="form.success.published">Annuncio pubblicato!</div>
+      <div class="success-sub" data-i18n="form.success.sub" data-i18n-rich="1">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~100m per la tua privacy.</div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="common.cancel">Annulla</button>
+      <button class="btn-submit" id="btn-submit" onclick="submitListing()" data-i18n="form.submit">Pubblica →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="profile-overlay" id="profile-overlay">
+  <div class="profile-modal">
+    <div class="profile-header">
+      <div class="profile-header-info">
+        <div class="profile-header-email" id="profile-email"></div>
+        <div class="profile-header-tier" id="profile-tier"></div>
+      </div>
+      <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeProfileModal()">✕</button>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="profile-empty" data-i18n="common.loading">Caricamento…</div>
+    </div>
+    <div class="profile-footer">
+      <button class="profile-logout-btn" onclick="profileLogout()" data-i18n="profile.logout">Esci dall'account</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCOPRI OVERLAY (mobile + desktop) -->
+<div class="scopri-overlay" id="scopri-overlay">
+  <div class="scopri-header">
+    <div class="scopri-title" data-i18n="search.discover">Scopri</div>
+    <button class="scopri-close" onclick="closeScopri()">✕</button>
+  </div>
+  <div class="scopri-search">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input id="scopri-input" type="text" autocomplete="off" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder"/>
+  </div>
+  <div class="scopri-filters">
+    <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')" data-i18n="filter.all">Tutti</button>
+    <button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')"><span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block;margin-right:5px"></span><span data-i18n="family.products">Prodotti</span></button>
+    <button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')"><span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block;margin-right:5px"></span><span data-i18n="family.services">Servizi</span></button>
+    <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span><span data-i18n="family.experiences">Esperienze</span></button>
+  </div>
+  <div class="scopri-list" id="scopri-list"></div>
+<div class="scopri-foot" style="text-align:center;font-size:11px;color:#888;padding:16px 0 80px">
+  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" style="color:#888;text-decoration:none" data-i18n="footer.privacy">Privacy Policy</a>
+  <span style="margin:0 8px">·</span>
+  <span>© 2026 QUI</span>
+</div>
+</div>
+
+<!-- MOBILE SEARCH BAR -->
+<div class="mobile-search">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <input id="search-input-mobile" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
+</div>
+
+<!-- MOBILE NAVBAR -->
+<nav class="mobile-navbar">
+  <button class="nav-item" onclick="showMobileAuth()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span id="nav-profile-label">Accedi</span>
+  </button>
+  <button class="nav-item-center" onclick="onAddClick()" aria-label="Pubblica annuncio" data-i18n-aria-label="nav.publish">
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"
+      alt="QUI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="nav-item-center-fallback" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+        <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
+      </svg>
+    </div>
+  </button>
+  <button class="nav-item" onclick="openScopri()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span data-i18n="search.discover">Scopri</span>
+  </button>
+</nav>
+
+<!-- MOBILE SHEET -->
+<div class="mobile-sheet">
+  <div class="mobile-filter-row" id="filters-mobile">
+    <div class="filter-btn active" data-type="all" data-i18n="filter.all">Tutti</div>
+    <div class="filter-btn" data-type="product" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block"></span><span data-i18n="family.products">Prodotti</span>
+    </div>
+    <div class="filter-btn" data-type="service" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block"></span><span data-i18n="family.services">Servizi</span>
+    </div>
+    <div class="filter-btn" data-type="experience" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block"></span><span data-i18n="family.experiences">Esperienze</span>
+    </div>
+  </div>
+</div>
+<div id="list-mobile" style="display:none"></div>
+
+<footer class="site-footer">
+  <span>© 2026 QUI</span>
+  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" data-i18n="footer.privacy">Privacy Policy</a>
+  <select id="lang-select" onchange="I18N.setLang(this.value)" title="Lingua" data-i18n-title="footer.lang"
+          style="border:none;background:none;color:inherit;font-family:inherit;font-size:inherit;cursor:pointer;outline:none;padding:0"></select>
+</footer>
+
+<style>
+.site-footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 28px; background: transparent; border-top: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #2a2a6e; z-index: 50; gap: 12px;
+}
+.site-footer a { color: #2a2a6e;text-decoration: none; }
+.site-footer a:hover { color: #555; }
+@media (max-width: 680px) { .site-footer { display: none; } }
+</style>
+
+<script>
+const API = 'https://qui-backend-production.up.railway.app';
+
+// Lingua dei contenuti: delegata a I18N, unica fonte di verità.
+// Era una const calcolata al caricamento e non seguiva il selettore lingua.
+function currentLang() { return I18N.getLang(); }
+
+// Slug canonico: stessa regola di slugify() in app.py. L'identità resta l'id in coda.
+function slugify(text) {
+  return (String(text || '')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '')) || 'annuncio';
+}
+function listingUrl(l) {
+  // La pagina dell'annuncio vive su un altro dominio e non vede la lingua scelta qui: la porta il link.
+  return `https://listing.ilqui.com/l/${slugify(l.title)}-${l.id}?lang=${I18N.getLang()}`;
+}
+// La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
+function familyOf(l) { return l.family || 'product'; }
+
+// Tassonomia caricata dinamicamente dal DB (fonte unica di verità — niente più codici hardcoded).
+// L'albero ha profondità libera con tetto a tre piani (D106): il menù non può
+// assumerne due. Una voce selezionabile è una PUNTA, cioè un nodo SENZA FIGLI
+// (D105): un nodo di mezzo è un contenitore, e appenderci un annuncio significa
+// scriverlo su un nodo che la guardia dei legami considera illegale.
+// L'etichetta porta il percorso sotto la macro — «Pelle › Conceria» — così la
+// profondità si legge senza cablarla da nessuna parte: regge a tre piani oggi e
+// a quattro se il tetto si alzasse, senza toccare questo codice.
+// La forma di TAXONOMY non cambia: selectType() legge le stesse chiavi di prima.
+let TAXONOMY = { product: {}, service: {}, experience: {} };
+
+async function loadTaxonomyFromAPI() {
+  try {
+    const r = await fetch(`${API}/taxonomy?family=product,service,experience&lang=${encodeURIComponent(currentLang())}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const rows = await r.json();
+    const byCode = new Map(rows.map(row => [row.code, row]));
+    const conFigli = new Set(rows.filter(row => row.parent_code).map(row => row.parent_code));
+    const tree = { product: {}, service: {}, experience: {} };
+    const orfani = [];
+
+    // Le macro sono i cassetti del menù, non voci scegliibili.
+    rows.forEach(row => {
+      if (!row.parent_code && tree[row.family]) {
+        tree[row.family][row.code] = { label: row.label || row.label_it, categories: [] };
+      }
+    });
+
+    rows.forEach(row => {
+      if (!row.parent_code) return;          // macro
+      if (conFigli.has(row.code)) return;    // nodo di mezzo: non selezionabile
+      // Risalgo la catena dei padri fino alla macro, raccogliendo le etichette.
+      const rami = [row.label || row.label_it];
+      let padre = byCode.get(row.parent_code);
+      while (padre && padre.parent_code) {
+        rami.unshift(padre.label || padre.label_it);
+        padre = byCode.get(padre.parent_code);
+      }
+      // Padre mancante: la punta NON viene ingoiata in silenzio, viene contata.
+      if (!padre || !tree[padre.family] || !tree[padre.family][padre.code]) {
+        orfani.push(row.code);
+        return;
+      }
+      tree[padre.family][padre.code].categories.push({ code: row.code, label: rami.join(' › ') });
+    });
+
+    // Ordine per lingua, non per codici dei caratteri (lezione della Sessione 3).
+    // Ordinare sull'etichetta col percorso tiene i fratelli adiacenti: senza,
+    // «Pelle › Conceria» e «Pelle › Pelletteria» si disperdono per sort_order.
+    Object.values(tree).forEach(macros => Object.values(macros).forEach(m =>
+      m.categories.sort((a, b) => a.label.localeCompare(b.label, currentLang()))));
+
+    if (orfani.length) console.warn('Tassonomia: punte senza macro raggiungibile, escluse dal menù:', orfani);
+    TAXONOMY = tree;
+  } catch (e) {
+    console.error('Errore caricamento tassonomia:', e);
+  }
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── AUTH STATE ──
+let authToken = localStorage.getItem('qui_token') || null;
+let authUser  = null;
+
+function authHeaders() {
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+async function loadAuthUser() {
+  if (!authToken) { renderAuthUI(); return; }
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+    if (!r.ok) { logout(); return; }
+    authUser = await r.json();
+  } catch { logout(); }
+  renderAuthUI();
+}
+
+function renderAuthUI() {
+  const el = document.getElementById('topbar-auth');
+  const label = document.getElementById('nav-profile-label');
+  if (authUser) {
+    el.innerHTML = `
+      <button class="add-btn" onclick="openModal()">${I18N.t('nav.add')}</button>
+      <button onclick="openProfileModal()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>`;
+    if (label) label.textContent = authUser.email.split('@')[0];
+  } else {
+    el.innerHTML = `<button class="auth-btn" onclick="openAuthModal()">${I18N.t('nav.login')}</button>`;
+    if (label) label.textContent = I18N.t('nav.login');
+  }
+}
+
+function logout() {
+  authToken = null; authUser = null;
+  localStorage.removeItem('qui_token');
+  renderAuthUI();
+}
+
+// ── I18N ──
+function initLangSelect() {
+  const sel = document.getElementById('lang-select');
+  if (!sel) return;
+  sel.innerHTML = I18N.available()
+    .map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+  sel.value = I18N.getLang();
+}
+
+// Il testo generato da JS non ha attributi data-i18n: va rigenerato a mano
+// al cambio lingua, altrimenti resterebbe nella lingua precedente.
+window.addEventListener('qui:langchange', function () {
+  renderAuthUI();
+  // I contenuti dal backend sono nella lingua precedente: vanno rifatti.
+  if (typeof loadTaxonomyFromAPI === 'function') loadTaxonomyFromAPI();
+  if (typeof load === 'function') load();
+});
+
+document.addEventListener('DOMContentLoaded', initLangSelect);
+
+// ── PROFILE MODAL ──
+function openProfileModal() {
+  if (authUser.tier === 'enterprise') { window.location.href = '/merchant.html'; return; }
+  document.getElementById('profile-overlay').classList.add('open');
+  document.getElementById('profile-email').textContent = authUser.email;
+  document.getElementById('profile-tier').textContent = authUser.tier === 'enterprise' ? 'Enterprise' : 'Regular';
+  renderProfileBody();
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-overlay').classList.remove('open');
+}
+
+function profileLogout() { closeProfileModal(); logout(); }
+
+async function renderProfileBody() {
+  const body = document.getElementById('profile-body');
+  body.innerHTML = `<div class="profile-empty">${I18N.html('common.loading')}</div>`;
+  // Ricarica dati freschi
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: authHeaders() });
+    if (r.ok) authUser = await r.json();
+  } catch {}
+
+  // Carica listings
+  let listings = [];
+  try {
+    const r = await fetch(`${API}/auth/my-listings`, { headers: authHeaders() });
+    if (r.ok) listings = await r.json();
+  } catch {}
+  myListingsCache = listings;
+
+  let html = '';
+
+  // Sezione annunci
+  html += `<div>
+    <div class="profile-section-title">📋 ${I18N.html('profile.mylistings')}</div>`;
+  if (!listings.length) {
+    html += `<div class="profile-empty">${I18N.html('profile.nolistings')}</div>`;
+  } else {
+    html += listings.map(l => {
+      const exp = l.expires_at ? expiresLabel(l.expires_at) : I18N.html('profile.permanent');
+      const price = l.price === 0 ? I18N.html('price.free') : (l.price ? `€${l.price}` : '');
+      return `<div class="profile-listing-card" id="plcard-${l.id}">
+        <div class="profile-listing-top">
+          <div class="profile-listing-title">${esc(l.title)}</div>
+          <div style="display:flex;gap:6px">
+            ${(l.expires_at && new Date(l.expires_at) < new Date()) ? `<button class="profile-delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">${I18N.html('profile.republish')}</button>` : ''}
+            <button class="profile-delete-btn" style="background:#eef0fb;color:#2a2a6e;border-color:#c8cdf0" onclick="editListing('${l.id}')">${I18N.html('common.edit')}</button>
+            <button class="profile-delete-btn" onclick="deleteListing('${l.id}')">${I18N.html('common.delete')}</button>
+          </div>
+        </div>
+        <div class="profile-listing-meta">${esc(l.category || l.type)} ${price ? '· ' + price : ''}</div>
+        <div class="profile-listing-expires">${exp}</div>
+      </div>`;
+    }).join('');
+  }
+  html += `</div>`;
+
+  // Sezione KYB — solo tier regular
+  if (authUser.tier === 'regular') {
+    const isPending = authUser.kyb_status === 'pending';
+    const hasDoc = !!authUser.kyb_document_ref;
+    html += `
+    <div class="merchant-section">
+      <div class="merchant-section-header">⭐ ${I18N.html('kyb.title')}</div>
+      <div class="merchant-section-body">
+        ${isPending ? `
+        <div style="font-size:12px;color:#2a7a4a;font-weight:600;padding:6px 0">
+          ✅ ${I18N.html('kyb.pending')}
+        </div>` : `
+        <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">
+          ${I18N.html('kyb.intro')}
+        </div>
+        <div class="doc-upload-row">
+          <div class="doc-upload-label">${I18N.html('kyb.doc')}</div>
+          <span class="doc-status ${hasDoc ? 'uploaded' : ''}" id="doc-kyb-status" data-i18n="${hasDoc ? 'kyb.uploaded' : 'kyb.notuploaded'}">${esc(I18N.t(hasDoc ? 'kyb.uploaded' : 'kyb.notuploaded'))}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-kyb-input').click()">${I18N.html('common.upload')}</button>
+          <input type="file" id="doc-kyb-input" accept="image/*,application/pdf" style="display:none" onchange="uploadKYB(this)"/>
+        </div>`}
+      </div>
+    </div>`;
+  }
+
+ // Sezione Admin
+  if (authUser.is_admin) {
+    html += await renderAdminSection();
+  }
+
+  body.innerHTML = html;
+}
+async function renderAdminSection() {
+  let pending = [];
+  try {
+    const r = await fetch(`${API}/admin/pending`, { headers: authHeaders() });
+    if (r.ok) pending = await r.json();
+  } catch {}
+
+  let html = `
+  <div class="merchant-section">
+    <div class="merchant-section-header">🔑 ${I18N.html('admin.title')}</div>
+    <div class="merchant-section-body">`;
+
+  if (!pending.length) {
+    html += `<div class="profile-empty">${I18N.html('admin.nopending')}</div>`;
+  } else {
+    html += pending.map(u => `
+      <div style="border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px" id="admin-row-${u.id}">
+        <div style="font-size:12px;font-weight:600;color:#111">${esc(u.email)}</div>
+        <div style="font-size:11px;color:#888">${esc(u.company_name || '')} ${u.vat_number ? '· ' + u.vat_number : ''}</div>
+        ${u.kyb_document_ref ? `<button onclick="apriDocumentoKyb('${u.id}')" style="background:none;border:0;padding:0;text-align:left;font-size:11px;color:#2a2a6e;cursor:pointer">📄 ${I18N.html('admin.opendoc')}</button>` : ''}
+        <button class="merchant-save-btn" onclick="promoteUser('${u.id}')">⭐ ${I18N.html('admin.promote')}</button>
+        <button onclick="rejectUser('${u.id}')" style="width:100%;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-size:12px;font-weight:600;cursor:pointer">✕ ${I18N.html('admin.reject')}</button>
+      </div>`).join('');
+  }
+
+  html += `</div></div>`;
+  return html;
+}
+
+// Il documento non è un indirizzo pubblico: `kyb_document_ref` è un
+// riferimento interno. L'indirizzo firmato lo genera il backend al momento
+// della consultazione e non viene mai memorizzato.
+async function apriDocumentoKyb(userId) {
+  try {
+    const r = await fetch(`${API}/admin/kyb-document/${userId}`, { headers: authHeaders() });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || I18N.t('admin.doc.unavailable')); return; }
+    window.open(j.url, '_blank', 'noopener');
+  } catch (e) { alert(I18N.t('common.network')); }
+}
+
+async function rejectUser(userId) {
+  const motivo = prompt(I18N.t('admin.reject.prompt'));
+  if (!motivo || !motivo.trim()) return;
+  try {
+    const r = await fetch(`${API}/admin/kyb-reject`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ user_id: userId, reason: motivo.trim() })
+    });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || I18N.t('admin.reject.error')); return; }
+    document.getElementById(`admin-row-${userId}`)?.remove();
+  } catch (e) { alert(I18N.t('common.network')); }
+}
+
+async function promoteUser(userId) {
+  if (!confirm(I18N.t('admin.promote.confirm'))) return;
+  try {
+    const r = await fetch(`${API}/admin/promote-jwt`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ user_id: userId })
+    });
+    if (!r.ok) throw new Error(I18N.t('admin.promote.error'));
+    document.getElementById(`admin-row-${userId}`)?.remove();
+  } catch(e) { alert(I18N.t('common.error') + ': ' + e.message); }
+}
+
+async function uploadBusinessPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    const url = await uploadToCloudinary(file);
+    const r = await fetch(`${API}/auth/profile`, {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ business_photo: url })
+    });
+    if (!r.ok) throw new Error(I18N.t('common.save.error'));
+    authUser = await r.json();
+    renderProfileBody();
+  } catch(e) { alert(I18N.t('common.upload.error') + ': ' + e.message); }
+}
+
+// Il documento KYB non può passare dal preset pubblico: deve nascere
+// `authenticated` e dentro la cartella intestata all'utente, altrimenti il
+// backend lo rifiuta (`kyb_owns`) e comunque il documento resterebbe
+// leggibile da chiunque ne conoscesse l'indirizzo.
+async function uploadKYB(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('doc-kyb-status');
+  if (statusEl) { I18N.set(statusEl, 'common.loading'); statusEl.className = 'doc-status'; }
+  try {
+    const sr = await fetch(`${API}/auth/kyb-upload-signature`, {
+      method: 'POST', headers: authHeaders()
+    });
+    const sig = await sr.json();
+    if (!sr.ok) throw new Error(sig.error || I18N.t('upload.signature'));
+
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('api_key', sig.api_key);
+    fd.append('signature', sig.signature);
+    Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+
+    const up = await fetch(
+      `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
+      { method: 'POST', body: fd });
+    const uj = await up.json();
+    // Cloudinary appende l'estensione: il ref da salvare è quello che
+    // Cloudinary ha davvero assegnato, non quello firmato.
+    if (!up.ok || !uj.public_id) throw new Error(I18N.t('upload.failed'));
+
+    const r = await fetch(`${API}/auth/kyb-request`, {
+      method: 'PUT', headers: authHeaders(),
+      body: JSON.stringify({ kyb_document_ref: uj.public_id })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || I18N.t('kyb.request.error'));
+    authUser = j;
+    renderProfileBody();
+  } catch(e) {
+    alert(I18N.t('common.error') + ': ' + e.message);
+    if (statusEl) { I18N.set(statusEl, 'common.error'); statusEl.className = 'doc-status'; }
+  }
+}
+
+async function deleteListing(id) {
+  if (!confirm(I18N.t('listing.delete.confirm'))) return;
+  try {
+    const r = await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    document.getElementById(`plcard-${id}`)?.remove();
+    load();
+  } catch(e) { alert(`${I18N.t('common.error')}: ${esc(e.message)}`); }
+}
+
+async function republishListing(id) {
+  try {
+    const r = await fetch(`${API}/products/${id}/republish`, {
+      method: 'POST', headers: authHeaders()
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    renderProfileBody();
+    load();
+  } catch(e) { alert(`${I18N.t('common.error')}: ${e.message}`); }
+}
+
+// ── AUTH MODAL ──
+let authMode = 'login';
+
+function openAuthModal() {
+  document.getElementById('auth-overlay').classList.add('open');
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  switchTab('login');
+}
+
+function closeAuthModal() { document.getElementById('auth-overlay').classList.remove('open'); }
+function showMobileAuth() { if (authUser) { openProfileModal(); return; } openAuthModal(); }
+
+function switchTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  I18N.set(document.getElementById('auth-submit-btn'),
+    mode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
+  I18N.set(document.getElementById('auth-info'),
+    mode === 'register' ? 'auth.info.register' : 'auth.info.login');
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value.trim();
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = I18N.t('auth.error.missing'); errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = I18N.t(authMode === 'login' ? 'auth.loggingin' : 'auth.registering');
+  try {
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const r = await fetch(`${API}${endpoint}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.error || I18N.t('common.error'); errEl.style.display = 'block'; return; }
+    authToken = d.token;
+    authUser = d.user || d;
+    localStorage.setItem('qui_token', authToken);
+    // Ricarica profilo completo
+    const me = await fetch(`${API}/auth/me`, { headers: { 'Authorization': `Bearer ${authToken}` } });
+    if (me.ok) authUser = await me.json();
+    closeAuthModal();
+    renderAuthUI();
+    if (pendingAction) { pendingAction(); pendingAction = null; }
+  } catch(e) {
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    I18N.set(btn, authMode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
+  }
+}
+
+let pendingAction = null;
+function requireAuth(action) { if (authUser) { action(); return; } pendingAction = action; openAuthModal(); }
+function onAddClick() { requireAuth(openModal); }
+
+// ── FORGOT / RESET PASSWORD ──
+function openForgotModal() {
+  closeAuthModal();
+  document.getElementById('forgot-overlay').classList.add('open');
+  document.getElementById('forgot-error').style.display = 'none';
+  document.getElementById('forgot-success').style.display = 'none';
+  document.getElementById('forgot-email').value = '';
+}
+function closeForgotModal() { document.getElementById('forgot-overlay').classList.remove('open'); }
+
+async function submitForgotPassword() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const errEl = document.getElementById('forgot-error');
+  const okEl  = document.getElementById('forgot-success');
+  const btn   = document.getElementById('forgot-submit-btn');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  if (!email) { errEl.textContent = I18N.t('auth.error.noemail'); errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = I18N.t('common.sending');
+  try {
+    await fetch(`${API}/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    okEl.textContent = I18N.t('auth.forgot.sent');
+    okEl.style.display = 'block';
+  } catch(e) {
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; I18N.set(btn, 'auth.forgot.submit');
+  }
+}
+
+let resetTokenValue = null;
+function openResetModal(token) {
+  resetTokenValue = token;
+  document.getElementById('reset-overlay').classList.add('open');
+  document.getElementById('reset-error').style.display = 'none';
+  document.getElementById('reset-password').value = '';
+}
+function closeResetModal() { document.getElementById('reset-overlay').classList.remove('open'); }
+
+async function submitResetPassword() {
+  const password = document.getElementById('reset-password').value.trim();
+  const errEl = document.getElementById('reset-error');
+  const btn   = document.getElementById('reset-submit-btn');
+  errEl.style.display = 'none';
+  if (!password || password.length < 6) { errEl.textContent = I18N.t('auth.error.short'); errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = I18N.t('common.saving');
+  try {
+    const r = await fetch(`${API}/auth/reset-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: resetTokenValue, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { errEl.textContent = d.error || I18N.t('common.error'); errEl.style.display = 'block'; return; }
+    closeResetModal();
+    alert(I18N.t('auth.reset.done'));
+    openAuthModal();
+  } catch(e) {
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; I18N.set(btn, 'auth.reset.submit');
+  }
+}
+
+// ── STRIPE RETURN ──
+(async () => {
+  const p = new URLSearchParams(window.location.search);
+  const listingId  = p.get('listing');   // entity_id → modale contatto (D2)
+  const productId  = p.get('product');   // product_id → modale dettaglio
+  const session    = p.get('session_id');
+  const resetToken = p.get('reset_token');
+  if (listingId && session) {
+    window.history.replaceState({}, '', '/');
+    openContactModal(listingId, session);
+  }
+  if (productId) {
+    window.history.replaceState({}, '', '/');
+    const waitForList = setInterval(() => {
+      if (listingsLoaded) { clearInterval(waitForList); openDetailModal(productId); }
+    }, 200);
+    setTimeout(() => clearInterval(waitForList), 10000);
+  }
+  if (resetToken) {
+    window.history.replaceState({}, '', '/');
+    openResetModal(resetToken);
+  }
+})();
+
+// ── CONTACT MODAL ──
+function openContactModal(listingId, sessionId) {
+  document.getElementById('contact-overlay').classList.add('open');
+  document.getElementById('contact-body').innerHTML =
+    `<div class="contact-loading"><div class="spinner"></div>${I18N.html('contact.loading')}</div>`;
+  fetchContact(listingId, sessionId);
+}
+function closeContactModal() { document.getElementById('contact-overlay').classList.remove('open'); }
+
+// ── DETAIL MODAL ──
+function openDetailModal(id) {
+  const l = allListings.find(x => String(x.id) === String(id));
+  if (!l) return;
+  const type = familyOf(l);
+  const photos = l.photos || [];
+  document.getElementById('detail-photos').innerHTML = photos.length
+    ? photos.map(url => `<img src="${esc(url)}"${I18N.attr('alt', 'common.photo')}/>`).join('')
+    : `<div class="detail-photos-placeholder">📦</div>`;
+  const typeEl = document.getElementById('detail-type');
+  if (TYPE_KEY[type]) I18N.set(typeEl, TYPE_KEY[type]); else typeEl.textContent = type;
+  typeEl.className = `detail-type ${type}`;
+  document.getElementById('detail-title').innerHTML =
+    esc(l.title || '—') + (l.is_available === false ? ' — ' + I18N.html('listing.soldout') : '');
+  const price = l.price === 0 ? I18N.html('price.free') : (l.price ? esc(`€${l.price}`) : '');
+  const cat = l.category_label || '';
+  const city = l.city || '';
+  document.getElementById('detail-meta').innerHTML = [
+    cat ? `<span>${esc(cat)}</span>` : '',
+    city ? `<span>· 📍 ${esc(city)}</span>` : '',
+    price ? `<span class="detail-price">${price}</span>` : ''
+  ].filter(Boolean).join(' ');
+  document.getElementById('detail-desc').textContent = l.description || '';
+  document.getElementById('detail-link').href = listingUrl(l);
+  document.getElementById('detail-stars').innerHTML = l.stars_avg
+    ? `★ ${l.stars_avg} <span style="color:#aaa">(${I18N.htmlN('reviews.count', l.stars_count)})</span>` : '';
+  // Un'attività non rivendicata non ha contatti vendibili: al posto del
+  // pulsante di sblocco si mostra l'invito al titolare a prendersela.
+  const claimed = l.is_claimed !== false;
+  const unlockBtn = document.getElementById('detail-unlock-btn');
+  const claimBox = document.getElementById('detail-claim-box');
+  unlockBtn.dataset.unlockId = l.entity_id;
+  unlockBtn.style.display = claimed ? '' : 'none';
+  claimBox.classList.toggle('show', !claimed);
+  // L'avviso riguarda l'acquisto del contatto. Su una scheda non rivendicata
+  // quell'acquisto non esiste, quindi l'avviso descriverebbe un servizio che
+  // non viene offerto: informazione falsa, non cautela in più.
+  document.getElementById('detail-disclaimer').style.display = claimed ? '' : 'none';
+  document.getElementById('detail-claim-btn').dataset.claimId = l.entity_id;
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+// ── RIVENDICAZIONE ──
+// Non è più un click che assegna: apre una pratica, che l'amministrazione
+// approva solo dopo una prova di controllo. Il codice, quando previsto, va
+// al recapito GIÀ presente sulla scheda — mai a uno indicato qui.
+
+function claimModal(titolo, corpo) {
+  const vecchio = document.getElementById('claim-modal');
+  if (vecchio) vecchio.remove();
+  const el = document.createElement('div');
+  el.id = 'claim-modal';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = `
+    <div style="background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;font-family:inherit;max-height:90vh;overflow:auto">
+      <div style="font-size:17px;font-weight:700;margin-bottom:12px">${titolo}</div>
+      ${corpo}
+    </div>`;
+  el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+  document.body.appendChild(el);
+  return el;
+}
+
+function closeClaimModal() { document.getElementById('claim-modal')?.remove(); }
+
+async function claimEntity(entityId, btn) {
+  // Una pratica aperta si riprende, non si ripresenta: senza questo
+  // controllo il merchant riscrive la dichiarazione per poi sbattere su un
+  // rifiuto, e la prova che gli manca resta comunque non depositata.
+  try {
+    const rm = await fetch(`${API}/claims/mine`, { headers: authHeaders() });
+    if (rm.ok) {
+      const aperte = (await rm.json()).filter(c =>
+        c.entity_id === entityId &&
+        ['pending', 'verifying', 'awaiting_review'].includes(c.status));
+      if (aperte.length) {
+        const c = aperte[0];
+        if (c.status === 'awaiting_review') { claimDone(); return; }
+        claimNextStep({ claim_id: c.claim_id, channel: c.channel,
+                        challenge_target_mask: c.challenge_target_mask });
+        return;
+      }
+    }
+  } catch {}
+
+  claimModal(I18N.html('claim.title'), `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+      ${I18N.html('claim.intro')}
+    </div>
+    <textarea id="claim-statement" rows="5"${I18N.attr('placeholder', 'claim.statement.ph')} style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+    <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">${I18N.html('common.cancel')}</button>
+      <button id="claim-send" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer" data-i18n="claim.send">${esc(I18N.t('claim.send'))}</button>
+    </div>`);
+
+  document.getElementById('claim-send').onclick = async function () {
+    const statement = document.getElementById('claim-statement').value.trim();
+    const err = document.getElementById('claim-err');
+    if (statement.length < 30) { err.textContent = I18N.t('claim.error.short'); return; }
+    this.disabled = true; this.textContent = I18N.t('common.sending'); err.textContent = '';
+    try {
+      const r = await fetch(`${API}/entities/${entityId}/claim`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ statement })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 403 && j.action === 'kyb_required') {
+        closeClaimModal();
+        alert(I18N.t('claim.kyb.required'));
+        window.location.href = 'merchant.html#kyb';
+        return;
+      }
+      if (!r.ok) { err.textContent = j.error || I18N.t('claim.error.failed'); this.disabled = false; I18N.set(this, 'claim.send'); return; }
+      claimNextStep(j);
+    } catch {
+      err.textContent = I18N.t('common.network.retry');
+      this.disabled = false; I18N.set(this, 'claim.send');
+    }
+  };
+}
+
+function claimNextStep(j) {
+  if (j.channel === 'contact' || j.channel === 'domain') {
+    claimModal(I18N.html('claim.confirm.title'), `
+      <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+        ${I18N.rich('claim.code.sent', { target: j.challenge_target_mask || I18N.t('claim.target.fallback') })}
+      </div>
+      <input id="claim-code" inputmode="numeric" maxlength="8" placeholder="00000000" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:20px;letter-spacing:5px;text-align:center;font-family:inherit"/>
+      <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">${I18N.html('common.later')}</button>
+        <button id="claim-verify" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer" data-i18n="common.confirm">${esc(I18N.t('common.confirm'))}</button>
+      </div>`);
+    document.getElementById('claim-verify').onclick = async function () {
+      const code = document.getElementById('claim-code').value.trim();
+      const err = document.getElementById('claim-err');
+      if (!code) { err.textContent = I18N.t('claim.code.missing'); return; }
+      this.disabled = true; this.textContent = I18N.t('claim.verifying');
+      try {
+        const r = await fetch(`${API}/claims/${j.claim_id}/verify`, {
+          method: 'POST', headers: authHeaders(), body: JSON.stringify({ code })
+        });
+        const v = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          err.textContent = (v.error || I18N.t('claim.code.invalid')) +
+            (v.attempts_left !== undefined ? ` (${I18N.t('claim.attempts', { n: v.attempts_left })})` : '');
+          this.disabled = false; I18N.set(this, 'common.confirm'); return;
+        }
+        claimDone();
+      } catch {
+        err.textContent = I18N.t('common.network') + '.';
+        this.disabled = false; I18N.set(this, 'common.confirm');
+      }
+    };
+    return;
+  }
+
+  // Canale documentale: la scheda non ha né email né sito, quindi non
+  // esiste un recapito a cui inviare una prova automatica.
+  claimModal(I18N.html('claim.proof.title'), `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
+      ${I18N.html('claim.proof.intro')}
+    </div>
+    <button id="claim-doc-btn" style="width:100%;padding:12px;border:1px dashed #bbb;border-radius:9px;background:#fafafa;font-weight:600;cursor:pointer" data-i18n="claim.doc.choose">${esc(I18N.t('claim.doc.choose'))}</button>
+    <input type="file" id="claim-doc-input" accept="image/*,application/pdf" style="display:none"/>
+    <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
+    <button onclick="closeClaimModal()" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer;margin-top:6px">${I18N.html('common.later')}</button>`);
+
+  const input = document.getElementById('claim-doc-input');
+  document.getElementById('claim-doc-btn').onclick = () => input.click();
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const err = document.getElementById('claim-err');
+    const b = document.getElementById('claim-doc-btn');
+    b.disabled = true; I18N.set(b, 'common.loading');
+    try {
+      const sr = await fetch(`${API}/claims/${j.claim_id}/upload-signature`, {
+        method: 'POST', headers: authHeaders()
+      });
+      const sig = await sr.json();
+      if (!sr.ok) throw new Error(sig.error || I18N.t('upload.signature'));
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('api_key', sig.api_key);
+      fd.append('signature', sig.signature);
+      Object.entries(sig.params).forEach(([k, v]) => fd.append(k, v));
+
+      const up = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
+                             { method: 'POST', body: fd });
+      const uj = await up.json();
+      if (!up.ok || !uj.public_id) throw new Error(I18N.t('upload.failed'));
+
+      const r = await fetch(`${API}/claims/${j.claim_id}/document`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ document_ref: uj.public_id })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || I18N.t('claim.doc.failed'));
+      claimDone();
+    } catch (e) {
+      err.textContent = e.message;
+      b.disabled = false; I18N.set(b, 'claim.doc.choose');
+    }
+  };
+}
+
+function claimDone() {
+  claimModal(I18N.html('claim.done.title'), `
+    <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">
+      ${I18N.rich('claim.done.text')}
+    </div>
+    <button onclick="closeClaimModal();location.reload()" style="width:100%;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">${I18N.html('common.understood')}</button>`);
+}
+
+document.getElementById('detail-claim-btn').addEventListener('click', function () {
+  const id = this.dataset.claimId;
+  if (!id) return;
+  if (!authUser) { requireAuth(() => claimEntity(id, this)); return; }
+  claimEntity(id, this);
+});
+
+// Esito della verifica email: il backend rimanda qui con ?verified=...
+(function mostraEsitoVerifica() {
+  const esito = new URLSearchParams(location.search).get('verified');
+  if (!esito) return;
+  const messaggi = { ok: 'verify.ok', expired: 'verify.expired', invalid: 'verify.invalid' };
+  if (messaggi[esito]) alert(I18N.t(messaggi[esito]));
+  history.replaceState({}, '', location.pathname);
+})();
+
+function closeDetailModal() { document.getElementById('detail-overlay').classList.remove('open'); }
+
+async function fetchContact(listingId, sessionId) {
+  try {
+    const r = await fetch(`${API}/unlock/contact/${listingId}?session_id=${encodeURIComponent(sessionId||'')}`,
+      { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    renderContact(await r.json());
+  } catch(e) {
+    document.getElementById('contact-body').innerHTML =
+      `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>${I18N.html('contact.support')}</small></div>`;
+  }
+}
+
+function renderContact(d) {
+  const bodyEl = document.getElementById('contact-body');
+  bodyEl.innerHTML = `
+    <div class="contact-body">
+      <div class="contact-row">
+        <div class="contact-label">${I18N.html('contact.listing')}</div>
+        <div style="font-size:13px;font-weight:500;color:#111;padding:0 0 4px">${esc(d.title||'')}</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-label">${I18N.html('contact.contact')}</div>
+        <div class="contact-value">
+          <span>${esc(d.contact||'')}</span>
+          <button class="copy-btn" id="copy-contact-btn" data-i18n="common.copy">${esc(I18N.t('common.copy'))}</button>
+        </div>
+      </div>
+      ${d.description ? `<div class="contact-row"><div class="contact-label">${I18N.html('contact.desc')}</div><div style="font-size:12px;color:#555;line-height:1.5">${esc(d.description)}</div></div>` : ''}
+    </div>
+    <div id="review-section"></div>
+    <div class="contact-footer"><button class="contact-close-btn" onclick="closeContactModal()">${I18N.html('common.close')}</button></div>`;
+  loadReviewSection(d.listing_id || d.id);
+  document.getElementById('copy-contact-btn').addEventListener('click', function() {
+    navigator.clipboard.writeText(d.contact || '').then(() => {
+      I18N.set(this, 'common.copied');
+      setTimeout(() => { I18N.set(this, 'common.copy'); }, 1800);
+    });
+  });
+}
+
+// ── MAP ──
+const TYPE_COLOR = { product: '#a8c8f0', service: '#a8dfc0', experience: '#f5b8c8' };
+const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8ef' };
+const TYPE_KEY   = { product: 'family.product', service: 'family.service', experience: 'family.experience' };
+function typeHTML(type) { return TYPE_KEY[type] ? I18N.html(TYPE_KEY[type]) : esc(type); }
+
+const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
+L.control.zoom({ position: 'topleft' }).addTo(map); map.attributionControl.setPosition('bottomleft');
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', {
+  attribution: '© OpenStreetMap contributors, © CARTO', maxZoom: 19
+}).addTo(map);
+
+let allListings = [], activeFilter = 'all', selectedId = null, markerMap = {};
+let userLat = null, userLng = null, listingsLoaded = false;
+
+async function load() {
+  try {
+    const r = await fetch(`${API}/listings?lang=${encodeURIComponent(currentLang())}`,
+      { headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {} });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    allListings = Array.isArray(d) ? d : (d.listings || []);
+    listingsLoaded = true;
+    render();
+    if (scopriIsOpen()) renderScopri();
+  } catch(e) {
+    const html = `<div class="state-box">⚠️ ${esc(e.message)}</div>`;
+    document.getElementById('list-desktop').innerHTML = html;
+  }
+}
+
+function distKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function render() {
+  if (!listingsLoaded) return;
+  let list = allListings;
+  if (activeFilter !== 'all') {
+    list = allListings.filter(l => familyOf(l) === activeFilter);
+  }
+  if (userLat !== null) {
+    list = [...list].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
+  }
+  renderList(list);
+  renderMarkers(list);
+}
+
+function expiresLabel(iso) {
+  if (!iso) return '';
+  const diff = (new Date(iso) - Date.now()) / 1000;
+  if (diff <= 0) return I18N.html('time.expired');
+  if (diff < 86400) return I18N.html('time.expires.h', { n: Math.round(diff/3600) });
+  return I18N.html('time.expires.d', { n: Math.round(diff/86400) });
+}
+
+function renderList(list) {
+  if (!list.length) {
+    const h = `<div class="state-box">${I18N.html('list.empty')}</div>`;
+    document.getElementById('list-desktop').innerHTML = h;
+    document.getElementById('list-mobile').innerHTML = h;
+    return;
+  }
+  const h = list.map(l => itemHTML(l)).join('');
+  document.getElementById('list-desktop').innerHTML = h;
+  document.getElementById('list-mobile').innerHTML = h;
+  document.querySelectorAll('.listing-item').forEach(el => {
+    el.addEventListener('click', () => { select(el.dataset.id); openDetailModal(el.dataset.id); });
+  });
+}
+
+function itemHTML(l) {
+  const type  = familyOf(l);
+  const title = esc(l.title || '—');
+  const cat   = esc(l.category_label || type);
+  const price = l.price != null ? (l.price === 0 ? I18N.html('price.free') : `€${l.price}`) : '';
+  const when  = l.created_at ? timeAgo(l.created_at) : '';
+  const exp   = expiresLabel(l.expires_at);
+  const sel   = selectedId == l.id ? 'selected' : '';
+  const bg    = TYPE_BG[type] || '#eee';
+  const dot   = TYPE_COLOR[type] || '#ccc';
+  const thumb = (l.photos && l.photos[0])
+    ? `<img src="${esc(l.photos[0])}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;flex-shrink:0;margin-top:2px"/>`
+    : `<div class="listing-dot" style="background:${bg}"><div class="dot-inner" style="background:${dot}"></div></div>`;
+  let distLabel = '';
+  if (userLat !== null && l.lat && l.lng) {
+    const d = distKm(userLat, userLng, l.lat, l.lng);
+    distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+  }
+  return `<div class="listing-item ${sel}" data-id="${l.id}">
+    ${thumb}
+    <div class="listing-info">
+      <div class="listing-name">${title}${l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030;background:#fdecec;border-radius:4px;padding:1px 4px">' + I18N.html('listing.soldout') + '</span>' : ''}</div>
+      <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
+      <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
+      ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
+      ${l.stars_avg ? `<div style="font-size:10px;color:#f5a623">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count})</span></div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderMarkers(list) {
+  Object.values(markerMap).forEach(m => m.remove());
+  markerMap = {};
+  list.forEach(l => {
+    const lat = l.lat;
+    const lng = l.lng;
+    if (lat == null || lng == null) return;
+    const type  = familyOf(l);
+    const color = TYPE_COLOR[type] || '#ccc';
+    const size  = selectedId == l.id ? 18 : 14;
+    const icon  = L.divIcon({
+      className: '',
+      html: `<div class="map-pin ${selectedId == l.id ? 'selected' : ''}" style="width:${size}px;height:${size}px;background:${color}22;border:2px solid ${color};border-radius:50%"></div>`,
+      iconSize: [size,size], iconAnchor: [size/2,size/2], popupAnchor: [0,-size/2-2]
+    });
+    const m = L.marker([lat,lng], {icon}).addTo(map).bindPopup(popupHTML(l), {maxWidth:240});
+    m.on('click', () => {
+      select(l.id);
+      m.closePopup();
+      openDetailModal(l.id);
+    });
+    markerMap[l.id] = m;
+  });
+}
+
+function popupHTML(l) {
+  const type  = familyOf(l);
+  const photos = l.photos || [];
+  const photosHTML = photos.length > 0 ? `
+    <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:10px;border-radius:8px;overflow:hidden">
+      ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length===1?'100%':'80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px"${I18N.attr('alt', 'common.photo')}/>`).join('')}
+    </div>` : '';
+  const price = l.price != null ? (l.price === 0 ? I18N.html('price.free') : `€${l.price}`) : '';
+  const title = esc(l.title || '—') + (l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030">· ' + I18N.html('listing.soldout') + '</span>' : '');
+  const desc  = esc(l.description || '');
+  return `<div class="popup-inner">
+    ${photosHTML}
+    <div class="popup-type ${type}">${typeHTML(type)}</div>
+    <div class="popup-title">${title}</div>
+    ${desc||price ? `<div class="popup-meta">${[desc,price].filter(Boolean).join(' · ')}</div>` : ''}
+    <a href="${listingUrl(l)}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">${I18N.html('listing.details')}</a>
+    <button class="popup-btn" data-unlock-id="${l.entity_id}">${I18N.html('unlock.btn')}</button>
+    ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${I18N.htmlN('reviews.count', l.stars_count)})</span></div>` : ''}
+    <div class="disclaimer-box">${I18N.html('disclaimer.contact')}</div>
+  </div>`;
+}
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-unlock-id]');
+  if (btn) {
+    const id = btn.dataset.unlockId;
+    if (!authUser) { requireAuth(() => unlock(id)); return; }
+    unlock(id);
+  }
+});
+
+function select(id) {
+  selectedId = id;
+  render();
+  const m = markerMap[id];
+  if (m) { map.panTo(m.getLatLng()); m.openPopup(); }
+  document.querySelectorAll(`.listing-item[data-id="${id}"]`)
+    .forEach(el => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+}
+
+window.unlock = async function(id) {
+  if (!authUser) { requireAuth(() => unlock(id)); return; }
+  try {
+    const r = await fetch(`${API}/unlock/checkout`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ entity_id: id })
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    if (data.already_unlocked) { openContactModal(id, data.session_id); return; }
+    window.location.href = data.url;
+  } catch(e) { alert(I18N.t('unlock.error') + ': ' + e.message); }
+};
+
+function initFilters(id) {
+  document.querySelectorAll(`#${id} .filter-btn`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll(`#${id} .filter-btn`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.type;
+      render();
+    });
+  });
+}
+initFilters('filters-desktop');
+initFilters('filters-mobile');
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      userLat = p.coords.latitude; userLng = p.coords.longitude;
+      map.setView([userLat, userLng], 14);
+      render();
+    }, () => {}
+  );
+}
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 3600)  return I18N.html('time.ago.min', { n: Math.round(diff/60) });
+  if (diff < 86400) return I18N.html('time.ago.h', { n: Math.round(diff/3600) });
+  return I18N.html('time.ago.d', { n: Math.round(diff/86400) });
+}
+
+// ── CLOUDINARY ──
+const CLOUDINARY_CLOUD_NAME = 'zcjxbsss';
+const CLOUDINARY_UPLOAD_PRESET = 'qui_uploads';
+
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'qui');
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error(I18N.t('upload.photo.error'));
+  return (await r.json()).secure_url;
+}
+
+// ── MERCHANT MODAL ──
+let modalMap = null, modalMarker = null, selectedType = 'product';
+let pickedLat = null, pickedLng = null, selectedPhotos = [];
+let editingListingId = null, existingPhotoUrls = [];
+let myListingsCache = [];
+
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  const isAdmin = authUser && authUser.is_admin;
+  I18N.set(document.getElementById('loc-gps-btn'), 'form.loc.gps');
+  I18N.set(document.getElementById('map-hint'), isAdmin ? 'form.maphint.admin' : 'form.maphint.user');
+  document.getElementById('modal-form-body').style.display = '';
+  document.getElementById('modal-success').classList.remove('show');
+  document.getElementById('modal-footer').style.display = '';
+  selectType('product');
+  if (!modalMap) {
+    const center = map.getCenter();
+    modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([center.lat, center.lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', { maxZoom: 19 }).addTo(modalMap);
+    if (isAdmin) modalMap.on('click', e => setPickedLocation(e.latlng.lat, e.latlng.lng));
+  } else {
+    modalMap.setView(map.getCenter(), 15);
+  }
+  setTimeout(() => modalMap.invalidateSize(), 120);
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); resetForm(); }
+
+function editListing(id) {
+  const l = myListingsCache.find(x => String(x.id) === String(id));
+  if (!l) return;
+  editingListingId = id;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-form-body').style.display = '';
+  document.getElementById('modal-success').classList.remove('show');
+  document.getElementById('modal-footer').style.display = '';
+  I18N.set(document.querySelector('.modal-title'), 'form.edit.title');
+  I18N.set(document.getElementById('btn-submit'), 'form.submit.edit');
+
+  const type = familyOf(l);
+  selectType(type);
+  document.getElementById('f-title').value = l.title || '';
+  document.getElementById('f-desc').value = l.description || '';
+  document.getElementById('f-price').value = l.price || '';
+  document.getElementById('f-contact').value = '';
+  I18N.setAttr(document.getElementById('f-contact'), 'placeholder', 'form.contact.keep');
+
+  setTimeout(() => {
+    const sel = document.getElementById('f-category');
+    if (l.category) sel.value = l.category;
+  }, 0);
+
+  existingPhotoUrls = (l.photos || []).slice(0, 4);
+  selectedPhotos = [];
+  renderPhotoPreview();
+
+  I18N.set(document.getElementById('loc-text'), 'form.loc.locked');
+  document.getElementById('loc-gps-btn').style.display = 'none';
+  pickedLat = l.lat; pickedLng = l.lng;
+
+  if (!modalMap) {
+    modalMap = L.map('modal-map', { zoomControl: true, attributionControl: false }).setView([l.lat, l.lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', { maxZoom: 19 }).addTo(modalMap);
+  } else {
+    modalMap.setView([l.lat, l.lng], 15);
+  }
+  setTimeout(() => modalMap.invalidateSize(), 120);
+}
+
+function resetForm() {
+  ['f-title','f-price','f-desc','f-contact'].forEach(id => { document.getElementById(id).value = ''; });
+  I18N.setAttr(document.getElementById('f-contact'), 'placeholder', 'form.contact.ph');
+  pickedLat = null; pickedLng = null;
+  I18N.set(document.getElementById('loc-text'), 'form.loc.none');
+  document.getElementById('loc-gps-btn').style.display = '';
+  if (modalMarker) { modalMarker.remove(); modalMarker = null; }
+  selectedPhotos = [];
+  existingPhotoUrls = [];
+  editingListingId = null;
+  document.getElementById('photo-preview').innerHTML = '';
+  I18N.set(document.querySelector('.modal-title'), 'listing.publish');
+  I18N.set(document.getElementById('btn-submit'), 'form.submit');
+  selectType('product');
+}
+
+function selectType(type) {
+  selectedType = type;
+  document.querySelectorAll('.type-opt').forEach(el => {
+    el.classList.remove('selected');
+    if (el.dataset.type === type) el.classList.add('selected');
+  });
+  const sel = document.getElementById('f-category');
+  sel.innerHTML = `<option value="" data-i18n="form.category.ph">${esc(I18N.t('form.category.ph'))}</option>`;
+  const macros = TAXONOMY[type] || {};
+  Object.keys(macros).forEach(macroCode => {
+    const macro = macros[macroCode];
+    if (!macro.categories.length) return;
+    const group = document.createElement('optgroup');
+    group.label = macro.label;
+    macro.categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.code;
+      opt.textContent = cat.label;
+      group.appendChild(opt);
+    });
+    sel.appendChild(group);
+  });
+}
+
+function setPickedLocation(lat, lng) {
+  pickedLat = lat; pickedLng = lng;
+  I18N.set(document.getElementById('loc-text'), 'form.loc.picked', { coords: `${lat.toFixed(5)}, ${lng.toFixed(5)}` });
+  if (modalMarker) modalMarker.remove();
+  modalMarker = L.circleMarker([lat,lng], { radius:8, color:'#2a2a6e', fillColor:'#a8c8f0', fillOpacity:0.9, weight:2 }).addTo(modalMap);
+}
+
+function useGPS() {
+  if (!navigator.geolocation) return alert(I18N.t('gps.unavailable'));
+  navigator.geolocation.getCurrentPosition(
+    p => { setPickedLocation(p.coords.latitude, p.coords.longitude); modalMap.setView([p.coords.latitude, p.coords.longitude], 16); },
+    () => alert(I18N.t('gps.failed'))
+  );
+}
+
+function handlePhotos(input) {
+  Array.from(input.files).forEach(file => {
+    if (existingPhotoUrls.length + selectedPhotos.length >= 4) return;
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+      file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    if (isHeic) { alert(I18N.t('photos.heic')); return; }
+    const reader = new FileReader();
+    reader.onload = e => { selectedPhotos.push({ file, dataUrl: e.target.result }); renderPhotoPreview(); };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoPreview() {
+  const existingHTML = existingPhotoUrls.map((url,i) => `
+    <div class="photo-thumb-wrap">
+      <img class="photo-thumb" src="${esc(url)}"${I18N.attr('alt', 'photo.existing', { n: i+1 })}/>
+      <button class="photo-remove" onclick="removeExistingPhoto(${i})">×</button>
+    </div>`).join('');
+  const newHTML = selectedPhotos.map((p,i) => `
+    <div class="photo-thumb-wrap">
+      <img class="photo-thumb" src="${p.dataUrl}"${I18N.attr('alt', 'photo.n', { n: i+1 })}/>
+      <button class="photo-remove" onclick="removePhoto(${i})">×</button>
+    </div>`).join('');
+  document.getElementById('photo-preview').innerHTML = existingHTML + newHTML;
+}
+
+function removePhoto(i) { selectedPhotos.splice(i,1); renderPhotoPreview(); }
+function removeExistingPhoto(i) { existingPhotoUrls.splice(i,1); renderPhotoPreview(); }
+
+async function submitListing() {
+  if (!authUser) { requireAuth(submitListing); return; }
+  const isEdit   = !!editingListingId;
+  const title    = document.getElementById('f-title').value.trim();
+  const contact  = document.getElementById('f-contact').value.trim();
+  const category = document.getElementById('f-category').value;
+  if (!title)    { alert(I18N.t('form.err.title')); return; }
+  if (!category) { alert(I18N.t('form.err.category')); return; }
+  if (!isEdit && !pickedLat) { alert(I18N.t('form.err.location')); return; }
+  if (!isEdit && !contact)   { alert(I18N.t('form.err.contact')); return; }
+  if (!isEdit && !selectedPhotos.length) { alert(I18N.t('form.err.photo')); return; }
+  if (isEdit && existingPhotoUrls.length + selectedPhotos.length === 0) { alert(I18N.t('form.err.photo')); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  let newPhotoUrls = [];
+  if (selectedPhotos.length) {
+    btn.textContent = I18N.t('form.uploading', { i: 0, n: selectedPhotos.length });
+    try {
+      for (let i = 0; i < selectedPhotos.length; i++) {
+        btn.textContent = I18N.t('form.uploading', { i: i+1, n: selectedPhotos.length });
+        newPhotoUrls.push(await uploadToCloudinary(selectedPhotos[i].file));
+      }
+    } catch(e) {
+      alert(`${I18N.t('upload.photo.error')}: ${e.message}`);
+      btn.disabled = false; I18N.set(btn, isEdit ? 'form.submit.edit' : 'form.submit');
+      return;
+    }
+  }
+  const allPhotoUrls = existingPhotoUrls.concat(newPhotoUrls);
+
+  btn.textContent = I18N.t(isEdit ? 'common.saving' : 'form.publishing');
+  try {
+    let r;
+    if (isEdit) {
+      const payload = {
+        title, type: selectedType, category,
+        description: document.getElementById('f-desc').value.trim(),
+        price: parseFloat(document.getElementById('f-price').value) || 0,
+        photos: allPhotoUrls
+      };
+      if (contact) payload.contact = contact;
+      r = await fetch(`${API}/products/${editingListingId}`, {
+        method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload)
+      });
+    } else {
+      r = await fetch(`${API}/listings`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ title, type: selectedType, category,
+          description: document.getElementById('f-desc').value.trim(),
+          price: parseFloat(document.getElementById('f-price').value) || 0,
+          contact, lat: pickedLat, lng: pickedLng, photos: allPhotoUrls })
+      });
+    }
+    if (!r.ok) { const err = await r.json(); throw new Error(err.error || `HTTP ${r.status}`); }
+    document.getElementById('modal-form-body').style.display = 'none';
+    document.getElementById('modal-footer').style.display = 'none';
+    document.getElementById('modal-success').classList.add('show');
+    I18N.set(document.querySelector('.success-title'), isEdit ? 'form.success.updated' : 'form.success.published');
+    setTimeout(() => { load(); closeModal(); }, 2200);
+  } catch(e) {
+    alert(`${I18N.t('common.error')}: ${e.message}`);
+    btn.disabled = false; I18N.set(btn, isEdit ? 'form.submit.edit' : 'form.submit');
+  }
+}
+async function loadReviewSection(listingId) {
+  const el = document.getElementById('review-section');
+  if (!el || !authUser) return;
+  try {
+    const r = await fetch(`${API}/reviews/my-unlocks`, { headers: authHeaders() });
+    if (!r.ok) return;
+    const unlocks = await r.json();
+    const entry = unlocks.find(u => u.listing_id === listingId);
+    if (!entry) return;
+    if (!entry.can_review && !entry.reviewed) {
+      el.innerHTML = `<div style="font-size:11px;color:#888;padding:10px 20px">${I18N.html('review.wait', { n: entry.hours_left })}</div>`;
+      return;
+    }
+    if (entry.reviewed) {
+      el.innerHTML = `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">${I18N.htmlN('review.already', entry.stars)}</div>`;
+      return;
+    }
+    el.innerHTML = `<div style="padding:10px 20px;border-top:0.5px solid #f0f0f0">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">${I18N.html('review.ask')}</div>
+      <div style="display:flex;gap:8px;justify-content:center" id="star-btns">
+        ${[1,2,3,4,5].map(s => `<button onclick="submitReview('${listingId}',${s})" style="font-size:22px;background:none;border:none;cursor:pointer">☆</button>`).join('')}
+      </div>
+    </div>`;
+  } catch {}
+}
+
+async function submitReview(listingId, stars) {
+  try {
+    const r = await fetch(`${API}/reviews/${listingId}`, {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ stars })
+    });
+    const d = await r.json();
+    if (!r.ok) { alert(d.error); return; }
+    document.getElementById('review-section').innerHTML =
+      `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">${I18N.htmlN('review.sent', stars)}</div>`;
+    load();
+  } catch(e) { alert(I18N.t('common.error') + ': ' + e.message); }
+}
+document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
+document.getElementById('auth-overlay').addEventListener('click', function(e) { if (e.target===this) closeAuthModal(); });
+document.getElementById('profile-overlay').addEventListener('click', function(e) { if (e.target===this) closeProfileModal(); });
+document.getElementById('detail-overlay').addEventListener('click', function(e) { if (e.target===this) closeDetailModal(); });
+document.getElementById('forgot-overlay').addEventListener('click', function(e) { if (e.target===this) closeForgotModal(); });
+document.getElementById('reset-overlay').addEventListener('click', function(e) { if (e.target===this) closeResetModal(); });
+
+// ── SCOPRI ──
+let scopriFilter = 'all';
+// Codici di foglia risolti dall'ultima parola cercata qui. renderScopri resta
+// sincrona — la chiamano openScopri e setScopriFilter — e legge questo insieme
+// così com'è: la rete lo riempie quando arriva, senza far aspettare nessuno.
+let scopriCodes = new Set();
+let scopriTimer = null, scopriLogTimer = null, scopriSeq = 0;
+
+// Discover ha un indirizzo suo, /discover: si può condividere, ricaricare e
+// chiudere col tasto «indietro». Il file discover.html riporta qui con
+// ?view=discover, perché il server non serve index.html per indirizzi diversi.
+const DISCOVER_PATH = '/discover';
+function showScopri(on) {
+  document.getElementById('scopri-overlay').classList.toggle('open', on);
+  document.body.classList.toggle('discover-open', on);
+  if (!on) return;
+  // Su computer Discover usa la ricerca della barra in alto: il testo già scritto vale anche qui.
+  const top = document.getElementById('search-input-desktop');
+  const si = document.getElementById('scopri-input');
+  if (window.matchMedia('(min-width: 681px)').matches && top && si.value !== top.value) {
+    si.value = top.value;
+    si.dispatchEvent(new Event('input'));
+  } else {
+    renderScopri();
+  }
+}
+function scopriIsOpen() { return document.getElementById('scopri-overlay').classList.contains('open'); }
+function openScopri() {
+  showScopri(true);
+  if (location.pathname !== DISCOVER_PATH) history.pushState({ quiView: 'discover' }, '', DISCOVER_PATH);
+}
+function closeScopri() {
+  showScopri(false);
+  if (location.pathname === DISCOVER_PATH) {
+    if (history.state && history.state.quiView === 'discover') history.back();
+    else history.replaceState(null, '', '/');
+  }
+}
+window.addEventListener('popstate', () => showScopri(location.pathname === DISCOVER_PATH));
+
+function setScopriFilter(btn, type) {
+  scopriFilter = type;
+  document.querySelectorAll('.scopri-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScopri();
+}
+
+// Le famiglie non si mescolano mai: con «Tutti» si vedono tre sezioni distinte,
+// nell'ordine dei bottoni. Etichette al plurale, come i bottoni stessi.
+const SCOPRI_SECTION = { product: 'family.products', service: 'family.services', experience: 'family.experiences' };
+const SCOPRI_FAMS = ['product', 'service', 'experience'];
+
+function scopriCardHTML(l) {
+  const type = familyOf(l);
+  const photo = (l.photos && l.photos[0])
+    ? `<img class="scopri-card-img" src="${esc(l.photos[0])}"${I18N.attr('alt', 'common.photo')}/>`
+    : `<div class="scopri-card-img-placeholder">📦</div>`;
+  const price = l.price === 0 ? I18N.html('price.free') : (l.price ? `€${l.price}` : '');
+  let distLabel = '';
+  if (userLat !== null && l.lat && l.lng) {
+    const d = distKm(userLat, userLng, l.lat, l.lng);
+    distLabel = d < 1 ? `${Math.round(d*1000)}m` : `${d.toFixed(1)}km`;
+  }
+  const title = esc(l.title || '—');
+  const desc  = esc(l.description || '');
+  const cat   = esc(l.category_label || '');
+  return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
+    ${photo}
+    <div class="scopri-card-overlay">
+      <div class="scopri-card-type ${type}">${typeHTML(type)}</div>
+      <div class="scopri-card-title">${title}</div>
+      ${desc ? `<div class="scopri-card-desc">${desc}</div>` : ''}
+      ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
+      <div class="scopri-card-meta">${cat}${distLabel ? ` · 📍 ${distLabel}` : ''}</div>
+    </div>
+  </div>`;
+}
+
+function renderScopri() {
+  const q = (document.getElementById('scopri-input').value || '').toLowerCase().trim();
+  const el = document.getElementById('scopri-list');
+
+  function pick(fam) {
+    let l = allListings.filter(x => familyOf(x) === fam);
+    // Il testo dell'annuncio si confronta qui; le keywords e gli alias li ha
+    // già risolti /search/resolve e stanno in scopriCodes.
+    if (q) l = l.filter(x => matchesText(x, q) || scopriCodes.has(x.category));
+    if (userLat !== null) {
+      l = [...l].sort((a,b) => distKm(userLat,userLng,a.lat,a.lng) - distKm(userLat,userLng,b.lat,b.lng));
+    }
+    return l;
+  }
+
+  const fams = scopriFilter === 'all' ? SCOPRI_FAMS : [scopriFilter];
+  const groups = fams.map(f => ({ fam: f, list: pick(f) }));
+  const total = groups.reduce((n, g) => n + g.list.length, 0);
+
+  if (!total) {
+    el.innerHTML = `<div class="state-box scopri-empty">${I18N.html('scopri.noresults')}</div>`;
+    return;
+  }
+
+  el.innerHTML = groups.map(g => {
+    // Con una famiglia sola l'intestazione la dice già il bottone attivo.
+    if (fams.length === 1) return g.list.map(scopriCardHTML).join('');
+    // Una sezione vuota si mostra comunque: «Servizi — 0» è un'informazione,
+    // il silenzio no.
+    const head = `<div class="scopri-section${g.list.length ? '' : ' empty'}">`
+               + `${SCOPRI_SECTION[g.fam] ? I18N.html(SCOPRI_SECTION[g.fam]) : esc(g.fam)} — ${g.list.length}</div>`;
+    return head + g.list.map(scopriCardHTML).join('');
+  }).join('');
+}
+
+document.getElementById('scopri-input').addEventListener('input', function() {
+  const v = this.value;
+  clearTimeout(scopriTimer);
+  clearTimeout(scopriLogTimer);
+  scopriCodes = new Set();   // la parola è cambiata: i codici vecchi non valgono più
+  renderScopri();            // il testo si mostra subito, la rete allarga dopo
+  const q = (v || '').trim().toLowerCase();
+  if (q.length < 2) return;
+
+  const seq = ++scopriSeq;
+  scopriTimer = setTimeout(async () => {
+    const codes = await resolveCodes(q);
+    if (seq !== scopriSeq) return;   // è arrivata una parola più recente
+    scopriCodes = new Set(codes);
+    renderScopri();
+  }, 160);
+
+  // La ricerca si considera posta quando chi scrive si ferma.
+  scopriLogTimer = setTimeout(() => {
+    if (q.length < 3) return;
+    fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}&log=1`)
+      .catch(() => {});
+  }, 1400);
+});
+
+// ── SEARCH ──
+// Il testo dell'annuncio si confronta qui; il DIZIONARIO no. Keywords e alias
+// vivono in database e li risolve /search/resolve, punto unico: il browser
+// chiede una parola e riceve codici di foglia. Senza questo passaggio gli 89
+// alias restano inerti — cercare «macelleria» non trovava nulla (debito 139).
+
+function matchesText(l, q) {
+  return (l.title||'').toLowerCase().includes(q)
+      || (l.description||'').toLowerCase().includes(q)
+      || (l.category_label||'').toLowerCase().includes(q)
+      || (l.entity_name||'').toLowerCase().includes(q)
+      || (l.city||'').toLowerCase().includes(q);
+}
+
+// Le risposte possono tornare in ordine diverso da quello in cui sono partite:
+// senza questo contatore una richiesta lenta su una parola vecchia
+// sovrascriverebbe il risultato di quella nuova.
+let searchSeq = 0;
+let searchTimer = null;
+let searchLogTimer = null;
+
+async function resolveCodes(q) {
+  try {
+    const r = await fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}`);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return (d.matches || []).map(m => m.code);
+  } catch (e) {
+    // Il dizionario non risponde: si resta sul testo, mai sullo schermo vuoto.
+    console.error('Risoluzione lessicale non riuscita:', e);
+    return [];
+  }
+}
+
+async function applySearch(raw) {
+  const q = (raw || '').trim().toLowerCase();
+  if (!q) { render(); return; }
+
+  // Il testo si mostra subito: la rete non deve far aspettare chi digita.
+  const seq = ++searchSeq;
+  const byText = allListings.filter(l => matchesText(l, q));
+  renderList(byText); renderMarkers(byText);
+
+  if (q.length < 2) return;
+  const codes = await resolveCodes(q);
+  if (seq !== searchSeq) return;   // è arrivata una parola più recente
+
+  const wanted = new Set(codes);
+  const merged = allListings.filter(l => matchesText(l, q) || wanted.has(l.category));
+  renderList(merged); renderMarkers(merged);
+}
+
+['search-input-desktop', 'search-input-mobile'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    const v = this.value;
+    // Con Discover aperto la stessa ricerca filtra anche le schede di Discover.
+    if (scopriIsOpen()) {
+      const si = document.getElementById('scopri-input');
+      si.value = v;
+      si.dispatchEvent(new Event('input'));
+    }
+    clearTimeout(searchTimer);
+    clearTimeout(searchLogTimer);
+    searchTimer = setTimeout(() => applySearch(v), 160);
+    // La ricerca si considera POSTA quando chi scrive si ferma. Prima di
+    // allora sono tasti premuti, e registrarli riempirebbe il log di
+    // frammenti che non sono domande.
+    searchLogTimer = setTimeout(() => {
+      const q = (v || '').trim().toLowerCase();
+      if (q.length < 3) return;
+      if (scopriIsOpen()) return;   // con Discover aperto la registra già Discover: una volta sola
+      fetch(`${API}/search/resolve?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(currentLang())}&log=1`)
+        .catch(() => {});
+    }, 1400);
+  });
+});
+
+// ── INIT ──
+const pendingOpenAdd = new URLSearchParams(location.search).get('add') === '1';
+(function apriDiscoverDaIndirizzo() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('view') !== 'discover' && location.pathname !== DISCOVER_PATH) return;
+  p.delete('view');
+  const q = p.toString();
+  history.replaceState(null, '', DISCOVER_PATH + (q ? '?' + q : '') + location.hash);
+  showScopri(true);
+})();
+loadTaxonomyFromAPI();
+loadAuthUser().then(() => { load(); if (pendingOpenAdd) onAddClick(); });
+</script>
+</body>
+</html>

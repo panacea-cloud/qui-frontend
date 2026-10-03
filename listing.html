@@ -19,6 +19,7 @@
 <meta name="twitter:description" content="{{META_DESCRIPTION}}"/>
 <meta name="twitter:image" content="{{OG_IMAGE}}"/>
 
+<script src="https://www.ilqui.com/i18n.js?v=4"></script>
 <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -88,13 +89,13 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 <body>
 
 <div class="topbar">
-  <a class="topbar-back" href="https://www.ilqui.com">← Mappa</a>
+  <a class="topbar-back" href="https://www.ilqui.com"><span>← <span data-i18n="nav.map">Mappa</span></span></a>
   <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png" class="topbar-logo" alt="QUI"/>
   <div style="width:60px"></div>
 </div>
 
 <div class="page" id="page-content">
-  <div class="state-box"><div class="spinner"></div>Caricamento…</div>
+  <div class="state-box"><div class="spinner"></div><span data-i18n="common.loading">Caricamento…</span></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -103,8 +104,6 @@ html, body { font-family: 'Inter', sans-serif; font-size: 14px; color: #111; bac
 const API = 'https://qui-backend-production.up.railway.app';
 const PRODUCT_ID = '{{PRODUCT_ID}}';
 const ENTITY_ID  = '{{ENTITY_ID}}';
-const LANG = (new URLSearchParams(location.search).get('lang')
-  || (navigator.language || 'it')).split('-')[0].toLowerCase();
 
 let authToken = localStorage.getItem('qui_token') || null;
 
@@ -120,19 +119,19 @@ function authHeaders() {
 }
 
 // La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
-const FAMILY_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
+const FAMILIES = ['product', 'service', 'experience'];
 
 async function loadListing() {
   try {
-    const r = await fetch(`${API}/listings/${PRODUCT_ID}?lang=${encodeURIComponent(LANG)}`, {
+    const r = await fetch(I18N.apiParam(`${API}/listings/${PRODUCT_ID}`), {
       headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
     });
-    if (!r.ok) throw new Error(r.status === 404 ? 'Annuncio non trovato o non più disponibile.' : `Errore HTTP ${r.status}`);
+    if (!r.ok) throw new Error(r.status === 404 ? I18N.t('listing.notfound') : `${I18N.t('common.error')} HTTP ${r.status}`);
     const l = await r.json();
     render(l);
   } catch (e) {
     document.getElementById('page-content').innerHTML =
-      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="https://www.ilqui.com" style="justify-content:center">← Torna alla mappa</a></div>`;
+      `<div class="state-box">⚠️ ${esc(e.message)}<br><br><a class="topbar-back" href="https://www.ilqui.com" style="justify-content:center">${esc(I18N.t('listing.backtomap'))}</a></div>`;
   }
 }
 
@@ -140,23 +139,23 @@ function render(l) {
   const family = l.family || 'product';
   const photos = l.photos || [];
   const photosHTML = photos.length
-    ? `<div class="photos">${photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')}</div>`
+    ? `<div class="photos">${photos.map(url => `<img src="${esc(url)}" alt="${esc(I18N.t('common.photo'))}"/>`).join('')}</div>`
     : `<div class="photos-placeholder">📦</div>`;
 
-  const price = l.price === 0 ? 'Gratis' : (l.price != null ? `€${l.price}` : '');
+  const price = l.price === 0 ? I18N.t('price.free') : (l.price != null ? `€${l.price}` : '');
   const cat = l.category_label || '';
   const city = l.city || '';
   const title = esc(l.title || '—');
   const desc = esc(l.description || '');
   const soldOut = l.is_available === false;
 
-  document.title = `${l.title || 'Annuncio'} — QUI`;
+  document.title = `${l.title || I18N.t('listing.title.fallback')} — QUI`;
 
   document.getElementById('page-content').innerHTML = `
     ${photosHTML}
     <div class="body-content">
-      <div class="type-badge ${esc(family)}">${esc(FAMILY_LABEL[family] || family)}</div>
-      <div class="listing-title">${title}${soldOut ? ' <span class="badge-soldout">Esaurito</span>' : ''}</div>
+      <div class="type-badge ${esc(family)}">${esc(FAMILIES.includes(family) ? I18N.t('family.' + family) : family)}</div>
+      <div class="listing-title">${title}${soldOut ? ` <span class="badge-soldout">${esc(I18N.t('listing.soldout'))}</span>` : ''}</div>
       ${l.entity_name ? `<div class="listing-entity">${esc(l.entity_name)}</div>` : ''}
       <div class="listing-meta">
         ${cat ? `<span>${esc(cat)}</span>` : ''}
@@ -164,9 +163,9 @@ function render(l) {
         ${price ? `<span class="listing-price">${esc(price)}</span>` : ''}
       </div>
       ${desc ? `<div class="listing-desc">${desc}</div>` : ''}
-      ${l.stars_avg ? `<div class="listing-stars">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
-      <button class="unlock-btn" id="unlock-btn">🔓 Sblocca contatto — €1</button>
-      <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+      ${l.stars_avg ? `<div class="listing-stars">★ ${l.stars_avg} <span style="color:#aaa">(${esc(I18N.tn('reviews.count', l.stars_count || 0))})</span></div>` : ''}
+      <button class="unlock-btn" id="unlock-btn">${esc(I18N.t('unlock.btn'))}</button>
+      <div class="disclaimer-box">${esc(I18N.t('disclaimer.contact'))}</div>
       ${(l.lat && l.lng) ? `<div class="map-preview" id="map-preview"></div>` : ''}
       <div class="review-section" id="review-section"></div>
     </div>
@@ -201,7 +200,7 @@ async function unlock(entityId) {
     }
     window.location.href = data.url;
   } catch (e) {
-    alert('Errore pagamento: ' + e.message);
+    alert(I18N.t('unlock.error') + ': ' + e.message);
   }
 }
 
@@ -215,15 +214,15 @@ async function loadReviewSection(listingId) {
     const entry = unlocks.find(u => u.listing_id === listingId);
     if (!entry) return;
     if (!entry.can_review && !entry.reviewed) {
-      el.innerHTML = `<div style="font-size:12px;color:#888">Potrai lasciare una recensione tra ${entry.hours_left}h</div>`;
+      el.innerHTML = `<div style="font-size:12px;color:#888">${esc(I18N.t('review.wait', { n: entry.hours_left }))}</div>`;
       return;
     }
     if (entry.reviewed) {
-      el.innerHTML = `<div style="font-size:12px;color:#2a7a4a">✓ Hai già recensito questo annuncio (${entry.stars} stelle)</div>`;
+      el.innerHTML = `<div style="font-size:12px;color:#2a7a4a">${esc(I18N.tn('review.already', entry.stars))}</div>`;
       return;
     }
     el.innerHTML = `
-      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px">Come valuti questa esperienza?</div>
+      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px">${esc(I18N.t('review.ask'))}</div>
       <div style="display:flex;gap:8px" id="star-btns">
         ${[1,2,3,4,5].map(s => `<button onclick="submitReview('${listingId}',${s})" style="font-size:24px;background:none;border:none;cursor:pointer">☆</button>`).join('')}
       </div>`;
@@ -239,8 +238,8 @@ async function submitReview(listingId, stars) {
     const d = await r.json();
     if (!r.ok) { alert(d.error); return; }
     document.getElementById('review-section').innerHTML =
-      `<div style="font-size:12px;color:#2a7a4a">✓ Recensione inviata — ${stars} stelle</div>`;
-  } catch (e) { alert('Errore: ' + e.message); }
+      `<div style="font-size:12px;color:#2a7a4a">${esc(I18N.tn('review.sent', stars))}</div>`;
+  } catch (e) { alert(I18N.t('common.error') + ': ' + e.message); }
 }
 
 loadListing();
