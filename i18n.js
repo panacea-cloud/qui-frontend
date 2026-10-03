@@ -56,14 +56,16 @@
 
   function register(lang, dict) { DICT[lang] = dict; }
 
-  /* Lingua attiva: scelta salvata > ?lang= > lingua del browser > default. */
+  /* Lingua attiva: ?lang= > scelta salvata > lingua del browser > default.
+     Un link che porta la lingua è una richiesta esplicita e vince sulla scelta salvata
+     (la pagina dell'annuncio sta su un altro dominio e riceve la lingua solo dal link). */
   function detectLang() {
+    var q = new URLSearchParams(global.location.search).get('lang');
+    if (q) { q = q.split('-')[0].toLowerCase(); if (LANGS[q]) return q; }
+
     var saved = null;
     try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
     if (saved && LANGS[saved]) return saved;
-
-    var q = new URLSearchParams(global.location.search).get('lang');
-    if (q) { q = q.split('-')[0].toLowerCase(); if (LANGS[q]) return q; }
 
     var nav = (global.navigator.language || '').split('-')[0].toLowerCase();
     if (LANGS[nav]) return nav;
