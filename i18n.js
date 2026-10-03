@@ -22,7 +22,7 @@
       'nav.apikeys': 'API Keys',
       'nav.add': '+ Aggiungi',
 
-      'search.placeholder': 'Cerca sulla mappa…',
+      'search.placeholder': 'Cerca',
       'search.discover': 'Scopri',
       'search.sort': 'Ordina',
       'search.sort.nearest': 'Più vicino',
@@ -83,7 +83,7 @@
       'nav.apikeys': 'API Keys',
       'nav.add': '+ Add',
 
-      'search.placeholder': 'Search the map\u2026',
+      'search.placeholder': 'Search',
       'search.discover': 'Discover',
       'search.sort': 'Sort',
       'search.sort.nearest': 'Nearest',
