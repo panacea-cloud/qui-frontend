@@ -599,7 +599,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 }
 .leaflet-control-zoom { display: none !important; }
 </style>
-<script src="/i18n.js?v=2"></script>
+<script src="/i18n.js?v=3"></script>
 </head>
 <body>
 <div class="app">
@@ -607,9 +607,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <!-- TOPBAR -->
   <div class="topbar">
     <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
-      class="topbar-logo" alt="QUI" style="cursor:pointer" title="Pubblica un annuncio" onclick="onAddClick()"
+      class="topbar-logo" alt="QUI" style="cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
-    <div class="topbar-logo-fallback" style="display:none;cursor:pointer" title="Pubblica un annuncio" onclick="onAddClick()">
+    <div class="topbar-logo-fallback" style="display:none;cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1Q9 5 7 7Q5 9 7 13" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
         <path d="M1 7Q5 5 7 7Q9 9 13 7" stroke="#2a2a6e" stroke-width="1.4" fill="none"/>
@@ -626,20 +626,20 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   <div class="body">
     <div class="sidebar">
       <div class="sidebar-filters" id="filters-desktop">
-        <div class="filter-btn active" data-type="all" title="Tutti">
+        <div class="filter-btn active" data-type="all" title="Tutti" data-i18n-title="filter.all">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         </div>
-        <div class="filter-btn" data-type="product" title="Prodotti"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
-        <div class="filter-btn" data-type="service" title="Servizi"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
-        <div class="filter-btn" data-type="experience" title="Esperienze"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
+        <div class="filter-btn" data-type="product" title="Prodotti" data-i18n-title="family.products"><span style="width:9px;height:9px;border-radius:50%;background:#a8c8f0;display:block"></span></div>
+        <div class="filter-btn" data-type="service" title="Servizi" data-i18n-title="family.services"><span style="width:9px;height:9px;border-radius:50%;background:#a8dfc0;display:block"></span></div>
+        <div class="filter-btn" data-type="experience" title="Esperienze" data-i18n-title="family.experiences"><span style="width:9px;height:9px;border-radius:50%;background:#f5b8c8;display:block"></span></div>
       </div>
       <button class="scopri-sidebar-btn" onclick="openScopri()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        Scopri
+        <span data-i18n="search.discover">Scopri</span>
       </button>
-      <div class="sort-row">Ordina <strong style="margin-left:3px">Più vicino</strong></div>
+      <div class="sort-row"><span data-i18n="search.sort">Ordina</span> <strong style="margin-left:3px" data-i18n="search.sort.nearest">Più vicino</strong></div>
       <div class="listing-scroll" id="list-desktop">
-        <div class="state-box"><div class="spinner"></div>Caricamento…</div>
+        <div class="state-box"><div class="spinner"></div><span data-i18n="common.loading">Caricamento…</span></div>
       </div>
     </div>
 
@@ -690,7 +690,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <div id="forgot-success" style="display:none;background:#ddf3ea;color:#2a7a4a" class="auth-error"></div>
       <div class="auth-field"><label data-i18n="auth.email">EMAIL</label><input type="email" id="forgot-email" placeholder="tuaemail@esempio.it" data-i18n-placeholder="auth.email.placeholder"/></div>
       <button class="auth-submit" id="forgot-submit-btn" onclick="submitForgotPassword()" data-i18n="auth.forgot.submit">Invia link di reset</button>
-      <div class="auth-info">Ti invieremo un link per reimpostare la password.</div>
+      <div class="auth-info" data-i18n="auth.forgot.info">Ti invieremo un link per reimpostare la password.</div>
     </div>
   </div>
 </div>
@@ -699,13 +699,13 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <div class="auth-overlay" id="reset-overlay">
   <div class="auth-modal">
     <div class="auth-header">
-      <div class="auth-header-title">Reimposta password</div>
+      <div class="auth-header-title" data-i18n="auth.reset.title">Reimposta password</div>
       <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeResetModal()">✕</button>
     </div>
     <div class="auth-body">
       <div id="reset-error" style="display:none" class="auth-error"></div>
       <div class="auth-field"><label data-i18n="auth.reset.newpassword">NUOVA PASSWORD</label><input type="password" id="reset-password" placeholder="Minimo 6 caratteri" data-i18n-placeholder="auth.password.placeholder"/></div>
-      <button class="auth-submit" id="reset-submit-btn" onclick="submitResetPassword()">Reimposta password</button>
+      <button class="auth-submit" id="reset-submit-btn" onclick="submitResetPassword()" data-i18n="auth.reset.submit">Reimposta password</button>
     </div>
   </div>
 </div>
@@ -718,11 +718,11 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
         <span class="contact-check">✅</span>
         <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeContactModal()">✕</button>
       </div>
-      <div class="contact-header-title">Contatto sbloccato</div>
-      <div class="contact-header-sub">Pagamento €1 completato</div>
+      <div class="contact-header-title" data-i18n="contact.unlocked">Contatto sbloccato</div>
+      <div class="contact-header-sub" data-i18n="contact.paid">Pagamento €1 completato</div>
     </div>
     <div id="contact-body">
-      <div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>
+      <div class="contact-loading"><div class="spinner"></div><span data-i18n="contact.loading">Recupero contatto…</span></div>
     </div>
   </div>
 </div>
@@ -738,17 +738,17 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <div class="detail-meta" id="detail-meta"></div>
       <div class="detail-desc" id="detail-desc"></div>
       <div class="detail-stars" id="detail-stars"></div>
-      <a id="detail-link" href="#" target="_blank" rel="noopener" style="font-size:12px;color:#2a2a6e;font-weight:600;text-decoration:none">Vedi pagina completa →</a>
-      <button class="popup-btn" id="detail-unlock-btn">🔓 Sblocca contatto — €1</button>
+      <a id="detail-link" href="#" target="_blank" rel="noopener" style="font-size:12px;color:#2a2a6e;font-weight:600;text-decoration:none" data-i18n="detail.fullpage">Vedi pagina completa →</a>
+      <button class="popup-btn" id="detail-unlock-btn" data-i18n="unlock.btn">🔓 Sblocca contatto — €1</button>
       <div class="claim-box" id="detail-claim-box">
-        <div class="claim-title">Attività non ancora rivendicata</div>
-        <div class="claim-text">
+        <div class="claim-title" data-i18n="claim.box.title">Attività non ancora rivendicata</div>
+        <div class="claim-text" data-i18n="claim.box.text">
           Questa scheda è stata compilata da IL QUI a partire da informazioni pubbliche.
           Il titolare non l'ha ancora confermata, quindi i contatti non sono acquistabili.
         </div>
-        <button id="detail-claim-btn">Sono il titolare — rivendica</button>
+        <button id="detail-claim-btn" data-i18n="claim.box.btn">Sono il titolare — rivendica</button>
       </div>
-      <div class="disclaimer-box" id="detail-disclaimer">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+      <div class="disclaimer-box" id="detail-disclaimer" data-i18n="disclaimer.contact">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
     </div>
   </div>
 </div>
@@ -757,49 +757,49 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Pubblica un annuncio</span>
+      <span class="modal-title" data-i18n="listing.publish">Pubblica un annuncio</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modal-form-body">
       <div class="field">
-        <label>TIPO</label>
+        <label data-i18n="form.type">TIPO</label>
         <div class="type-selector">
           <div class="type-opt selected product" data-type="product" onclick="selectType('product')">
-            <div class="type-dot" style="background:#a8c8f0"></div>Prodotto
+            <div class="type-dot" style="background:#a8c8f0"></div><span data-i18n="family.product">Prodotto</span>
           </div>
           <div class="type-opt service" data-type="service" onclick="selectType('service')">
-            <div class="type-dot" style="background:#a8dfc0"></div>Servizio
+            <div class="type-dot" style="background:#a8dfc0"></div><span data-i18n="family.service">Servizio</span>
           </div>
           <div class="type-opt experience" data-type="experience" onclick="selectType('experience')">
-            <div class="type-dot" style="background:#f5b8c8"></div>Esperienza
+            <div class="type-dot" style="background:#f5b8c8"></div><span data-i18n="family.experience">Esperienza</span>
           </div>
         </div>
       </div>
-      <div class="field"><label>TITOLO</label><input type="text" id="f-title" placeholder="Titolo breve e chiaro (max 80 caratteri)" maxlength="80"/></div>
+      <div class="field"><label data-i18n="form.title">TITOLO</label><input type="text" id="f-title" placeholder="Titolo breve e chiaro (max 80 caratteri)" data-i18n-placeholder="form.title.ph" maxlength="80"/></div>
       <div class="field-row">
         <div class="field">
-          <label>CATEGORIA</label>
-          <select id="f-category"><option value="">Seleziona categoria…</option></select>
+          <label data-i18n="form.category">CATEGORIA</label>
+          <select id="f-category"><option value="" data-i18n="form.category.ph">Seleziona categoria…</option></select>
         </div>
-        <div class="field"><label>PREZZO (€)</label><input type="number" id="f-price" placeholder="0 = gratis" min="0" step="0.01"/></div>
+        <div class="field"><label data-i18n="form.price">PREZZO (€)</label><input type="number" id="f-price" placeholder="0 = gratis" data-i18n-placeholder="form.price.ph" min="0" step="0.01"/></div>
       </div>
-      <div class="field"><label>DESCRIZIONE</label><textarea id="f-desc" placeholder="Breve descrizione — max 300 caratteri" maxlength="300"></textarea></div>
-      <div class="field"><label>CONTATTO (visibile dopo sblocco)</label><input type="text" id="f-contact" placeholder="Telefono, email o link"/></div>
+      <div class="field"><label data-i18n="form.desc">DESCRIZIONE</label><textarea id="f-desc" placeholder="Breve descrizione — max 300 caratteri" data-i18n-placeholder="form.desc.ph" maxlength="300"></textarea></div>
+      <div class="field"><label data-i18n="form.contact">CONTATTO (visibile dopo sblocco)</label><input type="text" id="f-contact" placeholder="Telefono, email o link" data-i18n-placeholder="form.contact.ph"/></div>
       <div class="field">
-        <label>POSIZIONE</label>
+        <label data-i18n="form.position">POSIZIONE</label>
         <div id="modal-map"></div>
-        <div class="map-hint" id="map-hint">📍 Usa il pulsante GPS per rilevare la tua posizione</div>
+        <div class="map-hint" id="map-hint" data-i18n="form.maphint">📍 Usa il pulsante GPS per rilevare la tua posizione</div>
         <div class="loc-display">
           <div class="loc-dot"></div>
-          <span id="loc-text">Nessuna posizione selezionata</span>
-          <button class="loc-gps-btn" id="loc-gps-btn" onclick="useGPS()">📍 Usa la mia posizione</button>
+          <span id="loc-text" data-i18n="form.loc.none">Nessuna posizione selezionata</span>
+          <button class="loc-gps-btn" id="loc-gps-btn" onclick="useGPS()" data-i18n="form.loc.gps">📍 Usa la mia posizione</button>
         </div>
       </div>
       <div class="field">
-        <label>FOTO (obbligatoria, max 4)</label>
+        <label data-i18n="form.photos">FOTO (obbligatoria, max 4)</label>
         <div class="photo-upload-area" onclick="document.getElementById('f-photos').click()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" style="margin-bottom:4px"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <div style="font-size:12px;color:#999">Tocca per aggiungere foto</div>
+          <div style="font-size:12px;color:#999" data-i18n="form.photos.add">Tocca per aggiungere foto</div>
           <input type="file" id="f-photos" accept="image/*" multiple onchange="handlePhotos(this)"/>
         </div>
         <div class="photo-preview-grid" id="photo-preview"></div>
@@ -807,12 +807,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
     <div class="modal-success" id="modal-success">
       <div class="success-icon">✅</div>
-      <div class="success-title">Annuncio pubblicato!</div>
-      <div class="success-sub">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~100m per la tua privacy.</div>
+      <div class="success-title" data-i18n="form.success.published">Annuncio pubblicato!</div>
+      <div class="success-sub" data-i18n="form.success.sub" data-i18n-rich="1">Apparirà sulla mappa entro pochi secondi.<br>La posizione è approssimata di ~100m per la tua privacy.</div>
     </div>
     <div class="modal-footer" id="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Annulla</button>
-      <button class="btn-submit" id="btn-submit" onclick="submitListing()">Pubblica →</button>
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="common.cancel">Annulla</button>
+      <button class="btn-submit" id="btn-submit" onclick="submitListing()" data-i18n="form.submit">Pubblica →</button>
     </div>
   </div>
 </div>
@@ -828,10 +828,10 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
       <button class="modal-close" style="background:rgba(255,255,255,0.15);color:#fff" onclick="closeProfileModal()">✕</button>
     </div>
     <div class="profile-body" id="profile-body">
-      <div class="profile-empty">Caricamento…</div>
+      <div class="profile-empty" data-i18n="common.loading">Caricamento…</div>
     </div>
     <div class="profile-footer">
-      <button class="profile-logout-btn" onclick="profileLogout()">Esci dall'account</button>
+      <button class="profile-logout-btn" onclick="profileLogout()" data-i18n="profile.logout">Esci dall'account</button>
     </div>
   </div>
 </div>
@@ -839,22 +839,22 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <!-- SCOPRI OVERLAY (mobile + desktop) -->
 <div class="scopri-overlay" id="scopri-overlay">
   <div class="scopri-header">
-    <div class="scopri-title">Scopri</div>
+    <div class="scopri-title" data-i18n="search.discover">Scopri</div>
     <button class="scopri-close" onclick="closeScopri()">✕</button>
   </div>
   <div class="scopri-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="scopri-input" type="text" placeholder="Cerca prodotti, servizi…" style="font-size:16px"/>
+    <input id="scopri-input" type="text" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder" style="font-size:16px"/>
   </div>
   <div class="scopri-filters">
-    <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')">Tutti</button>
-    <button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')"><span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block;margin-right:5px"></span>Prodotti</button>
-    <button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')"><span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block;margin-right:5px"></span>Servizi</button>
-    <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span>Esperienze</button>
+    <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')" data-i18n="filter.all">Tutti</button>
+    <button class="scopri-filter-btn" data-type="product" onclick="setScopriFilter(this,'product')"><span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block;margin-right:5px"></span><span data-i18n="family.products">Prodotti</span></button>
+    <button class="scopri-filter-btn" data-type="service" onclick="setScopriFilter(this,'service')"><span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block;margin-right:5px"></span><span data-i18n="family.services">Servizi</span></button>
+    <button class="scopri-filter-btn" data-type="experience" onclick="setScopriFilter(this,'experience')"><span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block;margin-right:5px"></span><span data-i18n="family.experiences">Esperienze</span></button>
   </div>
   <div class="scopri-list" id="scopri-list"></div>
 <div style="text-align:center;font-size:11px;color:#888;padding:16px 0 80px">
-  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" style="color:#888;text-decoration:none">Privacy Policy</a>
+  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" style="color:#888;text-decoration:none" data-i18n="footer.privacy">Privacy Policy</a>
   <span style="margin:0 8px">·</span>
   <span>© 2026 QUI</span>
 </div>
@@ -863,7 +863,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <!-- MOBILE SEARCH BAR -->
 <div class="mobile-search">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-  <input id="search-input-mobile" type="text" placeholder="Cerca sulla mappa…" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
+  <input id="search-input-mobile" type="text" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
 </div>
 
 <!-- MOBILE NAVBAR -->
@@ -872,7 +872,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span id="nav-profile-label">Accedi</span>
   </button>
-  <button class="nav-item-center" onclick="onAddClick()" aria-label="Pubblica annuncio">
+  <button class="nav-item-center" onclick="onAddClick()" aria-label="Pubblica annuncio" data-i18n-aria-label="nav.publish">
     <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
       alt="QUI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <div class="nav-item-center-fallback" style="display:none">
@@ -884,22 +884,22 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   </button>
   <button class="nav-item" onclick="openScopri()">
     <svg viewBox="0 0 24 24" fill="none" stroke="#2a2a6e" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    Scopri
+    <span data-i18n="search.discover">Scopri</span>
   </button>
 </nav>
 
 <!-- MOBILE SHEET -->
 <div class="mobile-sheet">
   <div class="mobile-filter-row" id="filters-mobile">
-    <div class="filter-btn active" data-type="all">Tutti</div>
+    <div class="filter-btn active" data-type="all" data-i18n="filter.all">Tutti</div>
     <div class="filter-btn" data-type="product" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
-      <span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block"></span>Prodotti
+      <span style="width:8px;height:8px;border-radius:50%;background:#a8c8f0;display:inline-block"></span><span data-i18n="family.products">Prodotti</span>
     </div>
     <div class="filter-btn" data-type="service" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
-      <span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block"></span>Servizi
+      <span style="width:8px;height:8px;border-radius:50%;background:#a8dfc0;display:inline-block"></span><span data-i18n="family.services">Servizi</span>
     </div>
     <div class="filter-btn" data-type="experience" style="gap:5px;width:auto;padding:0 10px;font-size:11px">
-      <span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block"></span>Esperienze
+      <span style="width:8px;height:8px;border-radius:50%;background:#f5b8c8;display:inline-block"></span><span data-i18n="family.experiences">Esperienze</span>
     </div>
   </div>
 </div>
@@ -907,8 +907,8 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 
 <footer class="site-footer">
   <span>© 2026 QUI</span>
-  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank">Privacy Policy</a>
-  <select id="lang-select" onchange="I18N.setLang(this.value)" title="Lingua"
+  <a href="https://www.iubenda.com/privacy-policy/93622402" target="_blank" data-i18n="footer.privacy">Privacy Policy</a>
+  <select id="lang-select" onchange="I18N.setLang(this.value)" title="Lingua" data-i18n-title="footer.lang"
           style="border:none;background:none;color:inherit;font-family:inherit;font-size:inherit;cursor:pointer;outline:none;padding:0"></select>
 </footer>
 
@@ -1063,8 +1063,6 @@ function initLangSelect() {
 // al cambio lingua, altrimenti resterebbe nella lingua precedente.
 window.addEventListener('qui:langchange', function () {
   renderAuthUI();
-  const si = document.getElementById('search-input-desktop');
-  if (si) si.setAttribute('placeholder', I18N.t('search.placeholder'));
   // I contenuti dal backend sono nella lingua precedente: vanno rifatti.
   if (typeof loadTaxonomyFromAPI === 'function') loadTaxonomyFromAPI();
   if (typeof load === 'function') load();
@@ -1089,7 +1087,7 @@ function profileLogout() { closeProfileModal(); logout(); }
 
 async function renderProfileBody() {
   const body = document.getElementById('profile-body');
-  body.innerHTML = '<div class="profile-empty">Caricamento…</div>';
+  body.innerHTML = `<div class="profile-empty">${I18N.html('common.loading')}</div>`;
   // Ricarica dati freschi
   try {
     const r = await fetch(`${API}/auth/me`, { headers: authHeaders() });
@@ -1108,20 +1106,20 @@ async function renderProfileBody() {
 
   // Sezione annunci
   html += `<div>
-    <div class="profile-section-title">📋 I miei annunci</div>`;
+    <div class="profile-section-title">📋 ${I18N.html('profile.mylistings')}</div>`;
   if (!listings.length) {
-    html += `<div class="profile-empty">Nessun annuncio pubblicato.</div>`;
+    html += `<div class="profile-empty">${I18N.html('profile.nolistings')}</div>`;
   } else {
     html += listings.map(l => {
-      const exp = l.expires_at ? expiresLabel(l.expires_at) : 'Permanente';
-      const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+      const exp = l.expires_at ? expiresLabel(l.expires_at) : I18N.html('profile.permanent');
+      const price = l.price === 0 ? I18N.html('price.free') : (l.price ? `€${l.price}` : '');
       return `<div class="profile-listing-card" id="plcard-${l.id}">
         <div class="profile-listing-top">
           <div class="profile-listing-title">${esc(l.title)}</div>
           <div style="display:flex;gap:6px">
-            ${(l.expires_at && new Date(l.expires_at) < new Date()) ? `<button class="profile-delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">Ripubblica</button>` : ''}
-            <button class="profile-delete-btn" style="background:#eef0fb;color:#2a2a6e;border-color:#c8cdf0" onclick="editListing('${l.id}')">Modifica</button>
-            <button class="profile-delete-btn" onclick="deleteListing('${l.id}')">Elimina</button>
+            ${(l.expires_at && new Date(l.expires_at) < new Date()) ? `<button class="profile-delete-btn" style="background:#fff8e1;color:#e07030;border-color:#ffe082" onclick="republishListing('${l.id}')">${I18N.html('profile.republish')}</button>` : ''}
+            <button class="profile-delete-btn" style="background:#eef0fb;color:#2a2a6e;border-color:#c8cdf0" onclick="editListing('${l.id}')">${I18N.html('common.edit')}</button>
+            <button class="profile-delete-btn" onclick="deleteListing('${l.id}')">${I18N.html('common.delete')}</button>
           </div>
         </div>
         <div class="profile-listing-meta">${esc(l.category || l.type)} ${price ? '· ' + price : ''}</div>
@@ -1137,20 +1135,19 @@ async function renderProfileBody() {
     const hasDoc = !!authUser.kyb_document_ref;
     html += `
     <div class="merchant-section">
-      <div class="merchant-section-header">⭐ Diventa Enterprise</div>
+      <div class="merchant-section-header">⭐ ${I18N.html('kyb.title')}</div>
       <div class="merchant-section-body">
         ${isPending ? `
         <div style="font-size:12px;color:#2a7a4a;font-weight:600;padding:6px 0">
-          ✅ Richiesta inviata — in attesa di verifica da QUI (entro 48h)
+          ✅ ${I18N.html('kyb.pending')}
         </div>` : `
         <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">
-          Carica un documento che attesti la tua attività (visura camerale, P.IVA o documento equivalente).
-          Il team QUI lo verificherà entro 48 ore.
+          ${I18N.html('kyb.intro')}
         </div>
         <div class="doc-upload-row">
-          <div class="doc-upload-label">Documento attività</div>
-          <span class="doc-status ${hasDoc ? 'uploaded' : ''}" id="doc-kyb-status">${hasDoc ? '✓ Caricato' : 'Non caricato'}</span>
-          <button class="doc-upload-btn" onclick="document.getElementById('doc-kyb-input').click()">Carica</button>
+          <div class="doc-upload-label">${I18N.html('kyb.doc')}</div>
+          <span class="doc-status ${hasDoc ? 'uploaded' : ''}" id="doc-kyb-status" data-i18n="${hasDoc ? 'kyb.uploaded' : 'kyb.notuploaded'}">${esc(I18N.t(hasDoc ? 'kyb.uploaded' : 'kyb.notuploaded'))}</span>
+          <button class="doc-upload-btn" onclick="document.getElementById('doc-kyb-input').click()">${I18N.html('common.upload')}</button>
           <input type="file" id="doc-kyb-input" accept="image/*,application/pdf" style="display:none" onchange="uploadKYB(this)"/>
         </div>`}
       </div>
@@ -1173,19 +1170,19 @@ async function renderAdminSection() {
 
   let html = `
   <div class="merchant-section">
-    <div class="merchant-section-header">🔑 Admin — Richieste Enterprise</div>
+    <div class="merchant-section-header">🔑 ${I18N.html('admin.title')}</div>
     <div class="merchant-section-body">`;
 
   if (!pending.length) {
-    html += `<div class="profile-empty">Nessuna richiesta in attesa.</div>`;
+    html += `<div class="profile-empty">${I18N.html('admin.nopending')}</div>`;
   } else {
     html += pending.map(u => `
       <div style="border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px" id="admin-row-${u.id}">
         <div style="font-size:12px;font-weight:600;color:#111">${esc(u.email)}</div>
         <div style="font-size:11px;color:#888">${esc(u.company_name || '')} ${u.vat_number ? '· ' + u.vat_number : ''}</div>
-        ${u.kyb_document_ref ? `<button onclick="apriDocumentoKyb('${u.id}')" style="background:none;border:0;padding:0;text-align:left;font-size:11px;color:#2a2a6e;cursor:pointer">📄 Apri documento KYB</button>` : ''}
-        <button class="merchant-save-btn" onclick="promoteUser('${u.id}')">⭐ Promuovi a Enterprise</button>
-        <button onclick="rejectUser('${u.id}')" style="width:100%;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-size:12px;font-weight:600;cursor:pointer">✕ Rifiuta</button>
+        ${u.kyb_document_ref ? `<button onclick="apriDocumentoKyb('${u.id}')" style="background:none;border:0;padding:0;text-align:left;font-size:11px;color:#2a2a6e;cursor:pointer">📄 ${I18N.html('admin.opendoc')}</button>` : ''}
+        <button class="merchant-save-btn" onclick="promoteUser('${u.id}')">⭐ ${I18N.html('admin.promote')}</button>
+        <button onclick="rejectUser('${u.id}')" style="width:100%;padding:9px;border:1px solid #d9534f;border-radius:8px;background:#fff;color:#d9534f;font-size:12px;font-weight:600;cursor:pointer">✕ ${I18N.html('admin.reject')}</button>
       </div>`).join('');
   }
 
@@ -1200,13 +1197,13 @@ async function apriDocumentoKyb(userId) {
   try {
     const r = await fetch(`${API}/admin/kyb-document/${userId}`, { headers: authHeaders() });
     const j = await r.json();
-    if (!r.ok) { alert(j.error || 'Documento non consultabile'); return; }
+    if (!r.ok) { alert(j.error || I18N.t('admin.doc.unavailable')); return; }
     window.open(j.url, '_blank', 'noopener');
-  } catch (e) { alert('Errore di rete'); }
+  } catch (e) { alert(I18N.t('common.network')); }
 }
 
 async function rejectUser(userId) {
-  const motivo = prompt('Motivo del rifiuto (verrà inviato al merchant):');
+  const motivo = prompt(I18N.t('admin.reject.prompt'));
   if (!motivo || !motivo.trim()) return;
   try {
     const r = await fetch(`${API}/admin/kyb-reject`, {
@@ -1214,21 +1211,21 @@ async function rejectUser(userId) {
       body: JSON.stringify({ user_id: userId, reason: motivo.trim() })
     });
     const j = await r.json();
-    if (!r.ok) { alert(j.error || 'Errore nel rifiuto'); return; }
+    if (!r.ok) { alert(j.error || I18N.t('admin.reject.error')); return; }
     document.getElementById(`admin-row-${userId}`)?.remove();
-  } catch (e) { alert('Errore di rete'); }
+  } catch (e) { alert(I18N.t('common.network')); }
 }
 
 async function promoteUser(userId) {
-  if (!confirm('Promuovere questo utente a Merchant?')) return;
+  if (!confirm(I18N.t('admin.promote.confirm'))) return;
   try {
     const r = await fetch(`${API}/admin/promote-jwt`, {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ user_id: userId })
     });
-    if (!r.ok) throw new Error('Errore promozione');
+    if (!r.ok) throw new Error(I18N.t('admin.promote.error'));
     document.getElementById(`admin-row-${userId}`)?.remove();
-  } catch(e) { alert('Errore: ' + e.message); }
+  } catch(e) { alert(I18N.t('common.error') + ': ' + e.message); }
 }
 
 async function uploadBusinessPhoto(input) {
@@ -1240,10 +1237,10 @@ async function uploadBusinessPhoto(input) {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({ business_photo: url })
     });
-    if (!r.ok) throw new Error('Errore salvataggio');
+    if (!r.ok) throw new Error(I18N.t('common.save.error'));
     authUser = await r.json();
     renderProfileBody();
-  } catch(e) { alert('Errore upload: ' + e.message); }
+  } catch(e) { alert(I18N.t('common.upload.error') + ': ' + e.message); }
 }
 
 // Il documento KYB non può passare dal preset pubblico: deve nascere
@@ -1254,13 +1251,13 @@ async function uploadKYB(input) {
   const file = input.files[0];
   if (!file) return;
   const statusEl = document.getElementById('doc-kyb-status');
-  if (statusEl) { statusEl.textContent = 'Caricamento…'; statusEl.className = 'doc-status'; }
+  if (statusEl) { I18N.set(statusEl, 'common.loading'); statusEl.className = 'doc-status'; }
   try {
     const sr = await fetch(`${API}/auth/kyb-upload-signature`, {
       method: 'POST', headers: authHeaders()
     });
     const sig = await sr.json();
-    if (!sr.ok) throw new Error(sig.error || 'Firma non disponibile');
+    if (!sr.ok) throw new Error(sig.error || I18N.t('upload.signature'));
 
     const fd = new FormData();
     fd.append('file', file);
@@ -1274,30 +1271,30 @@ async function uploadKYB(input) {
     const uj = await up.json();
     // Cloudinary appende l'estensione: il ref da salvare è quello che
     // Cloudinary ha davvero assegnato, non quello firmato.
-    if (!up.ok || !uj.public_id) throw new Error('Caricamento non riuscito');
+    if (!up.ok || !uj.public_id) throw new Error(I18N.t('upload.failed'));
 
     const r = await fetch(`${API}/auth/kyb-request`, {
       method: 'PUT', headers: authHeaders(),
       body: JSON.stringify({ kyb_document_ref: uj.public_id })
     });
     const j = await r.json();
-    if (!r.ok) throw new Error(j.error || 'Errore invio richiesta');
+    if (!r.ok) throw new Error(j.error || I18N.t('kyb.request.error'));
     authUser = j;
     renderProfileBody();
   } catch(e) {
-    alert('Errore: ' + e.message);
-    if (statusEl) { statusEl.textContent = 'Errore'; statusEl.className = 'doc-status'; }
+    alert(I18N.t('common.error') + ': ' + e.message);
+    if (statusEl) { I18N.set(statusEl, 'common.error'); statusEl.className = 'doc-status'; }
   }
 }
 
 async function deleteListing(id) {
-  if (!confirm('Eliminare questo annuncio?')) return;
+  if (!confirm(I18N.t('listing.delete.confirm'))) return;
   try {
     const r = await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     document.getElementById(`plcard-${id}`)?.remove();
     load();
-  } catch(e) { alert(`Errore: ${esc(e.message)}`); }
+  } catch(e) { alert(`${I18N.t('common.error')}: ${esc(e.message)}`); }
 }
 
 async function republishListing(id) {
@@ -1308,7 +1305,7 @@ async function republishListing(id) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     renderProfileBody();
     load();
-  } catch(e) { alert(`Errore: ${e.message}`); }
+  } catch(e) { alert(`${I18N.t('common.error')}: ${e.message}`); }
 }
 
 // ── AUTH MODAL ──
@@ -1329,10 +1326,10 @@ function switchTab(mode) {
   authMode = mode;
   document.getElementById('tab-login').classList.toggle('active', mode === 'login');
   document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-  document.getElementById('auth-submit-btn').textContent =
-    I18N.t(mode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
-  document.getElementById('auth-info').textContent =
-    I18N.t(mode === 'register' ? 'auth.info.register' : 'auth.info.login');
+  I18N.set(document.getElementById('auth-submit-btn'),
+    mode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
+  I18N.set(document.getElementById('auth-info'),
+    mode === 'register' ? 'auth.info.register' : 'auth.info.login');
   document.getElementById('auth-error').style.display = 'none';
 }
 
@@ -1342,9 +1339,9 @@ async function submitAuth() {
   const errEl = document.getElementById('auth-error');
   const btn = document.getElementById('auth-submit-btn');
   errEl.style.display = 'none';
-  if (!email || !password) { errEl.textContent = 'Inserisci email e password'; errEl.style.display = 'block'; return; }
+  if (!email || !password) { errEl.textContent = I18N.t('auth.error.missing'); errEl.style.display = 'block'; return; }
   btn.disabled = true;
-  btn.textContent = authMode === 'login' ? 'Accesso…' : 'Registrazione…';
+  btn.textContent = I18N.t(authMode === 'login' ? 'auth.loggingin' : 'auth.registering');
   try {
     const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
     const r = await fetch(`${API}${endpoint}`, {
@@ -1352,7 +1349,7 @@ async function submitAuth() {
       body: JSON.stringify({ email, password })
     });
     const d = await r.json();
-    if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
+    if (!r.ok) { errEl.textContent = d.error || I18N.t('common.error'); errEl.style.display = 'block'; return; }
     authToken = d.token;
     authUser = d.user || d;
     localStorage.setItem('qui_token', authToken);
@@ -1363,10 +1360,10 @@ async function submitAuth() {
     renderAuthUI();
     if (pendingAction) { pendingAction(); pendingAction = null; }
   } catch(e) {
-    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
-    btn.textContent = authMode === 'login' ? 'Accedi' : 'Registrati';
+    I18N.set(btn, authMode === 'login' ? 'auth.submit.login' : 'auth.submit.register');
   }
 }
 
@@ -1390,19 +1387,19 @@ async function submitForgotPassword() {
   const okEl  = document.getElementById('forgot-success');
   const btn   = document.getElementById('forgot-submit-btn');
   errEl.style.display = 'none'; okEl.style.display = 'none';
-  if (!email) { errEl.textContent = 'Inserisci la tua email'; errEl.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Invio…';
+  if (!email) { errEl.textContent = I18N.t('auth.error.noemail'); errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = I18N.t('common.sending');
   try {
     await fetch(`${API}/auth/forgot-password`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    okEl.textContent = "Se l'email esiste, riceverai a breve un link per reimpostare la password.";
+    okEl.textContent = I18N.t('auth.forgot.sent');
     okEl.style.display = 'block';
   } catch(e) {
-    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
   } finally {
-    btn.disabled = false; btn.textContent = 'Invia link di reset';
+    btn.disabled = false; I18N.set(btn, 'auth.forgot.submit');
   }
 }
 
@@ -1420,22 +1417,22 @@ async function submitResetPassword() {
   const errEl = document.getElementById('reset-error');
   const btn   = document.getElementById('reset-submit-btn');
   errEl.style.display = 'none';
-  if (!password || password.length < 6) { errEl.textContent = 'Password minimo 6 caratteri'; errEl.style.display = 'block'; return; }
-  btn.disabled = true; btn.textContent = 'Salvataggio…';
+  if (!password || password.length < 6) { errEl.textContent = I18N.t('auth.error.short'); errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = I18N.t('common.saving');
   try {
     const r = await fetch(`${API}/auth/reset-password`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: resetTokenValue, password })
     });
     const d = await r.json();
-    if (!r.ok) { errEl.textContent = d.error || 'Errore'; errEl.style.display = 'block'; return; }
+    if (!r.ok) { errEl.textContent = d.error || I18N.t('common.error'); errEl.style.display = 'block'; return; }
     closeResetModal();
-    alert('Password aggiornata! Ora puoi accedere.');
+    alert(I18N.t('auth.reset.done'));
     openAuthModal();
   } catch(e) {
-    errEl.textContent = 'Errore di connessione'; errEl.style.display = 'block';
+    errEl.textContent = I18N.t('common.connection'); errEl.style.display = 'block';
   } finally {
-    btn.disabled = false; btn.textContent = 'Reimposta password';
+    btn.disabled = false; I18N.set(btn, 'auth.reset.submit');
   }
 }
 
@@ -1467,7 +1464,7 @@ async function submitResetPassword() {
 function openContactModal(listingId, sessionId) {
   document.getElementById('contact-overlay').classList.add('open');
   document.getElementById('contact-body').innerHTML =
-    `<div class="contact-loading"><div class="spinner"></div>Recupero contatto…</div>`;
+    `<div class="contact-loading"><div class="spinner"></div>${I18N.html('contact.loading')}</div>`;
   fetchContact(listingId, sessionId);
 }
 function closeContactModal() { document.getElementById('contact-overlay').classList.remove('open'); }
@@ -1479,25 +1476,25 @@ function openDetailModal(id) {
   const type = familyOf(l);
   const photos = l.photos || [];
   document.getElementById('detail-photos').innerHTML = photos.length
-    ? photos.map(url => `<img src="${esc(url)}" alt="foto"/>`).join('')
+    ? photos.map(url => `<img src="${esc(url)}"${I18N.attr('alt', 'common.photo')}/>`).join('')
     : `<div class="detail-photos-placeholder">📦</div>`;
   const typeEl = document.getElementById('detail-type');
-  typeEl.textContent = TYPE_LABEL[type] || type;
+  if (TYPE_KEY[type]) I18N.set(typeEl, TYPE_KEY[type]); else typeEl.textContent = type;
   typeEl.className = `detail-type ${type}`;
-  document.getElementById('detail-title').textContent =
-    (l.title || '—') + (l.is_available === false ? ' — ESAURITO' : '');
-  const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+  document.getElementById('detail-title').innerHTML =
+    esc(l.title || '—') + (l.is_available === false ? ' — ' + I18N.html('listing.soldout') : '');
+  const price = l.price === 0 ? I18N.html('price.free') : (l.price ? esc(`€${l.price}`) : '');
   const cat = l.category_label || '';
   const city = l.city || '';
   document.getElementById('detail-meta').innerHTML = [
     cat ? `<span>${esc(cat)}</span>` : '',
     city ? `<span>· 📍 ${esc(city)}</span>` : '',
-    price ? `<span class="detail-price">${esc(price)}</span>` : ''
+    price ? `<span class="detail-price">${price}</span>` : ''
   ].filter(Boolean).join(' ');
   document.getElementById('detail-desc').textContent = l.description || '';
   document.getElementById('detail-link').href = listingUrl(l);
   document.getElementById('detail-stars').innerHTML = l.stars_avg
-    ? `★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span>` : '';
+    ? `★ ${l.stars_avg} <span style="color:#aaa">(${I18N.htmlN('reviews.count', l.stars_count)})</span>` : '';
   // Un'attività non rivendicata non ha contatti vendibili: al posto del
   // pulsante di sblocco si mostra l'invito al titolare a prendersela.
   const claimed = l.is_claimed !== false;
@@ -1557,24 +1554,22 @@ async function claimEntity(entityId, btn) {
     }
   } catch {}
 
-  claimModal("Rivendica questa attività", `
+  claimModal(I18N.html('claim.title'), `
     <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
-      Spiega qual è il tuo ruolo in questa attività. Serve a chi valuta la
-      richiesta: le schede non contengono dati aziendali, quindi la tua
-      descrizione è l'unico elemento di contesto.
+      ${I18N.html('claim.intro')}
     </div>
-    <textarea id="claim-statement" rows="5" placeholder="Es. Sono il titolare, gestisco il locale da…" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+    <textarea id="claim-statement" rows="5"${I18N.attr('placeholder', 'claim.statement.ph')} style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px;resize:vertical"></textarea>
     <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
     <div style="display:flex;gap:8px;margin-top:6px">
-      <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">Annulla</button>
-      <button id="claim-send" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Invia richiesta</button>
+      <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">${I18N.html('common.cancel')}</button>
+      <button id="claim-send" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer" data-i18n="claim.send">${esc(I18N.t('claim.send'))}</button>
     </div>`);
 
   document.getElementById('claim-send').onclick = async function () {
     const statement = document.getElementById('claim-statement').value.trim();
     const err = document.getElementById('claim-err');
-    if (statement.length < 30) { err.textContent = 'Servono almeno 30 caratteri.'; return; }
-    this.disabled = true; this.textContent = 'Invio…'; err.textContent = '';
+    if (statement.length < 30) { err.textContent = I18N.t('claim.error.short'); return; }
+    this.disabled = true; this.textContent = I18N.t('common.sending'); err.textContent = '';
     try {
       const r = await fetch(`${API}/entities/${entityId}/claim`, {
         method: 'POST', headers: authHeaders(),
@@ -1583,51 +1578,50 @@ async function claimEntity(entityId, btn) {
       const j = await r.json().catch(() => ({}));
       if (r.status === 403 && j.action === 'kyb_required') {
         closeClaimModal();
-        alert("Per rivendicare un'attività serve prima la verifica dell'identità aziendale.\n\nTi porto alla pagina dove caricare i documenti.");
+        alert(I18N.t('claim.kyb.required'));
         window.location.href = 'merchant.html#kyb';
         return;
       }
-      if (!r.ok) { err.textContent = j.error || 'Richiesta non riuscita.'; this.disabled = false; this.textContent = 'Invia richiesta'; return; }
+      if (!r.ok) { err.textContent = j.error || I18N.t('claim.error.failed'); this.disabled = false; I18N.set(this, 'claim.send'); return; }
       claimNextStep(j);
     } catch {
-      err.textContent = 'Errore di rete. Riprova.';
-      this.disabled = false; this.textContent = 'Invia richiesta';
+      err.textContent = I18N.t('common.network.retry');
+      this.disabled = false; I18N.set(this, 'claim.send');
     }
   };
 }
 
 function claimNextStep(j) {
   if (j.channel === 'contact' || j.channel === 'domain') {
-    claimModal("Conferma il recapito", `
+    claimModal(I18N.html('claim.confirm.title'), `
       <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
-        Abbiamo inviato un codice a <strong>${esc(j.challenge_target_mask || 'il recapito dell\'attività')}</strong>,
-        il recapito già presente su questa scheda. Se lo controlli, inserisci qui il codice.
+        ${I18N.rich('claim.code.sent', { target: j.challenge_target_mask || I18N.t('claim.target.fallback') })}
       </div>
       <input id="claim-code" inputmode="numeric" maxlength="8" placeholder="00000000" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:20px;letter-spacing:5px;text-align:center;font-family:inherit"/>
       <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
       <div style="display:flex;gap:8px;margin-top:6px">
-        <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">Più tardi</button>
-        <button id="claim-verify" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Conferma</button>
+        <button onclick="closeClaimModal()" style="flex:1;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer">${I18N.html('common.later')}</button>
+        <button id="claim-verify" style="flex:1;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer" data-i18n="common.confirm">${esc(I18N.t('common.confirm'))}</button>
       </div>`);
     document.getElementById('claim-verify').onclick = async function () {
       const code = document.getElementById('claim-code').value.trim();
       const err = document.getElementById('claim-err');
-      if (!code) { err.textContent = 'Inserisci il codice.'; return; }
-      this.disabled = true; this.textContent = 'Verifica…';
+      if (!code) { err.textContent = I18N.t('claim.code.missing'); return; }
+      this.disabled = true; this.textContent = I18N.t('claim.verifying');
       try {
         const r = await fetch(`${API}/claims/${j.claim_id}/verify`, {
           method: 'POST', headers: authHeaders(), body: JSON.stringify({ code })
         });
         const v = await r.json().catch(() => ({}));
         if (!r.ok) {
-          err.textContent = (v.error || 'Codice non valido') +
-            (v.attempts_left !== undefined ? ` (tentativi rimasti: ${v.attempts_left})` : '');
-          this.disabled = false; this.textContent = 'Conferma'; return;
+          err.textContent = (v.error || I18N.t('claim.code.invalid')) +
+            (v.attempts_left !== undefined ? ` (${I18N.t('claim.attempts', { n: v.attempts_left })})` : '');
+          this.disabled = false; I18N.set(this, 'common.confirm'); return;
         }
         claimDone();
       } catch {
-        err.textContent = 'Errore di rete.';
-        this.disabled = false; this.textContent = 'Conferma';
+        err.textContent = I18N.t('common.network') + '.';
+        this.disabled = false; I18N.set(this, 'common.confirm');
       }
     };
     return;
@@ -1635,16 +1629,14 @@ function claimNextStep(j) {
 
   // Canale documentale: la scheda non ha né email né sito, quindi non
   // esiste un recapito a cui inviare una prova automatica.
-  claimModal("Carica una prova", `
+  claimModal(I18N.html('claim.proof.title'), `
     <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:14px">
-      Questa scheda non ha un recapito a cui inviare un codice. Carica un
-      documento che colleghi la tua azienda a questa sede: visura con sede
-      corrispondente, una bolletta, un contratto d'affitto.
+      ${I18N.html('claim.proof.intro')}
     </div>
-    <button id="claim-doc-btn" style="width:100%;padding:12px;border:1px dashed #bbb;border-radius:9px;background:#fafafa;font-weight:600;cursor:pointer">📄 Scegli il documento</button>
+    <button id="claim-doc-btn" style="width:100%;padding:12px;border:1px dashed #bbb;border-radius:9px;background:#fafafa;font-weight:600;cursor:pointer" data-i18n="claim.doc.choose">${esc(I18N.t('claim.doc.choose'))}</button>
     <input type="file" id="claim-doc-input" accept="image/*,application/pdf" style="display:none"/>
     <div id="claim-err" style="font-size:12px;color:#c00;margin-top:8px;min-height:16px"></div>
-    <button onclick="closeClaimModal()" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer;margin-top:6px">Più tardi</button>`);
+    <button onclick="closeClaimModal()" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:600;cursor:pointer;margin-top:6px">${I18N.html('common.later')}</button>`);
 
   const input = document.getElementById('claim-doc-input');
   document.getElementById('claim-doc-btn').onclick = () => input.click();
@@ -1653,13 +1645,13 @@ function claimNextStep(j) {
     if (!file) return;
     const err = document.getElementById('claim-err');
     const b = document.getElementById('claim-doc-btn');
-    b.disabled = true; b.textContent = 'Caricamento…';
+    b.disabled = true; I18N.set(b, 'common.loading');
     try {
       const sr = await fetch(`${API}/claims/${j.claim_id}/upload-signature`, {
         method: 'POST', headers: authHeaders()
       });
       const sig = await sr.json();
-      if (!sr.ok) throw new Error(sig.error || 'Firma non disponibile');
+      if (!sr.ok) throw new Error(sig.error || I18N.t('upload.signature'));
 
       const fd = new FormData();
       fd.append('file', file);
@@ -1670,29 +1662,28 @@ function claimNextStep(j) {
       const up = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/${sig.resource_type}/upload`,
                              { method: 'POST', body: fd });
       const uj = await up.json();
-      if (!up.ok || !uj.public_id) throw new Error('Caricamento non riuscito');
+      if (!up.ok || !uj.public_id) throw new Error(I18N.t('upload.failed'));
 
       const r = await fetch(`${API}/claims/${j.claim_id}/document`, {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ document_ref: uj.public_id })
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || 'Registrazione non riuscita');
+      if (!r.ok) throw new Error(d.error || I18N.t('claim.doc.failed'));
       claimDone();
     } catch (e) {
       err.textContent = e.message;
-      b.disabled = false; b.textContent = '📄 Scegli il documento';
+      b.disabled = false; I18N.set(b, 'claim.doc.choose');
     }
   };
 }
 
 function claimDone() {
-  claimModal("Richiesta inviata", `
+  claimModal(I18N.html('claim.done.title'), `
     <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">
-      La richiesta è in revisione. L'attività <strong>non è ancora tua</strong>:
-      riceverai un'email appena sarà decisa.
+      ${I18N.rich('claim.done.text')}
     </div>
-    <button onclick="closeClaimModal();location.reload()" style="width:100%;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">Ho capito</button>`);
+    <button onclick="closeClaimModal();location.reload()" style="width:100%;padding:11px;border:0;border-radius:9px;background:#2a2a6e;color:#fff;font-weight:600;cursor:pointer">${I18N.html('common.understood')}</button>`);
 }
 
 document.getElementById('detail-claim-btn').addEventListener('click', function () {
@@ -1706,12 +1697,8 @@ document.getElementById('detail-claim-btn').addEventListener('click', function (
 (function mostraEsitoVerifica() {
   const esito = new URLSearchParams(location.search).get('verified');
   if (!esito) return;
-  const messaggi = {
-    ok: 'Email verificata. Benvenuta su IL QUI.',
-    expired: 'Il link di verifica è scaduto. Richiedine uno nuovo dal tuo profilo.',
-    invalid: 'Link di verifica non valido.'
-  };
-  if (messaggi[esito]) alert(messaggi[esito]);
+  const messaggi = { ok: 'verify.ok', expired: 'verify.expired', invalid: 'verify.invalid' };
+  if (messaggi[esito]) alert(I18N.t(messaggi[esito]));
   history.replaceState({}, '', location.pathname);
 })();
 
@@ -1725,7 +1712,7 @@ async function fetchContact(listingId, sessionId) {
     renderContact(await r.json());
   } catch(e) {
     document.getElementById('contact-body').innerHTML =
-      `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>Contatta supporto@qui.it</small></div>`;
+      `<div class="contact-loading">⚠️ ${esc(e.message)}<br><small>${I18N.html('contact.support')}</small></div>`;
   }
 }
 
@@ -1734,25 +1721,25 @@ function renderContact(d) {
   bodyEl.innerHTML = `
     <div class="contact-body">
       <div class="contact-row">
-        <div class="contact-label">Annuncio</div>
+        <div class="contact-label">${I18N.html('contact.listing')}</div>
         <div style="font-size:13px;font-weight:500;color:#111;padding:0 0 4px">${esc(d.title||'')}</div>
       </div>
       <div class="contact-row">
-        <div class="contact-label">Contatto</div>
+        <div class="contact-label">${I18N.html('contact.contact')}</div>
         <div class="contact-value">
           <span>${esc(d.contact||'')}</span>
-          <button class="copy-btn" id="copy-contact-btn">Copia</button>
+          <button class="copy-btn" id="copy-contact-btn" data-i18n="common.copy">${esc(I18N.t('common.copy'))}</button>
         </div>
       </div>
-      ${d.description ? `<div class="contact-row"><div class="contact-label">Descrizione</div><div style="font-size:12px;color:#555;line-height:1.5">${esc(d.description)}</div></div>` : ''}
+      ${d.description ? `<div class="contact-row"><div class="contact-label">${I18N.html('contact.desc')}</div><div style="font-size:12px;color:#555;line-height:1.5">${esc(d.description)}</div></div>` : ''}
     </div>
     <div id="review-section"></div>
-    <div class="contact-footer"><button class="contact-close-btn" onclick="closeContactModal()">Chiudi</button></div>`;
+    <div class="contact-footer"><button class="contact-close-btn" onclick="closeContactModal()">${I18N.html('common.close')}</button></div>`;
   loadReviewSection(d.listing_id || d.id);
   document.getElementById('copy-contact-btn').addEventListener('click', function() {
     navigator.clipboard.writeText(d.contact || '').then(() => {
-      this.textContent = '✓ Copiato';
-      setTimeout(() => { this.textContent = 'Copia'; }, 1800);
+      I18N.set(this, 'common.copied');
+      setTimeout(() => { I18N.set(this, 'common.copy'); }, 1800);
     });
   });
 }
@@ -1760,7 +1747,8 @@ function renderContact(d) {
 // ── MAP ──
 const TYPE_COLOR = { product: '#a8c8f0', service: '#a8dfc0', experience: '#f5b8c8' };
 const TYPE_BG    = { product: '#ddeefa', service: '#ddf3ea', experience: '#fde8ef' };
-const TYPE_LABEL = { product: 'Prodotto', service: 'Servizio', experience: 'Esperienza' };
+const TYPE_KEY   = { product: 'family.product', service: 'family.service', experience: 'family.experience' };
+function typeHTML(type) { return TYPE_KEY[type] ? I18N.html(TYPE_KEY[type]) : esc(type); }
 
 const map = L.map('map', { zoomControl: false }).setView([41.9, 12.48], 13);
 L.control.zoom({ position: 'topleft' }).addTo(map); map.attributionControl.setPosition('bottomleft');
@@ -1810,14 +1798,14 @@ function render() {
 function expiresLabel(iso) {
   if (!iso) return '';
   const diff = (new Date(iso) - Date.now()) / 1000;
-  if (diff <= 0) return 'scaduto';
-  if (diff < 86400) return `scade tra ${Math.round(diff/3600)}h`;
-  return `scade tra ${Math.round(diff/86400)}g`;
+  if (diff <= 0) return I18N.html('time.expired');
+  if (diff < 86400) return I18N.html('time.expires.h', { n: Math.round(diff/3600) });
+  return I18N.html('time.expires.d', { n: Math.round(diff/86400) });
 }
 
 function renderList(list) {
   if (!list.length) {
-    const h = `<div class="state-box">Nessun annuncio trovato.</div>`;
+    const h = `<div class="state-box">${I18N.html('list.empty')}</div>`;
     document.getElementById('list-desktop').innerHTML = h;
     document.getElementById('list-mobile').innerHTML = h;
     return;
@@ -1834,7 +1822,7 @@ function itemHTML(l) {
   const type  = familyOf(l);
   const title = esc(l.title || '—');
   const cat   = esc(l.category_label || type);
-  const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
+  const price = l.price != null ? (l.price === 0 ? I18N.html('price.free') : `€${l.price}`) : '';
   const when  = l.created_at ? timeAgo(l.created_at) : '';
   const exp   = expiresLabel(l.expires_at);
   const sel   = selectedId == l.id ? 'selected' : '';
@@ -1851,7 +1839,7 @@ function itemHTML(l) {
   return `<div class="listing-item ${sel}" data-id="${l.id}">
     ${thumb}
     <div class="listing-info">
-      <div class="listing-name">${title}${l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030;background:#fdecec;border-radius:4px;padding:1px 4px">ESAURITO</span>' : ''}</div>
+      <div class="listing-name">${title}${l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030;background:#fdecec;border-radius:4px;padding:1px 4px">' + I18N.html('listing.soldout') + '</span>' : ''}</div>
       <div class="listing-meta"><span>${cat}</span>${distLabel ? `<span>· ${distLabel}</span>` : ''}</div>
       <div class="listing-price">${price}${when ? ` <span class="listing-sub">· ${when}</span>` : ''}</div>
       ${exp ? `<div class="listing-expires">${exp}</div>` : ''}
@@ -1890,20 +1878,20 @@ function popupHTML(l) {
   const photos = l.photos || [];
   const photosHTML = photos.length > 0 ? `
     <div style="display:flex;gap:4px;overflow-x:auto;margin-bottom:10px;border-radius:8px;overflow:hidden">
-      ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length===1?'100%':'80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px" alt="foto"/>`).join('')}
+      ${photos.map(url => `<img src="${esc(url)}" style="width:${photos.length===1?'100%':'80px'};height:100px;object-fit:cover;flex-shrink:0;border-radius:8px"${I18N.attr('alt', 'common.photo')}/>`).join('')}
     </div>` : '';
-  const price = l.price != null ? (l.price === 0 ? 'Gratis' : `€${l.price}`) : '';
-  const title = esc(l.title || '—') + (l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030">· ESAURITO</span>' : '');
+  const price = l.price != null ? (l.price === 0 ? I18N.html('price.free') : `€${l.price}`) : '';
+  const title = esc(l.title || '—') + (l.is_available === false ? ' <span style="font-size:9px;font-weight:700;color:#a03030">· ' + I18N.html('listing.soldout') + '</span>' : '');
   const desc  = esc(l.description || '');
   return `<div class="popup-inner">
     ${photosHTML}
-    <div class="popup-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
+    <div class="popup-type ${type}">${typeHTML(type)}</div>
     <div class="popup-title">${title}</div>
     ${desc||price ? `<div class="popup-meta">${[desc,price].filter(Boolean).join(' · ')}</div>` : ''}
-    <a href="${listingUrl(l)}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">Vedi dettagli →</a>
-    <button class="popup-btn" data-unlock-id="${l.entity_id}">🔓 Sblocca contatto — €1</button>
-    ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${l.stars_count} recensioni)</span></div>` : ''}
-    <div class="disclaimer-box">⚠️ IL QUI fornisce solo il contatto. Non assicuriamo la vendita né la qualità del prodotto o servizio.</div>
+    <a href="${listingUrl(l)}" target="_blank" rel="noopener" style="display:inline-block;font-size:11px;color:#2a2a6e;font-weight:600;text-decoration:none;margin-bottom:8px">${I18N.html('listing.details')}</a>
+    <button class="popup-btn" data-unlock-id="${l.entity_id}">${I18N.html('unlock.btn')}</button>
+    ${l.stars_avg ? `<div style="font-size:11px;color:#f5a623;margin-top:6px">★ ${l.stars_avg} <span style="color:#aaa">(${I18N.htmlN('reviews.count', l.stars_count)})</span></div>` : ''}
+    <div class="disclaimer-box">${I18N.html('disclaimer.contact')}</div>
   </div>`;
 }
 
@@ -1935,7 +1923,7 @@ window.unlock = async function(id) {
     const data = await r.json();
     if (data.already_unlocked) { openContactModal(id, data.session_id); return; }
     window.location.href = data.url;
-  } catch(e) { alert('Errore pagamento: ' + e.message); }
+  } catch(e) { alert(I18N.t('unlock.error') + ': ' + e.message); }
 };
 
 function initFilters(id) {
@@ -1963,9 +1951,9 @@ if (navigator.geolocation) {
 
 function timeAgo(iso) {
   const diff = (Date.now() - new Date(iso)) / 1000;
-  if (diff < 3600)  return `${Math.round(diff/60)}min fa`;
-  if (diff < 86400) return `${Math.round(diff/3600)}h fa`;
-  return `${Math.round(diff/86400)}g fa`;
+  if (diff < 3600)  return I18N.html('time.ago.min', { n: Math.round(diff/60) });
+  if (diff < 86400) return I18N.html('time.ago.h', { n: Math.round(diff/3600) });
+  return I18N.html('time.ago.d', { n: Math.round(diff/86400) });
 }
 
 // ── CLOUDINARY ──
@@ -1978,7 +1966,7 @@ async function uploadToCloudinary(file) {
   fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
   fd.append('folder', 'qui');
   const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-  if (!r.ok) throw new Error('Errore upload foto');
+  if (!r.ok) throw new Error(I18N.t('upload.photo.error'));
   return (await r.json()).secure_url;
 }
 
@@ -1991,8 +1979,8 @@ let myListingsCache = [];
 function openModal() {
   document.getElementById('modal-overlay').classList.add('open');
   const isAdmin = authUser && authUser.is_admin;
-  document.getElementById('loc-gps-btn').textContent = '📍 Usa la mia posizione';
-  document.getElementById('map-hint').textContent = isAdmin ? '📍 Clicca sulla mappa o usa GPS' : '📍 Usa il pulsante GPS per rilevare la tua posizione reale';
+  I18N.set(document.getElementById('loc-gps-btn'), 'form.loc.gps');
+  I18N.set(document.getElementById('map-hint'), isAdmin ? 'form.maphint.admin' : 'form.maphint.user');
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
@@ -2018,8 +2006,8 @@ function editListing(id) {
   document.getElementById('modal-form-body').style.display = '';
   document.getElementById('modal-success').classList.remove('show');
   document.getElementById('modal-footer').style.display = '';
-  document.querySelector('.modal-title').textContent = 'Modifica annuncio';
-  document.getElementById('btn-submit').textContent = 'Salva modifiche →';
+  I18N.set(document.querySelector('.modal-title'), 'form.edit.title');
+  I18N.set(document.getElementById('btn-submit'), 'form.submit.edit');
 
   const type = familyOf(l);
   selectType(type);
@@ -2027,7 +2015,7 @@ function editListing(id) {
   document.getElementById('f-desc').value = l.description || '';
   document.getElementById('f-price').value = l.price || '';
   document.getElementById('f-contact').value = '';
-  document.getElementById('f-contact').placeholder = 'Lascia vuoto per non modificare il contatto attuale';
+  I18N.setAttr(document.getElementById('f-contact'), 'placeholder', 'form.contact.keep');
 
   setTimeout(() => {
     const sel = document.getElementById('f-category');
@@ -2038,7 +2026,7 @@ function editListing(id) {
   selectedPhotos = [];
   renderPhotoPreview();
 
-  document.getElementById('loc-text').textContent = 'Posizione non modificabile in fase di modifica';
+  I18N.set(document.getElementById('loc-text'), 'form.loc.locked');
   document.getElementById('loc-gps-btn').style.display = 'none';
   pickedLat = l.lat; pickedLng = l.lng;
 
@@ -2053,17 +2041,17 @@ function editListing(id) {
 
 function resetForm() {
   ['f-title','f-price','f-desc','f-contact'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('f-contact').placeholder = 'Telefono, email o link';
+  I18N.setAttr(document.getElementById('f-contact'), 'placeholder', 'form.contact.ph');
   pickedLat = null; pickedLng = null;
-  document.getElementById('loc-text').textContent = 'Nessuna posizione selezionata';
+  I18N.set(document.getElementById('loc-text'), 'form.loc.none');
   document.getElementById('loc-gps-btn').style.display = '';
   if (modalMarker) { modalMarker.remove(); modalMarker = null; }
   selectedPhotos = [];
   existingPhotoUrls = [];
   editingListingId = null;
   document.getElementById('photo-preview').innerHTML = '';
-  document.querySelector('.modal-title').textContent = 'Pubblica un annuncio';
-  document.getElementById('btn-submit').textContent = 'Pubblica →';
+  I18N.set(document.querySelector('.modal-title'), 'listing.publish');
+  I18N.set(document.getElementById('btn-submit'), 'form.submit');
   selectType('product');
 }
 
@@ -2074,7 +2062,7 @@ function selectType(type) {
     if (el.dataset.type === type) el.classList.add('selected');
   });
   const sel = document.getElementById('f-category');
-  sel.innerHTML = '<option value="">Seleziona categoria…</option>';
+  sel.innerHTML = `<option value="" data-i18n="form.category.ph">${esc(I18N.t('form.category.ph'))}</option>`;
   const macros = TAXONOMY[type] || {};
   Object.keys(macros).forEach(macroCode => {
     const macro = macros[macroCode];
@@ -2093,16 +2081,16 @@ function selectType(type) {
 
 function setPickedLocation(lat, lng) {
   pickedLat = lat; pickedLng = lng;
-  document.getElementById('loc-text').textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)} (approssimata ~100m)`;
+  I18N.set(document.getElementById('loc-text'), 'form.loc.picked', { coords: `${lat.toFixed(5)}, ${lng.toFixed(5)}` });
   if (modalMarker) modalMarker.remove();
   modalMarker = L.circleMarker([lat,lng], { radius:8, color:'#2a2a6e', fillColor:'#a8c8f0', fillOpacity:0.9, weight:2 }).addTo(modalMap);
 }
 
 function useGPS() {
-  if (!navigator.geolocation) return alert('GPS non disponibile');
+  if (!navigator.geolocation) return alert(I18N.t('gps.unavailable'));
   navigator.geolocation.getCurrentPosition(
     p => { setPickedLocation(p.coords.latitude, p.coords.longitude); modalMap.setView([p.coords.latitude, p.coords.longitude], 16); },
-    () => alert('Impossibile ottenere la posizione GPS')
+    () => alert(I18N.t('gps.failed'))
   );
 }
 
@@ -2111,7 +2099,7 @@ function handlePhotos(input) {
     if (existingPhotoUrls.length + selectedPhotos.length >= 4) return;
     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
       file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
-    if (isHeic) { alert('Formato HEIC non supportato. Vai su Impostazioni iPhone → Fotocamera → Formato → "Più compatibile".'); return; }
+    if (isHeic) { alert(I18N.t('photos.heic')); return; }
     const reader = new FileReader();
     reader.onload = e => { selectedPhotos.push({ file, dataUrl: e.target.result }); renderPhotoPreview(); };
     reader.readAsDataURL(file);
@@ -2121,12 +2109,12 @@ function handlePhotos(input) {
 function renderPhotoPreview() {
   const existingHTML = existingPhotoUrls.map((url,i) => `
     <div class="photo-thumb-wrap">
-      <img class="photo-thumb" src="${esc(url)}" alt="foto esistente ${i+1}"/>
+      <img class="photo-thumb" src="${esc(url)}"${I18N.attr('alt', 'photo.existing', { n: i+1 })}/>
       <button class="photo-remove" onclick="removeExistingPhoto(${i})">×</button>
     </div>`).join('');
   const newHTML = selectedPhotos.map((p,i) => `
     <div class="photo-thumb-wrap">
-      <img class="photo-thumb" src="${p.dataUrl}" alt="foto ${i+1}"/>
+      <img class="photo-thumb" src="${p.dataUrl}"${I18N.attr('alt', 'photo.n', { n: i+1 })}/>
       <button class="photo-remove" onclick="removePhoto(${i})">×</button>
     </div>`).join('');
   document.getElementById('photo-preview').innerHTML = existingHTML + newHTML;
@@ -2141,32 +2129,32 @@ async function submitListing() {
   const title    = document.getElementById('f-title').value.trim();
   const contact  = document.getElementById('f-contact').value.trim();
   const category = document.getElementById('f-category').value;
-  if (!title)    { alert('Inserisci un titolo'); return; }
-  if (!category) { alert('Seleziona una categoria'); return; }
-  if (!isEdit && !pickedLat) { alert('Scegli una posizione'); return; }
-  if (!isEdit && !contact)   { alert('Inserisci un contatto'); return; }
-  if (!isEdit && !selectedPhotos.length) { alert('Aggiungi almeno una foto'); return; }
-  if (isEdit && existingPhotoUrls.length + selectedPhotos.length === 0) { alert('Aggiungi almeno una foto'); return; }
+  if (!title)    { alert(I18N.t('form.err.title')); return; }
+  if (!category) { alert(I18N.t('form.err.category')); return; }
+  if (!isEdit && !pickedLat) { alert(I18N.t('form.err.location')); return; }
+  if (!isEdit && !contact)   { alert(I18N.t('form.err.contact')); return; }
+  if (!isEdit && !selectedPhotos.length) { alert(I18N.t('form.err.photo')); return; }
+  if (isEdit && existingPhotoUrls.length + selectedPhotos.length === 0) { alert(I18N.t('form.err.photo')); return; }
 
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
   let newPhotoUrls = [];
   if (selectedPhotos.length) {
-    btn.textContent = `Caricamento foto (0/${selectedPhotos.length})…`;
+    btn.textContent = I18N.t('form.uploading', { i: 0, n: selectedPhotos.length });
     try {
       for (let i = 0; i < selectedPhotos.length; i++) {
-        btn.textContent = `Caricamento foto (${i+1}/${selectedPhotos.length})…`;
+        btn.textContent = I18N.t('form.uploading', { i: i+1, n: selectedPhotos.length });
         newPhotoUrls.push(await uploadToCloudinary(selectedPhotos[i].file));
       }
     } catch(e) {
-      alert(`Errore upload foto: ${e.message}`);
-      btn.disabled = false; btn.textContent = isEdit ? 'Salva modifiche →' : 'Pubblica →';
+      alert(`${I18N.t('upload.photo.error')}: ${e.message}`);
+      btn.disabled = false; I18N.set(btn, isEdit ? 'form.submit.edit' : 'form.submit');
       return;
     }
   }
   const allPhotoUrls = existingPhotoUrls.concat(newPhotoUrls);
 
-  btn.textContent = isEdit ? 'Salvataggio…' : 'Pubblicazione…';
+  btn.textContent = I18N.t(isEdit ? 'common.saving' : 'form.publishing');
   try {
     let r;
     if (isEdit) {
@@ -2193,11 +2181,11 @@ async function submitListing() {
     document.getElementById('modal-form-body').style.display = 'none';
     document.getElementById('modal-footer').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
-    document.querySelector('.success-title').textContent = isEdit ? 'Annuncio aggiornato!' : 'Annuncio pubblicato!';
+    I18N.set(document.querySelector('.success-title'), isEdit ? 'form.success.updated' : 'form.success.published');
     setTimeout(() => { load(); closeModal(); }, 2200);
   } catch(e) {
-    alert(`Errore: ${e.message}`);
-    btn.disabled = false; btn.textContent = isEdit ? 'Salva modifiche →' : 'Pubblica →';
+    alert(`${I18N.t('common.error')}: ${e.message}`);
+    btn.disabled = false; I18N.set(btn, isEdit ? 'form.submit.edit' : 'form.submit');
   }
 }
 async function loadReviewSection(listingId) {
@@ -2210,15 +2198,15 @@ async function loadReviewSection(listingId) {
     const entry = unlocks.find(u => u.listing_id === listingId);
     if (!entry) return;
     if (!entry.can_review && !entry.reviewed) {
-      el.innerHTML = `<div style="font-size:11px;color:#888;padding:10px 20px">Potrai lasciare una recensione tra ${entry.hours_left}h</div>`;
+      el.innerHTML = `<div style="font-size:11px;color:#888;padding:10px 20px">${I18N.html('review.wait', { n: entry.hours_left })}</div>`;
       return;
     }
     if (entry.reviewed) {
-      el.innerHTML = `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">✓ Hai già recensito questo annuncio (${entry.stars} stelle)</div>`;
+      el.innerHTML = `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">${I18N.htmlN('review.already', entry.stars)}</div>`;
       return;
     }
     el.innerHTML = `<div style="padding:10px 20px;border-top:0.5px solid #f0f0f0">
-      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">Come valuti questa esperienza?</div>
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px">${I18N.html('review.ask')}</div>
       <div style="display:flex;gap:8px;justify-content:center" id="star-btns">
         ${[1,2,3,4,5].map(s => `<button onclick="submitReview('${listingId}',${s})" style="font-size:22px;background:none;border:none;cursor:pointer">☆</button>`).join('')}
       </div>
@@ -2235,9 +2223,9 @@ async function submitReview(listingId, stars) {
     const d = await r.json();
     if (!r.ok) { alert(d.error); return; }
     document.getElementById('review-section').innerHTML =
-      `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">✓ Recensione inviata — ${stars} stelle</div>`;
+      `<div style="font-size:11px;color:#2a7a4a;padding:10px 20px">${I18N.htmlN('review.sent', stars)}</div>`;
     load();
-  } catch(e) { alert('Errore: ' + e.message); }
+  } catch(e) { alert(I18N.t('common.error') + ': ' + e.message); }
 }
 document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target===this) closeModal(); });
 document.getElementById('auth-overlay').addEventListener('click', function(e) { if (e.target===this) closeAuthModal(); });
@@ -2269,15 +2257,15 @@ function setScopriFilter(btn, type) {
 
 // Le famiglie non si mescolano mai: con «Tutti» si vedono tre sezioni distinte,
 // nell'ordine dei bottoni. Etichette al plurale, come i bottoni stessi.
-const SCOPRI_SECTION = { product: 'Prodotti', service: 'Servizi', experience: 'Esperienze' };
+const SCOPRI_SECTION = { product: 'family.products', service: 'family.services', experience: 'family.experiences' };
 const SCOPRI_FAMS = ['product', 'service', 'experience'];
 
 function scopriCardHTML(l) {
   const type = familyOf(l);
   const photo = (l.photos && l.photos[0])
-    ? `<img class="scopri-card-img" src="${esc(l.photos[0])}" alt="foto"/>`
+    ? `<img class="scopri-card-img" src="${esc(l.photos[0])}"${I18N.attr('alt', 'common.photo')}/>`
     : `<div class="scopri-card-img-placeholder">📦</div>`;
-  const price = l.price === 0 ? 'Gratis' : (l.price ? `€${l.price}` : '');
+  const price = l.price === 0 ? I18N.html('price.free') : (l.price ? `€${l.price}` : '');
   let distLabel = '';
   if (userLat !== null && l.lat && l.lng) {
     const d = distKm(userLat, userLng, l.lat, l.lng);
@@ -2289,7 +2277,7 @@ function scopriCardHTML(l) {
   return `<div class="scopri-card" onclick="closeScopri();openDetailModal('${l.id}')">
     ${photo}
     <div class="scopri-card-overlay">
-      <div class="scopri-card-type ${type}">${esc(TYPE_LABEL[type]||type)}</div>
+      <div class="scopri-card-type ${type}">${typeHTML(type)}</div>
       <div class="scopri-card-title">${title}</div>
       ${desc ? `<div class="scopri-card-desc">${desc}</div>` : ''}
       ${price ? `<div class="scopri-card-price">${price}</div>` : ''}
@@ -2318,7 +2306,7 @@ function renderScopri() {
   const total = groups.reduce((n, g) => n + g.list.length, 0);
 
   if (!total) {
-    el.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">Nessun risultato</div>';
+    el.innerHTML = `<div style="text-align:center;color:#aaa;padding:40px 0;font-size:13px">${I18N.html('scopri.noresults')}</div>`;
     return;
   }
 
@@ -2328,7 +2316,7 @@ function renderScopri() {
     // Una sezione vuota si mostra comunque: «Servizi — 0» è un'informazione,
     // il silenzio no.
     const head = `<div class="scopri-section${g.list.length ? '' : ' empty'}">`
-               + `${esc(SCOPRI_SECTION[g.fam] || g.fam)} — ${g.list.length}</div>`;
+               + `${SCOPRI_SECTION[g.fam] ? I18N.html(SCOPRI_SECTION[g.fam]) : esc(g.fam)} — ${g.list.length}</div>`;
     return head + g.list.map(scopriCardHTML).join('');
   }).join('');
 }
