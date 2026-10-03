@@ -10,7 +10,7 @@
 <meta property="og:description" content="QUI — la piattaforma geospaziale per connettere il mondo. Scopri cosa c'è vicino e lontano da te. Aggiungi il tuo."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://www.ilqui.com"/>
-<meta property="og:image" content="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"/>
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"/>
 <link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon.ico"/>
 <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon-16.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/favicon-32.png"/>
@@ -606,7 +606,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"
       class="topbar-logo" alt="QUI" style="cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <div class="topbar-logo-fallback" style="display:none;cursor:pointer" title="Pubblica un annuncio" data-i18n-title="listing.publish" onclick="onAddClick()">
@@ -617,7 +617,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     </div>
     <div class="search-bar">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input id="search-input-desktop" type="text" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
+      <input id="search-input-desktop" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:#111;width:100%"/>
     </div>
     <div id="topbar-auth"></div>
   </div>
@@ -844,7 +844,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
   </div>
   <div class="scopri-search">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="scopri-input" type="text" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder" style="font-size:16px"/>
+    <input id="scopri-input" type="text" autocomplete="off" placeholder="Cerca prodotti, servizi…" data-i18n-placeholder="scopri.placeholder" style="font-size:16px"/>
   </div>
   <div class="scopri-filters">
     <button class="scopri-filter-btn active" data-type="all" onclick="setScopriFilter(this,'all')" data-i18n="filter.all">Tutti</button>
@@ -863,7 +863,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
 <!-- MOBILE SEARCH BAR -->
 <div class="mobile-search">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-  <input id="search-input-mobile" type="text" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
+  <input id="search-input-mobile" type="text" autocomplete="off" placeholder="Cerca" data-i18n-placeholder="search.placeholder" style="border:none;background:none;outline:none;font-family:inherit;font-size:16px;color:#111;width:100%"/>
 </div>
 
 <!-- MOBILE NAVBAR -->
@@ -873,7 +873,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; font-size: 13px; co
     <span id="nav-profile-label">Accedi</span>
   </button>
   <button class="nav-item-center" onclick="onAddClick()" aria-label="Pubblica annuncio" data-i18n-aria-label="nav.publish">
-    <img src="https://github.com/panacea-cloud/-ilqui-assets/blob/main/ilqui_logo.png?raw=true"
+    <img src="https://cdn.jsdelivr.net/gh/panacea-cloud/qui-assets@main/ilqui_logo.png"
       alt="QUI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
     <div class="nav-item-center-fallback" style="display:none">
       <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
