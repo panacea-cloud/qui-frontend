@@ -19,6 +19,9 @@
 
 	respond /health 200
 
+	# Pagine degli annunci: le costruisce qui-backend, si vedono su www.ilqui.com
+	reverse_proxy /l/* ilqui-backend.railway.internal:8080
+
 	header {
 		X-XSS-Protection "1; mode=block"
 		X-Content-Type-Options "nosniff"

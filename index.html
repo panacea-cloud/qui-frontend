@@ -970,8 +970,9 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '')) || 'annuncio';
 }
 function listingUrl(l) {
-  // La pagina dell'annuncio vive su un altro dominio e non vede la lingua scelta qui: la porta il link.
-  return `https://listing.ilqui.com/l/${slugify(l.title)}-${l.id}?lang=${I18N.getLang()}`;
+  // La pagina dell'annuncio sta su questo stesso sito (/l/…). La lingua nel link serve al server,
+  // che scrive titolo e descrizione per Google e per le anteprime già nella lingua giusta.
+  return `/l/${slugify(l.title)}-${l.id}?lang=${I18N.getLang()}`;
 }
 // La famiglia arriva dal backend via JOIN sulla tassonomia (D4): mai dedotta qui.
 function familyOf(l) { return l.family || 'product'; }
