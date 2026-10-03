@@ -177,7 +177,7 @@ function render(l) {
 
   if (l.lat && l.lng) {
     const m = L.map('map-preview', { zoomControl: false, dragging: false, scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965' { maxZoom: 19 }).addTo(m);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_48du_1_7886ab008eefe82fc5c6c965', { maxZoom: 19 }).addTo(m);
     L.circleMarker([l.lat, l.lng], { radius: 9, color: '#2a2a6e', fillColor: '#a8c8f0', fillOpacity: 0.9, weight: 2 }).addTo(m);
   }
 
